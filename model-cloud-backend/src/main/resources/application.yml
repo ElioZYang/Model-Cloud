@@ -1,0 +1,112 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  application:
+    name: model-cloud-backend
+  profiles:
+    active: dev
+  
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/model_cloud?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      auto-commit: true
+      idle-timeout: 30000
+      pool-name: ModelCloudHikariCP
+      max-lifetime: 1800000
+      connection-timeout: 30000
+  
+  # Redis配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  
+  # MongoDB配置
+    mongodb:
+      uri: mongodb://localhost:27017/model_cloud
+      database: model_cloud
+  
+  # 文件上传配置
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+# MyBatis-Flex配置
+mybatis-flex:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.modelcloud.modules.*.model.domain
+  global-config:
+    print-banner: false
+    key-config:
+      key-type: auto
+    logic-delete-column: is_del
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.modelcloud: DEBUG
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n'
+
+# 应用配置
+model-cloud:
+  # JWT配置
+  jwt:
+    secret: model-cloud-secret-key-2025-secure-long-string-32bytes
+    expiration: 86400000  # 24小时
+    header: Authorization
+    token-prefix: Bearer 
+  
+  # 文件上传配置
+  upload:
+    windows-path: C:/uploads/model-cloud/
+    linux-path: /home/uploads/model-cloud/
+    ftp-use: false
+    ftp-hostname: 
+    ftp-port: 21
+    ftp-username: 
+    ftp-password: 
+  
+  # Gitea配置
+  gitea:
+    url: http://localhost:3000
+    token: 038e5236a19ef8fa7c242b6e1196bbaebbe1c8fd
+    username: yangxz
+    password: 123456
+    
+  
+  # 安全配置
+  security:
+    maximum-sessions: 100
+    remember-me-key: MODEL_CLOUD_REMEMBER
+    open-apis:
+      - /auth/login
+      - /auth/captcha
+      - /auth/register
+      - /public/**
+
+
+

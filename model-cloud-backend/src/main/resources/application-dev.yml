@@ -1,0 +1,17 @@
+# 开发环境配置
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3307/model_cloud?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+    mongodb:
+      uri: mongodb://localhost:27017/model_cloud
+
+logging:
+  level:
+    com.modelcloud: DEBUG
+
+
+
