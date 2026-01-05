@@ -101,6 +101,8 @@ const getDetail = async () => {
     const res: any = await modelApi.getModelDetail(id)
     if (res.code === 200) {
       model.value = res.data
+      // 检查是否已收藏
+      checkCollected(id)
     } else {
       ElMessage.error(res.message || '获取详情失败')
     }
@@ -108,6 +110,17 @@ const getDetail = async () => {
     console.error('获取详情失败', error)
   } finally {
     loading.value = false
+  }
+}
+
+const checkCollected = async (modelId: number) => {
+  try {
+    const res: any = await modelApi.checkCollected(modelId)
+    if (res.code === 200) {
+      isCollected.value = res.data || false
+    }
+  } catch (error) {
+    console.error('检查收藏状态失败', error)
   }
 }
 
@@ -123,9 +136,34 @@ const downloadModel = () => {
   }
 }
 
-const toggleCollect = () => {
-  isCollected.value = !isCollected.value
-  ElMessage.success(isCollected.value ? '已收藏' : '已取消收藏')
+const toggleCollect = async () => {
+  if (!model.value) return
+  
+  const modelId = model.value.id
+  try {
+    if (isCollected.value) {
+      // 取消收藏
+      const res: any = await modelApi.uncollectModel(modelId)
+      if (res.code === 200) {
+        isCollected.value = false
+        ElMessage.success('已取消收藏')
+      } else {
+        ElMessage.error(res.message || '取消收藏失败')
+      }
+    } else {
+      // 收藏
+      const res: any = await modelApi.collectModel(modelId)
+      if (res.code === 200) {
+        isCollected.value = true
+        ElMessage.success('已收藏')
+      } else {
+        ElMessage.error(res.message || '收藏失败')
+      }
+    }
+  } catch (error) {
+    console.error('收藏操作失败', error)
+    ElMessage.error('操作失败')
+  }
 }
 
 const getTags = (model: any) => {

@@ -32,6 +32,11 @@ public interface BsModelService {
      * 获取模型统计信息
      */
     java.util.Map<String, Object> getStatistics();
+    
+    /**
+     * 删除模型（删除数据库记录和Gitea仓库）
+     */
+    void deleteModel(Long id);
 }
 
 

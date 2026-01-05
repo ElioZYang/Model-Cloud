@@ -50,6 +50,12 @@ const routes: RouteRecordRaw[] = [
         name: 'ModelDetail',
         component: () => import('@/views/business/ModelDetail.vue'),
         meta: { title: '模型详情' }
+      },
+      {
+        path: 'model/collects',
+        name: 'MyCollects',
+        component: () => import('@/views/business/MyCollects.vue'),
+        meta: { title: '我的收藏' }
       }
     ]
   },

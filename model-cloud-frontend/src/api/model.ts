@@ -52,6 +52,34 @@ export const modelApi = {
    */
   getStatistics() {
     return request.get('/business/model/statistics')
+  },
+  
+  /**
+   * 收藏模型
+   */
+  collectModel(modelId: number) {
+    return request.post(`/business/collect/${modelId}`)
+  },
+  
+  /**
+   * 取消收藏
+   */
+  uncollectModel(modelId: number) {
+    return request.delete(`/business/collect/${modelId}`)
+  },
+  
+  /**
+   * 检查是否已收藏
+   */
+  checkCollected(modelId: number) {
+    return request.get(`/business/collect/check/${modelId}`)
+  },
+  
+  /**
+   * 获取我的收藏列表
+   */
+  getMyCollects(params: any) {
+    return request.get('/business/collect/list', { params })
   }
 }
 

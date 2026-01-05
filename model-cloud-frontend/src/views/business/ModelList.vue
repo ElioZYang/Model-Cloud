@@ -38,7 +38,15 @@
               </div>
               <div class="model-footer">
                 <span class="model-time">{{ formatDate(model.createTime) }}</span>
-                <el-button type="primary" link @click.stop="downloadModel(model)">下载</el-button>
+                <div class="model-actions">
+                  <el-button type="primary" link @click.stop="downloadModel(model)">下载</el-button>
+                  <el-button 
+                    v-if="isMyModel(model)" 
+                    type="danger" 
+                    link 
+                    @click.stop="handleDelete(model)"
+                  >删除</el-button>
+                </div>
               </div>
             </div>
           </el-card>
@@ -116,10 +124,12 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Search, Refresh, Plus, Picture } from '@element-plus/icons-vue'
 import { modelApi } from '@/api/model'
-import { ElMessage, type FormInstance, type UploadFile } from 'element-plus'
+import { ElMessage, ElMessageBox, type FormInstance, type UploadFile } from 'element-plus'
 import dayjs from 'dayjs'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 const modelList = ref<any[]>([])
 const total = ref(0)
 const dialogVisible = ref(false)
@@ -278,6 +288,37 @@ const formatDate = (date: string) => {
   return dayjs(date).format('YYYY-MM-DD HH:mm')
 }
 
+const isMyModel = (model: any) => {
+  return userStore.userInfo && model.userId === userStore.userInfo.id
+}
+
+const handleDelete = async (model: any) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除模型"${model.name}"吗？此操作将删除数据库记录和Gitea仓库，且无法恢复！`,
+      '确认删除',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    const res: any = await modelApi.deleteModel(model.id)
+    if (res.code === 200) {
+      ElMessage.success('删除成功')
+      getList()
+    } else {
+      ElMessage.error(res.message || '删除失败')
+    }
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      console.error('删除失败', error)
+      ElMessage.error('删除失败')
+    }
+  }
+}
+
 onMounted(() => {
   getList()
   getLabelList()
@@ -360,6 +401,11 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.model-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .model-time {

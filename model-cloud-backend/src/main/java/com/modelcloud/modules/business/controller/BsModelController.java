@@ -81,6 +81,20 @@ public class BsModelController {
         java.util.Map<String, Object> stats = bsModelService.getStatistics();
         return Result.success(stats);
     }
+
+    /**
+     * 删除模型
+     */
+    @DeleteMapping("/{id}")
+    public Result<?> delete(@PathVariable Long id) {
+        try {
+            bsModelService.deleteModel(id);
+            return Result.success("删除成功");
+        } catch (Exception e) {
+            log.error("删除模型失败", e);
+            return Result.error("删除失败: " + e.getMessage());
+        }
+    }
 }
 
 

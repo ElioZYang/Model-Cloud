@@ -37,11 +37,17 @@ public class BsModelServiceImpl implements BsModelService {
     private final BsModelMapper bsModelMapper;
     private final GiteaService giteaService;
     private final SysUserMapper sysUserMapper;
+    private final com.modelcloud.modules.business.service.BsModelCollectService collectService;
 
-    public BsModelServiceImpl(BsModelMapper bsModelMapper, GiteaService giteaService, SysUserMapper sysUserMapper) {
+    public BsModelServiceImpl(
+            BsModelMapper bsModelMapper, 
+            GiteaService giteaService, 
+            SysUserMapper sysUserMapper,
+            com.modelcloud.modules.business.service.BsModelCollectService collectService) {
         this.bsModelMapper = bsModelMapper;
         this.giteaService = giteaService;
         this.sysUserMapper = sysUserMapper;
+        this.collectService = collectService;
     }
 
     @Override
@@ -169,8 +175,18 @@ public class BsModelServiceImpl implements BsModelService {
                 stats.put("myUploadCount", 0);
             }
             
-            // 我的收藏数（暂时返回0，后续可以扩展）
-            stats.put("myCollectCount", 0);
+            // 我的收藏数（从收藏服务获取）
+            if (userId != null) {
+                try {
+                    long myCollectCount = collectService.getMyCollectCount();
+                    stats.put("myCollectCount", myCollectCount);
+                } catch (Exception e) {
+                    log.warn("获取收藏数量失败", e);
+                    stats.put("myCollectCount", 0);
+                }
+            } else {
+                stats.put("myCollectCount", 0);
+            }
             
             // 浏览量（暂时返回0，后续可以扩展）
             stats.put("viewCount", 0);
@@ -185,6 +201,44 @@ public class BsModelServiceImpl implements BsModelService {
             stats.put("viewCount", 0);
             return stats;
         }
+    }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteModel(Long id) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            throw new BusinessException("用户未登录");
+        }
+        
+        // 查询模型
+        BsModel model = bsModelMapper.selectOneById(id);
+        if (model == null || model.getIsDel() == 1) {
+            throw new BusinessException("模型不存在");
+        }
+        
+        // 检查权限：只有模型作者可以删除
+        if (!model.getUserId().equals(userId)) {
+            throw new BusinessException("无权删除该模型");
+        }
+        
+        // 删除Gitea仓库
+        if (StrUtil.isNotBlank(model.getRepoName())) {
+            try {
+                giteaService.deleteRepository(model.getRepoName());
+                log.info("Deleted Gitea repository: {}", model.getRepoName());
+            } catch (Exception e) {
+                log.error("删除Gitea仓库失败，继续删除数据库记录", e);
+                // 即使Gitea删除失败，也继续删除数据库记录
+            }
+        }
+        
+        // 删除数据库记录（逻辑删除）
+        model.setIsDel(1);
+        model.setUpdateTime(LocalDateTime.now());
+        bsModelMapper.update(model);
+        
+        log.info("Model deleted successfully: {}", id);
     }
 
     private void fillAuthorName(BsModel model) {

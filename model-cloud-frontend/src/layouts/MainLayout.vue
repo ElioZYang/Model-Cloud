@@ -20,6 +20,10 @@
           <el-icon><Box /></el-icon>
           <span>模型列表</span>
         </el-menu-item>
+        <el-menu-item index="/dashboard/model/collects">
+          <el-icon><Star /></el-icon>
+          <span>我的收藏</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>
@@ -60,7 +64,7 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { HomeFilled, Box, Expand, Fold, ArrowDown } from '@element-plus/icons-vue'
+import { HomeFilled, Box, Star, Expand, Fold, ArrowDown } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { authApi } from '@/api/auth'
 

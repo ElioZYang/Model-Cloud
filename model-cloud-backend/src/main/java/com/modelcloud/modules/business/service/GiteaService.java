@@ -147,6 +147,27 @@ public class GiteaService {
     public String getRepoWebUrl(String repoName) {
         return giteaConfig.getUrl() + "/" + giteaConfig.getUsername() + "/" + repoName;
     }
+    
+    /**
+     * 删除仓库
+     */
+    public void deleteRepository(String repoName) {
+        String apiUrl = giteaConfig.getUrl() + "/api/v1/repos/" + giteaConfig.getUsername() + "/" + repoName;
+        log.info("Deleting Gitea repository: {}", apiUrl);
+        
+        HttpResponse response = HttpRequest.delete(apiUrl)
+                .header("Authorization", "token " + giteaConfig.getToken())
+                .timeout(30000)
+                .execute();
+        
+        if (response.isOk() || response.getStatus() == 204) {
+            log.info("Repository deleted successfully: {}", repoName);
+        } else {
+            log.error("Failed to delete Gitea repository. Status: {}, Response: {}", 
+                    response.getStatus(), response.body());
+            throw new BusinessException("删除Gitea仓库失败 (状态码: " + response.getStatus() + "): " + response.body());
+        }
+    }
 }
 
 

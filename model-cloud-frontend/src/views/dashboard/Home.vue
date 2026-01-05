@@ -28,7 +28,7 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card class="stat-card">
+        <el-card class="stat-card" @click="goToMyCollects">
           <div class="stat-content">
             <div class="stat-icon" style="background: #67c23a;">
               <el-icon><Star /></el-icon>
@@ -206,6 +206,10 @@ const getLabelList = async () => {
 
 const goToModelList = () => {
   router.push('/dashboard/model/list')
+}
+
+const goToMyCollects = () => {
+  router.push('/dashboard/model/collects')
 }
 
 const handleUpload = () => {
