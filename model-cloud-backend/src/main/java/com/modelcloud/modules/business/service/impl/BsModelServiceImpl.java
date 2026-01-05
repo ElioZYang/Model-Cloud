@@ -99,9 +99,9 @@ public class BsModelServiceImpl implements BsModelService {
         model.setCoverImage(coverImageUrl);
         model.setStatus(20); // 直接设为审核通过，方便用户测试
         model.setIsPublic(1); // 默认公开
+        model.setIsDel(0); // 设置为未删除
         model.setCreateTime(LocalDateTime.now());
         model.setUpdateTime(LocalDateTime.now());
-        // model.setIsDel(0);
 
         // 处理标签
         if (request.getTags() != null && !request.getTags().isEmpty()) {
