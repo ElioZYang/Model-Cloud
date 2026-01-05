@@ -27,6 +27,11 @@ public interface BsModelService {
      * 获取模型详情
      */
     BsModel getModelDetail(Long id);
+
+    /**
+     * 获取模型统计信息
+     */
+    java.util.Map<String, Object> getStatistics();
 }
 
 

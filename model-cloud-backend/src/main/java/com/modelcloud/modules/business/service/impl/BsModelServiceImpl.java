@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.modelcloud.modules.business.model.domain.table.BsModelTableDef.BS_MODEL;
@@ -142,6 +144,47 @@ public class BsModelServiceImpl implements BsModelService {
         }
         fillAuthorName(model);
         return model;
+    }
+
+    @Override
+    public Map<String, Object> getStatistics() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        Map<String, Object> stats = new HashMap<>();
+        
+        try {
+            // 模型总数（所有未删除的模型）
+            QueryWrapper totalQuery = QueryWrapper.create()
+                    .where(BS_MODEL.IS_DEL.eq(0));
+            long totalCount = bsModelMapper.selectCountByQuery(totalQuery);
+            stats.put("totalCount", totalCount);
+            
+            // 当前用户已上传的模型数
+            if (userId != null) {
+                QueryWrapper myUploadQuery = QueryWrapper.create()
+                        .where(BS_MODEL.IS_DEL.eq(0))
+                        .and(BS_MODEL.USER_ID.eq(userId));
+                long myUploadCount = bsModelMapper.selectCountByQuery(myUploadQuery);
+                stats.put("myUploadCount", myUploadCount);
+            } else {
+                stats.put("myUploadCount", 0);
+            }
+            
+            // 我的收藏数（暂时返回0，后续可以扩展）
+            stats.put("myCollectCount", 0);
+            
+            // 浏览量（暂时返回0，后续可以扩展）
+            stats.put("viewCount", 0);
+            
+            return stats;
+        } catch (Exception e) {
+            log.error("获取统计信息失败", e);
+            // 返回默认值
+            stats.put("totalCount", 0);
+            stats.put("myUploadCount", 0);
+            stats.put("myCollectCount", 0);
+            stats.put("viewCount", 0);
+            return stats;
+        }
     }
 
     private void fillAuthorName(BsModel model) {

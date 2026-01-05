@@ -72,6 +72,15 @@ public class BsModelController {
         BsModel model = bsModelService.getModelDetail(id);
         return Result.success(model);
     }
+
+    /**
+     * 获取模型统计信息
+     */
+    @GetMapping("/statistics")
+    public Result<java.util.Map<String, Object>> statistics() {
+        java.util.Map<String, Object> stats = bsModelService.getStatistics();
+        return Result.success(stats);
+    }
 }
 
 

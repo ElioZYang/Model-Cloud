@@ -45,6 +45,13 @@ export const modelApi = {
    */
   getLabelList() {
     return request.get('/business/label/list')
+  },
+  
+  /**
+   * 获取模型统计信息
+   */
+  getStatistics() {
+    return request.get('/business/model/statistics')
   }
 }
 
