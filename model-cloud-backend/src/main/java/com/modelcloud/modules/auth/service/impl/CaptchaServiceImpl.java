@@ -38,28 +38,33 @@ public class CaptchaServiceImpl implements CaptchaService {
     
     @Override
     public Map<String, String> generateCaptcha() {
-        // 生成验证码key
-        String key = generateKey();
-        
-        // 生成验证码
-        String code = generateCode();
-        
-        // 存储到Redis，5分钟过期
-        redisTemplate.opsForValue().set(
-            CAPTCHA_PREFIX + key, 
-            code.toLowerCase(), 
-            CAPTCHA_EXPIRE_MINUTES, 
-            TimeUnit.MINUTES
-        );
-        
-        // 生成验证码图片
-        String imageBase64 = generateImage(code);
-        
-        Map<String, String> result = new HashMap<>();
-        result.put("key", key);
-        result.put("image", imageBase64);
-        
-        return result;
+        try {
+            // 生成验证码key
+            String key = generateKey();
+            
+            // 生成验证码
+            String code = generateCode();
+            
+            // 存储到Redis，5分钟过期
+            redisTemplate.opsForValue().set(
+                CAPTCHA_PREFIX + key, 
+                code.toLowerCase(), 
+                CAPTCHA_EXPIRE_MINUTES, 
+                TimeUnit.MINUTES
+            );
+            
+            // 生成验证码图片
+            String imageBase64 = generateImage(code);
+            
+            Map<String, String> result = new HashMap<>();
+            result.put("key", key);
+            result.put("image", imageBase64);
+            
+            return result;
+        } catch (Exception e) {
+            log.error("生成验证码失败，Redis连接异常: ", e);
+            throw new com.modelcloud.common.exception.BusinessException("验证码服务异常，请检查Redis连接: " + e.getMessage());
+        }
     }
     
     @Override
@@ -68,15 +73,21 @@ public class CaptchaServiceImpl implements CaptchaService {
             return false;
         }
         
-        String storedCode = redisTemplate.opsForValue().get(CAPTCHA_PREFIX + key);
-        if (storedCode == null) {
-            return false;
+        try {
+            String storedCode = redisTemplate.opsForValue().get(CAPTCHA_PREFIX + key);
+            if (storedCode == null) {
+                log.warn("验证码不存在或已过期: key={}", key);
+                return false;
+            }
+            
+            // 验证后删除验证码
+            redisTemplate.delete(CAPTCHA_PREFIX + key);
+            
+            return storedCode.equalsIgnoreCase(code);
+        } catch (Exception e) {
+            log.error("验证码验证失败，Redis连接异常: ", e);
+            throw new com.modelcloud.common.exception.BusinessException("验证码服务异常，请检查Redis连接");
         }
-        
-        // 验证后删除验证码
-        redisTemplate.delete(CAPTCHA_PREFIX + key);
-        
-        return storedCode.equalsIgnoreCase(code);
     }
     
     /**
@@ -147,6 +158,28 @@ public class CaptchaServiceImpl implements CaptchaService {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

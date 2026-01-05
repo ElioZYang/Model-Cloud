@@ -1,6 +1,7 @@
 package com.modelcloud.modules.business.model.domain;
 
 import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
@@ -20,7 +21,7 @@ public class BsModel implements Serializable {
     /**
      * 模型编号
      */
-    @Id
+    @Id(keyType = KeyType.Auto)
     private Long id;
     
     /**

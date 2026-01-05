@@ -50,21 +50,40 @@ public class BsModelServiceImpl implements BsModelService {
             throw new BusinessException("用户未登录");
         }
 
-        // 1. 生成仓库名称 (使用UUID避免冲突)
+        if (StrUtil.isBlank(request.getName())) {
+            throw new BusinessException("模型名称不能为空");
+        }
+
+        // 1. 生成仓库名称 (使用UUID前缀+模型名称拼音/简称，这里简单使用uuid)
+        // 建议增加一些模型名称的特征，但为了保证唯一性，保留UUID
         String repoName = "model-" + IdUtil.simpleUUID();
         
+        log.info("Creating Gitea repository: {} for user: {}", repoName, userId);
+        
         // 2. 创建Gitea仓库
-        giteaService.createRepository(repoName, request.getDescription());
+        try {
+            giteaService.createRepository(repoName, request.getDescription());
+        } catch (Exception e) {
+            log.error("Failed to create Gitea repository", e);
+            throw new BusinessException("创建Gitea仓库失败: " + e.getMessage());
+        }
 
         // 3. 上传模型文件
         if (request.getModelFile() != null && !request.getModelFile().isEmpty()) {
+            log.info("Uploading model file: {} to repo: {}", request.getModelFile().getOriginalFilename(), repoName);
             giteaService.uploadFile(repoName, request.getModelFile().getOriginalFilename(), request.getModelFile());
+        } else {
+            throw new BusinessException("请上传模型文件");
         }
 
         // 4. 上传封面图片
         String coverImageUrl = null;
         if (request.getCoverImage() != null && !request.getCoverImage().isEmpty()) {
-            String coverFileName = "cover-" + IdUtil.simpleUUID() + "-" + request.getCoverImage().getOriginalFilename();
+            String originalFilename = request.getCoverImage().getOriginalFilename();
+            String extension = StrUtil.subAfter(originalFilename, ".", true);
+            String coverFileName = "cover-" + IdUtil.simpleUUID() + (StrUtil.isNotBlank(extension) ? "." + extension : "");
+            
+            log.info("Uploading cover image: {} as {} to repo: {}", originalFilename, coverFileName, repoName);
             giteaService.uploadFile(repoName, coverFileName, request.getCoverImage());
             coverImageUrl = giteaService.getDownloadUrl(repoName, coverFileName);
         }
@@ -78,11 +97,11 @@ public class BsModelServiceImpl implements BsModelService {
         // 使用存档下载链接作为 repoUrl，方便前端直接下载
         model.setRepoUrl(giteaService.getArchiveUrl(repoName));
         model.setCoverImage(coverImageUrl);
-        model.setStatus(10); // 待审核
+        model.setStatus(20); // 直接设为审核通过，方便用户测试
         model.setIsPublic(1); // 默认公开
         model.setCreateTime(LocalDateTime.now());
         model.setUpdateTime(LocalDateTime.now());
-        model.setIsDel(0);
+        // model.setIsDel(0);
 
         // 处理标签
         if (request.getTags() != null && !request.getTags().isEmpty()) {
@@ -90,23 +109,29 @@ public class BsModelServiceImpl implements BsModelService {
         }
 
         bsModelMapper.insert(model);
+        log.info("Model uploaded and saved successfully: {}", model.getId());
         return model;
     }
 
     @Override
     public Page<BsModel> pageModels(int pageNum, int pageSize, String keyword) {
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .where(BS_MODEL.IS_DEL.eq(0))
-                .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)))
+                .where(BS_MODEL.IS_DEL.eq(0)) // 只查询未删除的记录
+                .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(StrUtil.isNotBlank(keyword)))
                 .orderBy(BS_MODEL.CREATE_TIME.desc());
         
-        Page<BsModel> page = bsModelMapper.paginate(pageNum, pageSize, queryWrapper);
-        if (page.getRecords() != null) {
-            for (BsModel model : page.getRecords()) {
-                fillAuthorName(model);
+        try {
+            Page<BsModel> page = bsModelMapper.paginate(pageNum, pageSize, queryWrapper);
+            if (page.getRecords() != null) {
+                for (BsModel model : page.getRecords()) {
+                    fillAuthorName(model);
+                }
             }
+            return page;
+        } catch (Exception e) {
+            log.error("分页查询模型失败", e);
+            throw new BusinessException("查询模型列表失败: " + e.getMessage());
         }
-        return page;
     }
 
     @Override

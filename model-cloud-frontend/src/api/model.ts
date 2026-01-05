@@ -22,7 +22,8 @@ export const modelApi = {
    * 新增模型
    */
   createModel(data: any) {
-    return request.post('/business/model', data)
+    // 不设置 Content-Type，让浏览器自动设置（包含 boundary）
+    return request.post('/business/model/upload', data)
   },
   
   /**
@@ -37,8 +38,13 @@ export const modelApi = {
    */
   deleteModel(id: number) {
     return request.delete(`/business/model/${id}`)
+  },
+  
+  /**
+   * 获取标签列表
+   */
+  getLabelList() {
+    return request.get('/business/label/list')
   }
 }
-
-
 

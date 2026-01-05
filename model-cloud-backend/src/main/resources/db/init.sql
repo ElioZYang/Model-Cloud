@@ -103,6 +103,9 @@ CREATE TABLE IF NOT EXISTS `bs_model` (
   `dimension` BIGINT DEFAULT NULL COMMENT '模型维数：1,2,3',
   `status` INT DEFAULT 0 COMMENT '模型状态：0初始状态，10待审状态，20审核通过，30审核不通过',
   `is_public` INT DEFAULT 0 COMMENT '是否公开：0不公开，1公开',
+  `repo_name` VARCHAR(255) DEFAULT NULL COMMENT 'Gitea仓库名称',
+  `repo_url` VARCHAR(500) DEFAULT NULL COMMENT 'Gitea仓库链接',
+  `cover_image` VARCHAR(500) DEFAULT NULL COMMENT '封面图片链接',
   `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `is_del` INT DEFAULT 0 COMMENT '是否删除：0未删除，1已删除',
@@ -160,6 +163,22 @@ CREATE TABLE IF NOT EXISTS `sys_file` (
 INSERT INTO `sys_user` (`username`, `password`, `nickname`, `email`, `status`, `is_del`) 
 VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iwy8pL5O', '管理员', 'admin@modelcloud.com', 1, 0)
 ON DUPLICATE KEY UPDATE `username`=`username`;
+
+-- 插入默认模型标签
+INSERT INTO `bs_model_label` (`name`, `description`, `sort`) VALUES
+('python', 'Python语言相关模型', 1),
+('modelica', 'Modelica语言模型', 2),
+('fmi', 'FMI标准模型', 3),
+('simulink', 'Simulink模型', 4),
+('matlab', 'MATLAB相关模型', 5),
+('c++', 'C++语言模型', 6),
+('java', 'Java语言模型', 7),
+('深度学习', '深度学习模型', 8),
+('机器学习', '机器学习模型', 9),
+('仿真', '仿真模型', 10),
+('优化', '优化算法模型', 11),
+('控制', '控制系统模型', 12)
+ON DUPLICATE KEY UPDATE `name`=`name`;
 
 
 

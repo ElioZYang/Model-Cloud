@@ -51,7 +51,10 @@ public class SecurityConfig {
                     "/auth/login",
                     "/auth/register",
                     "/auth/captcha",
-                    "/public/**"
+                    "/public/**",
+                    "/business/label/list",
+                    "/business/model/list",
+                    "/business/model/{id}"
                 ).permitAll()
                 // 其他请求需要认证
                 .anyRequest().authenticated()

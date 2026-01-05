@@ -21,7 +21,11 @@ public class SecurityUtils {
         }
         
         Object principal = authentication.getPrincipal();
-        if (principal instanceof Map) {
+        if (principal instanceof Long) {
+            return (Long) principal;
+        } else if (principal instanceof Integer) {
+            return ((Integer) principal).longValue();
+        } else if (principal instanceof Map) {
             Map<?, ?> claims = (Map<?, ?>) principal;
             Object userId = claims.get("userId");
             if (userId instanceof Integer) {

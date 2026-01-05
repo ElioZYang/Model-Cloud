@@ -17,3 +17,25 @@ public interface BsModelMapper extends BaseMapper<BsModel> {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

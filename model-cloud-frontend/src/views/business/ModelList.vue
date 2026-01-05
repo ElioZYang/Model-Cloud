@@ -69,10 +69,7 @@
         </el-form-item>
         <el-form-item label="标签" prop="tags">
           <el-select v-model="form.tags" multiple placeholder="请选择相关标签" style="width: 100%">
-            <el-option label="python" value="python" />
-            <el-option label="modelica" value="modelica" />
-            <el-option label="fmi" value="fmi" />
-            <el-option label="simulink" value="simulink" />
+            <el-option v-for="label in labelList" :key="label.id" :label="label.name" :value="label.name" />
           </el-select>
         </el-form-item>
         <el-form-item label="封面图片" prop="coverImage">
@@ -116,11 +113,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Search, Refresh, Plus, Picture } from '@element-plus/icons-vue'
 import { modelApi } from '@/api/model'
 import { ElMessage, type FormInstance, type UploadFile } from 'element-plus'
 import dayjs from 'dayjs'
 
+const router = useRouter()
 const modelList = ref<any[]>([])
 const total = ref(0)
 const dialogVisible = ref(false)
@@ -128,6 +127,7 @@ const submitLoading = ref(false)
 const formRef = ref<FormInstance>()
 const defaultCover = 'https://placeholder.com/300x200'
 const coverPreview = ref('')
+const labelList = ref<any[]>([])
 
 const queryParams = ref({
   pageNum: 1,
@@ -153,11 +153,22 @@ const getList = async () => {
   try {
     const res: any = await modelApi.getModelList(queryParams.value)
     if (res.code === 200) {
-      modelList.value = res.data.list || []
+      modelList.value = res.data.records || []
       total.value = res.data.totalRow || 0
     }
   } catch (error) {
     console.error('获取列表失败', error)
+  }
+}
+
+const getLabelList = async () => {
+  try {
+    const res: any = await modelApi.getLabelList()
+    if (res.code === 200) {
+      labelList.value = res.data || []
+    }
+  } catch (error) {
+    console.error('获取标签列表失败', error)
   }
 }
 
@@ -269,6 +280,7 @@ const formatDate = (date: string) => {
 
 onMounted(() => {
   getList()
+  getLabelList()
 })
 </script>
 

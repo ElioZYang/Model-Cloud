@@ -16,10 +16,14 @@ const service: AxiosInstance = axios.create({
 // 请求拦截器
 service.interceptors.request.use(
   (config: AxiosRequestConfig) => {
-    // TODO: 添加Token到请求头
+    // 添加Token到请求头
     const token = localStorage.getItem('token')
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
+    }
+    // 如果是 FormData，不设置 Content-Type，让浏览器自动设置（包含 boundary）
+    if (config.data instanceof FormData && config.headers) {
+      delete config.headers['Content-Type']
     }
     return config
   },

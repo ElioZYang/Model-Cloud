@@ -61,7 +61,10 @@ mybatis-flex:
     print-banner: false
     key-config:
       key-type: auto
-    logic-delete-column: is_del
+    logic-delete-config:
+      column: is_del
+      normal-value: 0
+      deleted-value: 1
 
 # 日志配置
 logging:

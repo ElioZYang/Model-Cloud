@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.0</version>
+        <version>3.1.5</version>
         <relativePath/>
     </parent>
     
@@ -25,7 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <fastjson.version>2.0.43</fastjson.version>
         <hutool.version>5.8.23</hutool.version>
-        <mybatis-flex.version>1.9.3</mybatis-flex.version>
+        <mybatis-flex.version>1.11.1</mybatis-flex.version>
         <gitea-api.version>1.18.0</gitea-api.version>
     </properties>
     
@@ -90,17 +90,17 @@
             <scope>runtime</scope>
         </dependency>
         
-        <!-- 使用官方 MyBatis Starter 确保扫描逻辑正确 -->
+        <!-- Spring Boot JDBC -->
         <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter</artifactId>
-            <version>3.0.3</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
-        <!-- 加入 MyBatis-Flex 核心库 -->
+
+        <!-- MyBatis-Flex Spring Boot Starter (已包含 MyBatis，不需要单独引入 mybatis-spring-boot-starter) -->
         <dependency>
             <groupId>com.mybatis-flex</groupId>
-            <artifactId>mybatis-flex-core</artifactId>
-            <version>1.9.3</version>
+            <artifactId>mybatis-flex-spring-boot-starter</artifactId>
+            <version>${mybatis-flex.version}</version>
         </dependency>
         <dependency>
             <groupId>com.mybatis-flex</groupId>

@@ -27,9 +27,23 @@ public class BsModelController {
     /**
      * 上传模型
      */
-    @PostMapping("/upload")
-    public Result<BsModel> upload(ModelUploadRequest request) {
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    public Result<BsModel> upload(
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam(value = "tags", required = false) String[] tags,
+            @RequestParam(value = "coverImage", required = false) org.springframework.web.multipart.MultipartFile coverImage,
+            @RequestParam("modelFile") org.springframework.web.multipart.MultipartFile modelFile) {
         try {
+            ModelUploadRequest request = new ModelUploadRequest();
+            request.setName(name);
+            request.setDescription(description);
+            if (tags != null) {
+                request.setTags(java.util.Arrays.asList(tags));
+            }
+            request.setCoverImage(coverImage);
+            request.setModelFile(modelFile);
+            
             BsModel model = bsModelService.uploadModel(request);
             return Result.success(model);
         } catch (Exception e) {

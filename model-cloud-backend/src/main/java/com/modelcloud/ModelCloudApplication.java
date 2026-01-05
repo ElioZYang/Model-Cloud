@@ -1,6 +1,5 @@
 package com.modelcloud;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -24,7 +23,6 @@ import java.net.UnknownHostException;
  */
 @Slf4j
 @SpringBootApplication
-@MapperScan({"com.modelcloud.modules.auth.mapper", "com.modelcloud.modules.business.mapper", "com.modelcloud.modules.sys.mapper"})
 @EnableMongoRepositories("com.modelcloud.modules.**.repository")
 public class ModelCloudApplication {
     public static void main(String[] args) throws UnknownHostException {

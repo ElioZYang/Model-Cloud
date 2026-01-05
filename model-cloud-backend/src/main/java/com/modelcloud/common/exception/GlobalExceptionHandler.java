@@ -56,9 +56,49 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Result<?> handleException(Exception e) {
         log.error("系统异常: ", e);
-        return Result.error(ResultCode.ERROR.getCode(), "系统异常，请联系管理员");
+        // 在开发环境下返回详细错误信息，生产环境返回通用提示
+        String message = "系统异常，请联系管理员";
+        String errorMsg = e.getMessage();
+        if (errorMsg != null && !errorMsg.isEmpty()) {
+            // 如果是常见的连接错误，返回更友好的提示
+            if (errorMsg.contains("Connection refused") || errorMsg.contains("无法连接")) {
+                if (errorMsg.contains("redis") || errorMsg.contains("Redis")) {
+                    message = "Redis服务连接失败，请检查Redis是否启动";
+                } else if (errorMsg.contains("mysql") || errorMsg.contains("MySQL")) {
+                    message = "数据库连接失败，请检查MySQL是否启动";
+                } else {
+                    message = "服务连接失败: " + errorMsg;
+                }
+            } else {
+                // 开发环境显示详细错误
+                message = "系统异常: " + errorMsg;
+            }
+        }
+        return Result.error(ResultCode.ERROR.getCode(), message);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

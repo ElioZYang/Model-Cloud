@@ -1,6 +1,7 @@
 package com.modelcloud.modules.sys.model.domain;
 
 import com.mybatisflex.annotation.Id;
+import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import java.io.Serializable;
@@ -19,7 +20,7 @@ public class SysUser implements Serializable {
     /**
      * 用户ID
      */
-    @Id
+    @Id(keyType = KeyType.Auto)
     private Long id;
     
     /**
@@ -72,6 +73,8 @@ public class SysUser implements Serializable {
      */
     private Integer isDel;
 }
+
+
 
 
 

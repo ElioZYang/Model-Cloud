@@ -33,20 +33,37 @@ public class GiteaService {
     public String createRepository(String repoName, String description) {
         Map<String, Object> body = new HashMap<>();
         body.put("name", repoName);
-        body.put("description", description);
+        body.put("description", description != null ? description : "");
         body.put("private", false);
-        body.put("auto_init", true);
+        body.put("auto_init", true); // 自动初始化仓库，创建README
+        body.put("default_branch", "main"); // 设置默认分支为main
 
-        HttpResponse response = HttpRequest.post(giteaConfig.getUrl() + "/api/v1/user/repos")
+        String apiUrl = giteaConfig.getUrl() + "/api/v1/user/repos";
+        log.info("Creating Gitea repository: {} at {}", repoName, apiUrl);
+
+        HttpResponse response = HttpRequest.post(apiUrl)
                 .header("Authorization", "token " + giteaConfig.getToken())
+                .header("Content-Type", "application/json")
                 .body(JSONUtil.toJsonStr(body))
+                .timeout(30000) // 30秒超时
                 .execute();
 
-        if (response.isOk()) {
-            return JSONUtil.parseObj(response.body()).getStr("clone_url");
+        if (response.isOk() || response.getStatus() == 201) {
+            String cloneUrl = JSONUtil.parseObj(response.body()).getStr("clone_url");
+            log.info("Repository created successfully: {}", cloneUrl);
+            
+            // 等待一小段时间，确保仓库完全初始化
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            
+            return cloneUrl;
         } else {
-            log.error("Failed to create Gitea repository: {}", response.body());
-            throw new BusinessException("创建Gitea仓库失败: " + response.body());
+            log.error("Failed to create Gitea repository. Status: {}, Response: {}", 
+                    response.getStatus(), response.body());
+            throw new BusinessException("创建Gitea仓库失败 (状态码: " + response.getStatus() + "): " + response.body());
         }
     }
 
@@ -61,20 +78,44 @@ public class GiteaService {
             Map<String, Object> body = new HashMap<>();
             body.put("content", content);
             body.put("message", "Upload file: " + filePath);
-            body.put("branch", "master");
 
-            HttpResponse response = HttpRequest.post(giteaConfig.getUrl() + "/api/v1/repos/" + giteaConfig.getUsername() + "/" + repoName + "/contents/" + filePath)
+            // 对文件路径进行URL编码，防止特殊字符导致请求失败
+            String encodedPath = cn.hutool.core.util.URLUtil.encode(filePath);
+            
+            String apiUrl = giteaConfig.getUrl() + "/api/v1/repos/" + giteaConfig.getUsername() + "/" + repoName + "/contents/" + encodedPath;
+            log.info("Uploading file to Gitea: {}", apiUrl);
+            
+            // 首先尝试使用 main 分支
+            body.put("branch", "main");
+            HttpResponse response = HttpRequest.post(apiUrl)
                     .header("Authorization", "token " + giteaConfig.getToken())
+                    .header("Content-Type", "application/json")
                     .body(JSONUtil.toJsonStr(body))
+                    .timeout(60000) // 设置60秒超时
                     .execute();
 
+            // 如果 main 分支失败，尝试 master 分支
             if (!response.isOk() && response.getStatus() != 201) {
-                log.error("Failed to upload file to Gitea: {}", response.body());
-                throw new BusinessException("上传文件到Gitea失败: " + response.body());
+                log.warn("Failed to upload to main branch, trying master branch. Status: {}, Response: {}", 
+                        response.getStatus(), response.body());
+                body.put("branch", "master");
+                response = HttpRequest.post(apiUrl)
+                        .header("Authorization", "token " + giteaConfig.getToken())
+                        .header("Content-Type", "application/json")
+                        .body(JSONUtil.toJsonStr(body))
+                        .timeout(60000)
+                        .execute();
             }
+
+            if (!response.isOk() && response.getStatus() != 201) {
+                log.error("Failed to upload file to Gitea: {} - Status: {}", response.body(), response.getStatus());
+                throw new BusinessException("上传文件到Gitea失败 (状态码: " + response.getStatus() + "): " + response.body());
+            }
+            
+            log.info("File uploaded successfully: {}", filePath);
         } catch (IOException e) {
             log.error("Error reading file bytes", e);
-            throw new BusinessException("读取文件失败");
+            throw new BusinessException("读取文件失败: " + e.getMessage());
         }
     }
 
@@ -82,14 +123,30 @@ public class GiteaService {
      * 获取仓库存档(zip)下载链接
      */
     public String getArchiveUrl(String repoName) {
-        return giteaConfig.getUrl() + "/" + giteaConfig.getUsername() + "/" + repoName + "/archive/master.zip";
+        // 返回 main 分支的zip下载链接
+        String archiveUrl = giteaConfig.getUrl() + "/" + giteaConfig.getUsername() + "/" + repoName + "/archive/main.zip";
+        log.debug("Generated archive URL: {}", archiveUrl);
+        return archiveUrl;
     }
 
     /**
-     * 获取文件下载链接
+     * 获取文件下载链接（原始文件）
      */
     public String getDownloadUrl(String repoName, String filePath) {
-        return giteaConfig.getUrl() + "/" + giteaConfig.getUsername() + "/" + repoName + "/raw/branch/master/" + filePath;
+        // 返回文件的原始下载链接，Gitea格式: /owner/repo/raw/branch/filepath
+        // 对文件路径进行URL编码
+        String encodedPath = cn.hutool.core.util.URLUtil.encode(filePath);
+        String downloadUrl = giteaConfig.getUrl() + "/" + giteaConfig.getUsername() + "/" + repoName + "/raw/branch/main/" + encodedPath;
+        log.debug("Generated download URL: {}", downloadUrl);
+        return downloadUrl;
+    }
+    
+    /**
+     * 获取仓库的Web访问链接
+     */
+    public String getRepoWebUrl(String repoName) {
+        return giteaConfig.getUrl() + "/" + giteaConfig.getUsername() + "/" + repoName;
     }
 }
+
 
