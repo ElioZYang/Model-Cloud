@@ -268,8 +268,11 @@ public class BsModelServiceImpl implements BsModelService {
             throw new BusinessException("模型不存在");
         }
         
-        // 检查权限：只有模型作者可以删除
-        if (!model.getUserId().equals(userId)) {
+        // 权限：
+        // - 超级管理员可以删除任意模型
+        // - 管理员和普通用户只能删除自己的模型
+        boolean isSuperAdmin = SecurityUtils.isSuperAdmin();
+        if (!isSuperAdmin && !model.getUserId().equals(userId)) {
             throw new BusinessException("无权删除该模型");
         }
         
@@ -335,17 +338,30 @@ public class BsModelServiceImpl implements BsModelService {
             throw new BusinessException("模型不存在");
         }
 
-        // 只能修改自己的模型
+        // 权限：
+        // - 管理员/超级管理员可以自由设置自己的模型状态，不需审核
+        // - 普通用户只能改自己的模型，且公开需要审核
+        boolean isAdmin = SecurityUtils.isAdmin();
+        boolean isSuperAdmin = SecurityUtils.isSuperAdmin();
+
         if (!model.getUserId().equals(userId)) {
-            throw new BusinessException("无权修改其他用户的模型");
+            // 非作者：仅当超级管理员时允许修改
+            if (!isSuperAdmin) {
+                throw new BusinessException("无权修改其他用户的模型");
+            }
         }
 
         model.setIsPublic(isPublic);
-        // 如果设置为公开，需要重新审核
-        if (isPublic == 1) {
-            model.setStatus(10); // 待审核
+        if (isAdmin) {
+            // 管理员/超级管理员设置任何状态都直接生效
+            model.setStatus(20);
         } else {
-            model.setStatus(20); // 不公开直接通过
+            // 普通用户公开需要审核，不公开直接通过
+            if (isPublic == 1) {
+                model.setStatus(10); // 待审核
+            } else {
+                model.setStatus(20); // 不公开直接通过
+            }
         }
         model.setUpdateTime(LocalDateTime.now());
         bsModelMapper.update(model);

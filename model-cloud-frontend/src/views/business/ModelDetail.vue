@@ -4,6 +4,13 @@
       <template #extra>
         <div class="header-extra">
           <el-button type="primary" :icon="Download" @click="downloadModel">下载模型</el-button>
+          <ModelDeleteButton
+            v-if="canDelete"
+            :model="{ id: model.id, name: model.name }"
+            type="danger"
+            :link="false"
+            @deleted="handleDeleted"
+          />
           <el-button type="warning" :icon="Star" v-if="!isCollected" @click="toggleCollect">收藏</el-button>
           <el-button type="info" :icon="StarFilled" v-else @click="toggleCollect">已收藏</el-button>
         </div>
@@ -75,19 +82,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Download, Star, StarFilled, Picture } from '@element-plus/icons-vue'
 import { modelApi } from '@/api/model'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
+import { useUserStore } from '@/stores/user'
+import ModelDeleteButton from '@/components/model/ModelDeleteButton.vue'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 const model = ref<any>(null)
 const loading = ref(true)
 const isCollected = ref(false)
 const defaultCover = 'https://placeholder.com/600x400'
+const canDelete = computed(() => {
+  if (!model.value || !userStore.userInfo) return false
+  if (userStore.isSuperAdmin) return true
+  return model.value.userId === userStore.userInfo.id
+})
 
 const getDetail = async () => {
   const id = Number(route.params.id)
@@ -134,6 +149,10 @@ const downloadModel = () => {
   } else {
     ElMessage.warning('暂无下载链接')
   }
+}
+
+const handleDeleted = () => {
+  router.push('/dashboard/model/list')
 }
 
 const toggleCollect = async () => {

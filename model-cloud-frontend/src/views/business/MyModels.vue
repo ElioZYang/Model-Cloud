@@ -60,7 +60,12 @@
                 <div class="model-actions">
                   <el-button type="primary" link @click.stop="downloadModel(model)">下载</el-button>
                   <el-button type="warning" link @click.stop="togglePublic(model)">设置公开</el-button>
-                  <el-button type="danger" link @click.stop="handleDelete(model)">删除</el-button>
+                  <ModelDeleteButton
+                    :model="{ id: model.id, name: model.name }"
+                    link
+                    type="danger"
+                    @deleted="getList"
+                  />
                 </div>
               </div>
             </div>
@@ -81,65 +86,7 @@
       />
     </div>
 
-    <!-- 上传模型对话框 -->
-    <el-dialog v-model="dialogVisible" title="上传模型" width="600px" @close="resetForm">
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="模型名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入模型名称" />
-        </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="form.description" type="textarea" placeholder="请输入模型描述" :rows="3" />
-        </el-form-item>
-        <el-form-item label="是否公开" prop="isPublic">
-          <el-radio-group v-model="form.isPublic">
-            <el-radio :label="0">不公开</el-radio>
-            <el-radio :label="1">公开（普通用户需管理员审核）</el-radio>
-          </el-radio-group>
-          <el-text type="info" size="small" style="display: block; margin-top: 5px">
-            普通用户公开模型需要管理员审核通过后才能在公开模型列表中展示；管理员/超级管理员上传可直接公开
-          </el-text>
-        </el-form-item>
-        <el-form-item label="标签" prop="tags">
-          <el-select v-model="form.tags" multiple placeholder="请选择相关标签" style="width: 100%">
-            <el-option v-for="label in labelList" :key="label.id" :label="label.name" :value="label.name" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="封面图片" prop="coverImage">
-          <el-upload
-            class="avatar-uploader"
-            action="#"
-            :show-file-list="false"
-            :auto-upload="false"
-            :on-change="handleCoverChange"
-          >
-            <img v-if="coverPreview" :src="coverPreview" class="avatar" />
-            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-          </el-upload>
-        </el-form-item>
-        <el-form-item label="模型文件" prop="modelFile">
-          <el-upload
-            class="upload-demo"
-            action="#"
-            :auto-upload="false"
-            :on-change="handleFileChange"
-            :limit="1"
-          >
-            <template #trigger>
-              <el-button type="primary">选择文件</el-button>
-            </template>
-            <template #tip>
-              <div class="el-upload__tip">文件大小不超过 500MB</div>
-            </template>
-          </el-upload>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" :loading="submitLoading" @click="submitForm">确定</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <ModelUploadDialog v-model="dialogVisible" @success="getList" />
 
     <!-- 设置公开状态对话框 -->
     <el-dialog v-model="publicDialogVisible" title="设置公开状态" width="400px">
@@ -169,22 +116,18 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Search, Refresh, Plus, Picture } from '@element-plus/icons-vue'
 import { modelApi } from '@/api/model'
-import { ElMessage, ElMessageBox, type FormInstance, type UploadFile } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
-import { useUserStore } from '@/stores/user'
+import ModelUploadDialog from '@/components/model/ModelUploadDialog.vue'
+import ModelDeleteButton from '@/components/model/ModelDeleteButton.vue'
 
 const router = useRouter()
-const userStore = useUserStore()
 const modelList = ref<any[]>([])
 const total = ref(0)
 const dialogVisible = ref(false)
 const publicDialogVisible = ref(false)
-const submitLoading = ref(false)
 const publicSubmitting = ref(false)
-const formRef = ref<FormInstance>()
 const defaultCover = 'https://placeholder.com/300x200'
-const coverPreview = ref('')
-const labelList = ref<any[]>([])
 const currentModel = ref<any>(null)
 
 const queryParams = ref({
@@ -194,24 +137,9 @@ const queryParams = ref({
   isPublic: undefined as number | undefined
 })
 
-const form = ref({
-  name: '',
-  description: '',
-  isPublic: 0, // 默认不公开
-  tags: [] as string[],
-  coverImage: null as File | null,
-  modelFile: null as File | null
-})
-
 const publicForm = ref({
   isPublic: 0
 })
-
-const rules = {
-  name: [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
-  description: [{ required: true, message: '请输入模型描述', trigger: 'blur' }],
-  modelFile: [{ required: true, message: '请上传模型文件', trigger: 'change' }]
-}
 
 const getList = async () => {
   try {
@@ -222,17 +150,6 @@ const getList = async () => {
     }
   } catch (error) {
     console.error('获取列表失败', error)
-  }
-}
-
-const getLabelList = async () => {
-  try {
-    const res: any = await modelApi.getLabelList()
-    if (res.code === 200) {
-      labelList.value = res.data || []
-    }
-  } catch (error) {
-    console.error('获取标签列表失败', error)
   }
 }
 
@@ -259,69 +176,6 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   queryParams.value.pageNum = val
   getList()
-}
-
-const handleCoverChange = (file: UploadFile) => {
-  if (file.raw) {
-    form.value.coverImage = file.raw
-    coverPreview.value = URL.createObjectURL(file.raw)
-  }
-}
-
-const handleFileChange = (file: UploadFile) => {
-  if (file.raw) {
-    form.value.modelFile = file.raw
-  }
-}
-
-const submitForm = async () => {
-  if (!formRef.value) return
-  
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      submitLoading.value = true
-      try {
-        const formData = new FormData()
-        formData.append('name', form.value.name)
-        formData.append('description', form.value.description)
-        formData.append('isPublic', form.value.isPublic.toString())
-        form.value.tags.forEach(tag => formData.append('tags', tag))
-        if (form.value.coverImage) {
-          formData.append('coverImage', form.value.coverImage)
-        }
-        if (form.value.modelFile) {
-          formData.append('modelFile', form.value.modelFile)
-        }
-
-        const res: any = await modelApi.createModel(formData)
-        if (res.code === 200) {
-          ElMessage.success('上传成功')
-          dialogVisible.value = false
-          getList()
-        } else {
-          ElMessage.error(res.message || '上传失败')
-        }
-      } catch (error) {
-        console.error('上传失败', error)
-        ElMessage.error('上传失败')
-      } finally {
-        submitLoading.value = false
-      }
-    }
-  })
-}
-
-const resetForm = () => {
-  form.value = {
-    name: '',
-    description: '',
-    isPublic: 0,
-    tags: [],
-    coverImage: null,
-    modelFile: null
-  }
-  coverPreview.value = ''
-  formRef.value?.resetFields()
 }
 
 const viewDetail = (model: any) => {
@@ -423,7 +277,6 @@ const handleDelete = async (model: any) => {
 
 onMounted(() => {
   getList()
-  getLabelList()
 })
 </script>
 
