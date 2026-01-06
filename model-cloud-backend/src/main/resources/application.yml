@@ -93,11 +93,11 @@ model-cloud:
     ftp-username: 
     ftp-password: 
   
-  # Gitea配置
+  # Gitea配置（使用管理员账户）
   gitea:
     url: http://localhost:3000
     token: 038e5236a19ef8fa7c242b6e1196bbaebbe1c8fd
-    username: yangxz
+    username: yanxgz
     password: 123456
     
   

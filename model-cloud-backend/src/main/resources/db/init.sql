@@ -158,11 +158,32 @@ CREATE TABLE IF NOT EXISTS `sys_file` (
   KEY `idx_is_del` (`is_del`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统文件表';
 
--- 插入默认管理员用户（密码：admin123）
+-- 插入默认角色
+INSERT INTO `sys_role` (`role_name`, `role_code`, `description`, `status`, `is_del`) VALUES
+('超级管理员', 'super_admin', '超级管理员，拥有所有权限，可以设置用户身份', 1, 0),
+('管理员', 'admin', '管理员，可以管理用户和模型', 1, 0),
+('普通用户', 'user', '普通用户，可以上传和管理自己的模型', 1, 0)
+ON DUPLICATE KEY UPDATE `role_name`=`role_name`;
+
+-- 插入默认超级管理员用户（密码：admin123）
 -- 注意：实际使用时请修改密码
 INSERT INTO `sys_user` (`username`, `password`, `nickname`, `email`, `status`, `is_del`) 
-VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iwy8pL5O', '管理员', 'admin@modelcloud.com', 1, 0)
+VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iwy8pL5O', '超级管理员', 'admin@modelcloud.com', 1, 0)
 ON DUPLICATE KEY UPDATE `username`=`username`;
+
+-- 为超级管理员用户分配超级管理员角色
+INSERT INTO `sys_user_role` (`user_id`, `role_id`, `create_time`)
+SELECT u.id, r.id, NOW()
+FROM `sys_user` u, `sys_role` r
+WHERE u.username = 'admin' AND r.role_code = 'super_admin'
+ON DUPLICATE KEY UPDATE `user_id`=`user_id`;
+
+-- 为yangxz用户分配管理员角色（如果yangxz用户存在）
+INSERT INTO `sys_user_role` (`user_id`, `role_id`, `create_time`)
+SELECT u.id, r.id, NOW()
+FROM `sys_user` u, `sys_role` r
+WHERE u.username = 'yangxz' AND r.role_code = 'admin'
+ON DUPLICATE KEY UPDATE `user_id`=`user_id`;
 
 -- 插入默认模型标签
 INSERT INTO `bs_model_label` (`name`, `description`, `sort`) VALUES

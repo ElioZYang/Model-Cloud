@@ -56,6 +56,12 @@ const routes: RouteRecordRaw[] = [
         name: 'MyCollects',
         component: () => import('@/views/business/MyCollects.vue'),
         meta: { title: '我的收藏' }
+      },
+      {
+        path: 'system/user',
+        name: 'UserList',
+        component: () => import('@/views/system/UserList.vue'),
+        meta: { title: '用户管理', requiresAdmin: true }
       }
     ]
   },
@@ -95,8 +101,18 @@ router.beforeEach((to, from, next) => {
         query: { redirect: to.fullPath }
       })
     } else {
-      // 如果有token，直接放行（用户信息会在需要时加载）
-      next()
+      // 检查是否需要管理员权限
+      if (to.meta.requiresAdmin) {
+        if (!userStore.isAdmin) {
+          ElMessage.warning('无权限访问，需要管理员权限')
+          next('/dashboard/home')
+        } else {
+          next()
+        }
+      } else {
+        // 如果有token，直接放行（用户信息会在需要时加载）
+        next()
+      }
     }
   } else {
     // 如果已登录，访问登录/注册页时重定向到首页

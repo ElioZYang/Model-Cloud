@@ -1,8 +1,17 @@
 package com.modelcloud.modules.sys.controller;
 
+import com.modelcloud.common.tools.SecurityUtils;
 import com.modelcloud.common.web.domain.response.Result;
+import com.modelcloud.modules.sys.model.dto.*;
+import com.modelcloud.modules.sys.model.domain.SysRole;
+import com.modelcloud.modules.sys.service.SysRoleService;
+import com.modelcloud.modules.sys.service.SysUserService;
+import com.mybatisflex.core.paginate.Page;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 系统用户管理控制器
@@ -14,37 +23,111 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/sys/user")
 public class SysUserController {
     
-    // TODO: 实现用户管理相关接口
-    // 1. 用户列表查询（分页、筛选）
-    // 2. 用户详情查询
-    // 3. 用户新增
-    // 4. 用户更新
-    // 5. 用户删除
-    // 6. 用户启用/禁用
-    // 7. 重置密码
+    private final SysUserService userService;
+    private final SysRoleService roleService;
+    
+    public SysUserController(SysUserService userService, SysRoleService roleService) {
+        this.userService = userService;
+        this.roleService = roleService;
+    }
+    
+    /**
+     * 分页查询用户列表（需要管理员权限）
+     */
+    @GetMapping("/page")
+    public Result<Page<UserVO>> pageUsers(UserQueryRequest request) {
+        SecurityUtils.requireAdmin();
+        Page<UserVO> page = userService.pageUsers(request);
+        return Result.success(page);
+    }
+    
+    /**
+     * 根据ID查询用户详情（需要管理员权限）
+     */
+    @GetMapping("/{id}")
+    public Result<UserVO> getUserById(@PathVariable Long id) {
+        SecurityUtils.requireAdmin();
+        UserVO user = userService.getUserById(id);
+        return Result.success(user);
+    }
+    
+    /**
+     * 创建用户（需要管理员权限）
+     */
+    @PostMapping
+    public Result<Void> createUser(@Valid @RequestBody UserCreateRequest request) {
+        SecurityUtils.requireAdmin();
+        userService.createUser(request);
+        return Result.success("创建用户成功", null);
+    }
+    
+    /**
+     * 更新用户（需要管理员权限）
+     */
+    @PutMapping
+    public Result<Void> updateUser(@Valid @RequestBody UserUpdateRequest request) {
+        SecurityUtils.requireAdmin();
+        userService.updateUser(request);
+        return Result.success("更新用户成功", null);
+    }
+    
+    /**
+     * 删除用户（需要管理员权限）
+     */
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteUser(@PathVariable Long id) {
+        SecurityUtils.requireAdmin();
+        userService.deleteUser(id);
+        return Result.success("删除用户成功", null);
+    }
+    
+    /**
+     * 批量删除用户（需要管理员权限）
+     */
+    @DeleteMapping("/batch")
+    public Result<Void> batchDeleteUsers(@RequestBody List<Long> ids) {
+        SecurityUtils.requireAdmin();
+        userService.batchDeleteUsers(ids);
+        return Result.success("批量删除用户成功", null);
+    }
+    
+    /**
+     * 启用用户（需要管理员权限）
+     */
+    @PutMapping("/{id}/enable")
+    public Result<Void> enableUser(@PathVariable Long id) {
+        SecurityUtils.requireAdmin();
+        userService.enableUser(id);
+        return Result.success("启用用户成功", null);
+    }
+    
+    /**
+     * 禁用用户（需要管理员权限）
+     */
+    @PutMapping("/{id}/disable")
+    public Result<Void> disableUser(@PathVariable Long id) {
+        SecurityUtils.requireAdmin();
+        userService.disableUser(id);
+        return Result.success("禁用用户成功", null);
+    }
+    
+    /**
+     * 重置密码（需要管理员权限）
+     */
+    @PutMapping("/reset-password")
+    public Result<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        SecurityUtils.requireAdmin();
+        userService.resetPassword(request);
+        return Result.success("重置密码成功", null);
+    }
+    
+    /**
+     * 查询所有角色（用于下拉选择，需要管理员权限）
+     */
+    @GetMapping("/roles")
+    public Result<List<SysRole>> listRoles() {
+        SecurityUtils.requireAdmin();
+        List<SysRole> roles = roleService.listEnabledRoles();
+        return Result.success(roles);
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

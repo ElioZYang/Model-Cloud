@@ -14,6 +14,13 @@ export interface UserInfo {
   roles?: string[]
 }
 
+/**
+ * 检查是否是管理员
+ */
+export function isAdmin(roles?: string[]): boolean {
+  return roles?.includes('admin') || false
+}
+
 export const useUserStore = defineStore('user', () => {
   // 从localStorage恢复token
   const token = ref<string>(localStorage.getItem('token') || '')
@@ -27,6 +34,16 @@ export const useUserStore = defineStore('user', () => {
   
   // 计算属性：昵称
   const nickname = computed(() => userInfo.value?.nickname || userInfo.value?.username || '')
+  
+  // 计算属性：是否是管理员（包括超级管理员和管理员）
+  const isAdmin = computed(() => {
+    return userInfo.value?.roles?.includes('admin') || userInfo.value?.roles?.includes('super_admin') || false
+  })
+  
+  // 计算属性：是否是超级管理员
+  const isSuperAdmin = computed(() => {
+    return userInfo.value?.roles?.includes('super_admin') || false
+  })
   
   /**
    * 设置Token
@@ -86,6 +103,8 @@ export const useUserStore = defineStore('user', () => {
     isLoggedIn,
     username,
     nickname,
+    isAdmin,
+    isSuperAdmin,
     setToken,
     setUserInfo,
     clearUserInfo,

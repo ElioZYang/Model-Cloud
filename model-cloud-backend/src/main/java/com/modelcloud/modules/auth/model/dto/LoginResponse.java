@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 登录响应DTO
  * 
@@ -33,6 +36,17 @@ public class LoginResponse {
         private String nickname;
         private String email;
         private String avatar;
+        private List<String> roles;
+        
+        // 兼容旧版本的构造函数（不包含roles）
+        public UserInfo(Long id, String username, String nickname, String email, String avatar) {
+            this.id = id;
+            this.username = username;
+            this.nickname = nickname;
+            this.email = email;
+            this.avatar = avatar;
+            this.roles = new ArrayList<>();
+        }
     }
 }
 

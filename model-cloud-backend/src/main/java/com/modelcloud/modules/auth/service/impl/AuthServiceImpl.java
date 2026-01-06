@@ -9,7 +9,10 @@ import com.modelcloud.modules.auth.model.dto.LoginResponse;
 import com.modelcloud.modules.auth.model.dto.RegisterRequest;
 import com.modelcloud.modules.auth.service.AuthService;
 import com.modelcloud.modules.auth.service.CaptchaService;
+import com.modelcloud.modules.sys.mapper.SysRoleMapper;
 import com.modelcloud.modules.sys.mapper.SysUserMapper;
+import com.modelcloud.modules.sys.mapper.SysUserRoleMapper;
+import com.modelcloud.modules.sys.model.domain.SysRole;
 import com.modelcloud.modules.sys.model.domain.SysUser;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 认证服务实现类
@@ -28,16 +34,22 @@ import java.time.LocalDateTime;
 public class AuthServiceImpl implements AuthService {
     
     private final SysUserMapper userMapper;
+    private final SysUserRoleMapper userRoleMapper;
+    private final SysRoleMapper roleMapper;
     private final CaptchaService captchaService;
     private final PasswordUtil passwordUtil;
     private final JwtUtil jwtUtil;
     
     public AuthServiceImpl(
             SysUserMapper userMapper,
+            SysUserRoleMapper userRoleMapper,
+            SysRoleMapper roleMapper,
             CaptchaService captchaService,
             PasswordUtil passwordUtil,
             JwtUtil jwtUtil) {
         this.userMapper = userMapper;
+        this.userRoleMapper = userRoleMapper;
+        this.roleMapper = roleMapper;
         this.captchaService = captchaService;
         this.passwordUtil = passwordUtil;
         this.jwtUtil = jwtUtil;
@@ -74,16 +86,29 @@ public class AuthServiceImpl implements AuthService {
         // 生成Token
         String token = jwtUtil.generateToken(user.getId(), user.getUsername());
         
+        // 查询用户角色
+        List<String> roleCodes = new ArrayList<>();
+        List<Long> roleIds = userRoleMapper.selectRoleIdsByUserId(user.getId());
+        if (roleIds != null && !roleIds.isEmpty()) {
+            for (Long roleId : roleIds) {
+                SysRole role = roleMapper.selectOneById(roleId);
+                if (role != null && role.getStatus() == CommonConstant.STATUS_ENABLE) {
+                    roleCodes.add(role.getRoleCode());
+                }
+            }
+        }
+        
         // 构建用户信息
         LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo(
             user.getId(),
             user.getUsername(),
             user.getNickname() != null ? user.getNickname() : user.getUsername(),
             user.getEmail(),
-            user.getAvatar()
+            user.getAvatar(),
+            roleCodes
         );
         
-        log.info("用户登录成功: {}", user.getUsername());
+        log.info("用户登录成功: {}, 角色: {}", user.getUsername(), roleCodes);
         
         return new LoginResponse(token, userInfo);
     }
@@ -132,6 +157,22 @@ public class AuthServiceImpl implements AuthService {
         
         userMapper.insert(user);
         
+        // 为新注册的用户自动分配普通用户角色
+        SysRole userRole = roleMapper.selectOneByQuery(
+            QueryWrapper.create()
+                .where("role_code = ?", "user")
+                .and("is_del = ?", 0)
+        );
+        if (userRole != null) {
+            com.modelcloud.modules.sys.model.domain.SysUserRole sysUserRole = 
+                new com.modelcloud.modules.sys.model.domain.SysUserRole();
+            sysUserRole.setUserId(user.getId());
+            sysUserRole.setRoleId(userRole.getId());
+            sysUserRole.setCreateTime(LocalDateTime.now());
+            userRoleMapper.insert(sysUserRole);
+            log.info("为新用户 {} 分配普通用户角色", user.getUsername());
+        }
+        
         log.info("用户注册成功: {}", user.getUsername());
     }
     
@@ -154,12 +195,25 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException("用户不存在");
         }
         
+        // 查询用户角色
+        List<String> roleCodes = new ArrayList<>();
+        List<Long> roleIds = userRoleMapper.selectRoleIdsByUserId(user.getId());
+        if (roleIds != null && !roleIds.isEmpty()) {
+            for (Long roleId : roleIds) {
+                SysRole role = roleMapper.selectOneById(roleId);
+                if (role != null && role.getStatus() == CommonConstant.STATUS_ENABLE) {
+                    roleCodes.add(role.getRoleCode());
+                }
+            }
+        }
+        
         return new LoginResponse.UserInfo(
             user.getId(),
             user.getUsername(),
             user.getNickname() != null ? user.getNickname() : user.getUsername(),
             user.getEmail(),
-            user.getAvatar()
+            user.getAvatar(),
+            roleCodes
         );
     }
 }
