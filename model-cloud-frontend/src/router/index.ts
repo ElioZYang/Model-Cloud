@@ -62,6 +62,12 @@ const routes: RouteRecordRaw[] = [
         name: 'UserList',
         component: () => import('@/views/system/UserList.vue'),
         meta: { title: '用户管理', requiresAdmin: true }
+      },
+      {
+        path: 'system/profile',
+        name: 'Profile',
+        component: () => import('@/views/system/Profile.vue'),
+        meta: { title: '个人信息' }
       }
     ]
   },

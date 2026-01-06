@@ -168,7 +168,8 @@ ON DUPLICATE KEY UPDATE `role_name`=`role_name`;
 -- 插入默认超级管理员用户（密码：admin123）
 -- 注意：实际使用时请修改密码
 INSERT INTO `sys_user` (`username`, `password`, `nickname`, `email`, `status`, `is_del`) 
-VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iwy8pL5O', '超级管理员', 'admin@modelcloud.com', 1, 0)
+VALUES ('admin', '$2a$10$n/ohGNTsJHLlQz6pi7fINu5pkrY78voa7Rmi.upuheLITNHvzgo.q', '超级管理员', 'yangxz1100@163.com', 1, 0)
+VALUES ('yangxz', '$2a$10$3iSo9.HIzU7wo1nsE3kC7.YMsjLT6e5UEk5zoh.F2ISZjN1kosN1m', 'zhao', '934783419@qq.com', 1, 0)
 ON DUPLICATE KEY UPDATE `username`=`username`;
 
 -- 为超级管理员用户分配超级管理员角色

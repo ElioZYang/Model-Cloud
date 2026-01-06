@@ -130,4 +130,43 @@ public class SysUserController {
         List<SysRole> roles = roleService.listEnabledRoles();
         return Result.success(roles);
     }
+    
+    /**
+     * 获取当前用户个人信息（需要登录）
+     */
+    @GetMapping("/profile")
+    public Result<UserVO> getProfile() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            throw new com.modelcloud.common.exception.BusinessException("用户未登录");
+        }
+        UserVO user = userService.getUserById(userId);
+        return Result.success(user);
+    }
+    
+    /**
+     * 更新当前用户个人信息（需要登录）
+     */
+    @PutMapping("/profile")
+    public Result<Void> updateProfile(@Valid @RequestBody com.modelcloud.modules.sys.model.dto.UserProfileUpdateRequest request) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            throw new com.modelcloud.common.exception.BusinessException("用户未登录");
+        }
+        userService.updateProfile(userId, request);
+        return Result.success("更新成功", null);
+    }
+    
+    /**
+     * 修改当前用户密码（需要登录）
+     */
+    @PutMapping("/change-password")
+    public Result<Void> changePassword(@Valid @RequestBody com.modelcloud.modules.sys.model.dto.ChangePasswordRequest request) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            throw new com.modelcloud.common.exception.BusinessException("用户未登录");
+        }
+        userService.changePassword(userId, request);
+        return Result.success("密码修改成功", null);
+    }
 }

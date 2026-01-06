@@ -16,6 +16,7 @@ export interface UserVO {
   createTime: string
   updateTime: string
   roles?: RoleVO[]
+  highestRoleCode?: string
 }
 
 export interface RoleVO {

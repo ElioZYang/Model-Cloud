@@ -57,5 +57,15 @@ public interface SysUserService {
      * 重置密码
      */
     void resetPassword(ResetPasswordRequest request);
+    
+    /**
+     * 更新个人信息
+     */
+    void updateProfile(Long userId, com.modelcloud.modules.sys.model.dto.UserProfileUpdateRequest request);
+    
+    /**
+     * 修改密码
+     */
+    void changePassword(Long userId, com.modelcloud.modules.sys.model.dto.ChangePasswordRequest request);
 }
 

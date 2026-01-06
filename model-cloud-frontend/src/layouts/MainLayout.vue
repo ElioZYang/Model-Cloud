@@ -95,8 +95,7 @@ const toggleCollapse = () => {
 const handleCommand = async (command: string) => {
   switch (command) {
     case 'profile':
-      // TODO: 跳转到个人中心
-      ElMessage.info('个人中心功能开发中')
+      router.push('/dashboard/system/profile')
       break
     case 'settings':
       // TODO: 跳转到设置页面

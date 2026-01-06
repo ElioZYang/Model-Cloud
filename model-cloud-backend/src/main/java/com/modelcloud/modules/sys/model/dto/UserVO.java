@@ -68,5 +68,10 @@ public class UserVO implements Serializable {
      * 角色列表
      */
     private List<RoleVO> roles;
+    
+    /**
+     * 最高角色代码（用于排序：super_admin > admin > user）
+     */
+    private String highestRoleCode;
 }
 
