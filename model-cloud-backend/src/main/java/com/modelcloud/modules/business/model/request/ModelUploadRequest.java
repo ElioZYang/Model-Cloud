@@ -34,5 +34,10 @@ public class ModelUploadRequest {
      * 模型文件
      */
     private MultipartFile modelFile;
+
+    /**
+     * 是否公开：0不公开，1公开
+     */
+    private Integer isPublic;
 }
 

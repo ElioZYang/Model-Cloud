@@ -46,6 +46,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '模型列表' }
       },
       {
+        path: 'model/my',
+        name: 'MyModels',
+        component: () => import('@/views/business/MyModels.vue'),
+        meta: { title: '我的模型' }
+      },
+      {
+        path: 'model/manage',
+        name: 'ModelManage',
+        component: () => import('@/views/business/ModelManage.vue'),
+        meta: { title: '模型管理', requiresAdmin: true }
+      },
+      {
         path: 'model/detail/:id',
         name: 'ModelDetail',
         component: () => import('@/views/business/ModelDetail.vue'),

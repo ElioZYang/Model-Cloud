@@ -5,6 +5,12 @@
         <el-form-item label="模型名称">
           <el-input v-model="queryParams.keyword" placeholder="搜索模型名称或描述" clearable @keyup.enter="handleQuery" />
         </el-form-item>
+        <el-form-item label="公开状态">
+          <el-select v-model="queryParams.isPublic" placeholder="全部" clearable style="width: 120px">
+            <el-option label="公开" :value="1" />
+            <el-option label="不公开" :value="0" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleQuery">查询</el-button>
           <el-button :icon="Refresh" @click="resetQuery">重置</el-button>
@@ -27,6 +33,19 @@
                   </div>
                 </template>
               </el-image>
+              <div class="public-badge">
+                <el-tag :type="model.isPublic === 1 ? 'success' : 'info'" size="small">
+                  {{ model.isPublic === 1 ? '公开' : '不公开' }}
+                </el-tag>
+                <el-tag 
+                  v-if="model.isPublic === 1" 
+                  :type="getStatusTagType(model.status)" 
+                  size="small" 
+                  style="margin-left: 4px"
+                >
+                  {{ getStatusText(model.status) }}
+                </el-tag>
+              </div>
             </div>
             <div class="model-info">
               <h3 class="model-name">{{ model.name }}</h3>
@@ -40,12 +59,8 @@
                 <span class="model-time">{{ formatDate(model.createTime) }}</span>
                 <div class="model-actions">
                   <el-button type="primary" link @click.stop="downloadModel(model)">下载</el-button>
-                  <el-button 
-                    v-if="isMyModel(model)" 
-                    type="danger" 
-                    link 
-                    @click.stop="handleDelete(model)"
-                  >删除</el-button>
+                  <el-button type="warning" link @click.stop="togglePublic(model)">设置公开</el-button>
+                  <el-button type="danger" link @click.stop="handleDelete(model)">删除</el-button>
                 </div>
               </div>
             </div>
@@ -78,10 +93,10 @@
         <el-form-item label="是否公开" prop="isPublic">
           <el-radio-group v-model="form.isPublic">
             <el-radio :label="0">不公开</el-radio>
-            <el-radio :label="1">公开</el-radio>
+            <el-radio :label="1">公开（普通用户需管理员审核）</el-radio>
           </el-radio-group>
           <el-text type="info" size="small" style="display: block; margin-top: 5px">
-            普通用户公开模型需要管理员审核通过后才能在公开模型列表中展示
+            普通用户公开模型需要管理员审核通过后才能在公开模型列表中展示；管理员/超级管理员上传可直接公开
           </el-text>
         </el-form-item>
         <el-form-item label="标签" prop="tags">
@@ -125,6 +140,27 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 设置公开状态对话框 -->
+    <el-dialog v-model="publicDialogVisible" title="设置公开状态" width="400px">
+      <el-form :model="publicForm" label-width="100px">
+        <el-form-item label="当前状态">
+          <el-tag :type="currentModel?.isPublic === 1 ? 'success' : 'info'">
+            {{ currentModel?.isPublic === 1 ? '公开' : '不公开' }}
+          </el-tag>
+        </el-form-item>
+        <el-form-item label="新状态">
+          <el-radio-group v-model="publicForm.isPublic">
+            <el-radio :label="0">不公开</el-radio>
+            <el-radio :label="1">公开（需管理员审核）</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="publicDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="publicSubmitting" @click="submitPublicChange">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -142,16 +178,20 @@ const userStore = useUserStore()
 const modelList = ref<any[]>([])
 const total = ref(0)
 const dialogVisible = ref(false)
+const publicDialogVisible = ref(false)
 const submitLoading = ref(false)
+const publicSubmitting = ref(false)
 const formRef = ref<FormInstance>()
 const defaultCover = 'https://placeholder.com/300x200'
 const coverPreview = ref('')
 const labelList = ref<any[]>([])
+const currentModel = ref<any>(null)
 
 const queryParams = ref({
   pageNum: 1,
   pageSize: 12,
-  keyword: ''
+  keyword: '',
+  isPublic: undefined as number | undefined
 })
 
 const form = ref({
@@ -163,6 +203,10 @@ const form = ref({
   modelFile: null as File | null
 })
 
+const publicForm = ref({
+  isPublic: 0
+})
+
 const rules = {
   name: [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
   description: [{ required: true, message: '请输入模型描述', trigger: 'blur' }],
@@ -171,7 +215,7 @@ const rules = {
 
 const getList = async () => {
   try {
-    const res: any = await modelApi.getModelList(queryParams.value)
+    const res: any = await modelApi.getMyModels(queryParams.value)
     if (res.code === 200) {
       modelList.value = res.data.records || []
       total.value = res.data.totalRow || 0
@@ -199,6 +243,7 @@ const handleQuery = () => {
 
 const resetQuery = () => {
   queryParams.value.keyword = ''
+  queryParams.value.isPublic = undefined
   handleQuery()
 }
 
@@ -300,8 +345,53 @@ const formatDate = (date: string) => {
   return dayjs(date).format('YYYY-MM-DD HH:mm')
 }
 
-const isMyModel = (model: any) => {
-  return userStore.userInfo && model.userId === userStore.userInfo.id
+const getStatusText = (status: number) => {
+  const statusMap: Record<number, string> = {
+    0: '初始状态',
+    10: '待审核',
+    20: '审核通过',
+    30: '审核不通过'
+  }
+  return statusMap[status] || '未知'
+}
+
+const getStatusTagType = (status: number) => {
+  if (status === 20) return 'success'
+  if (status === 30) return 'danger'
+  if (status === 10) return 'warning'
+  return 'info'
+}
+
+const togglePublic = (model: any) => {
+  currentModel.value = model
+  publicForm.value.isPublic = model.isPublic
+  publicDialogVisible.value = true
+}
+
+const submitPublicChange = async () => {
+  if (!currentModel.value) return
+  
+  if (publicForm.value.isPublic === currentModel.value.isPublic) {
+    publicDialogVisible.value = false
+    return
+  }
+
+  publicSubmitting.value = true
+  try {
+    const res: any = await modelApi.updateModelPublic(currentModel.value.id, publicForm.value.isPublic)
+    if (res.code === 200) {
+      ElMessage.success('设置成功')
+      publicDialogVisible.value = false
+      getList()
+    } else {
+      ElMessage.error(res.message || '设置失败')
+    }
+  } catch (error) {
+    console.error('设置失败', error)
+    ElMessage.error('设置失败')
+  } finally {
+    publicSubmitting.value = false
+  }
 }
 
 const handleDelete = async (model: any) => {
@@ -367,6 +457,16 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  position: relative;
+}
+
+.public-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .image-slot {

@@ -41,14 +41,14 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card class="stat-card">
+        <el-card class="stat-card" @click="goToMyModels">
           <div class="stat-content">
             <div class="stat-icon" style="background: #e6a23c;">
               <el-icon><Upload /></el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-value">{{ statistics.myUploadCount || 0 }}</div>
-              <div class="stat-label">已上传</div>
+              <div class="stat-label">我的模型</div>
             </div>
           </div>
         </el-card>
@@ -86,7 +86,23 @@
           <template #header>
             <span>最近活动</span>
           </template>
-          <el-empty description="暂无活动记录" :image-size="80" />
+          <div v-if="activities.length === 0">
+            <el-empty description="暂无活动记录" :image-size="80" />
+          </div>
+          <div v-else class="activity-list">
+            <el-timeline>
+              <el-timeline-item
+                v-for="item in activities"
+                :key="item.id"
+                :timestamp="formatDate(item.updateTime || item.createTime)"
+                :color="item.status === 30 ? '#f56c6c' : '#409eff'"
+              >
+                <span :class="{ failed: item.status === 30 }">
+                  模型《{{ item.name }}》{{ item.status === 30 ? '审核失败' : '状态更新' }}
+                </span>
+              </el-timeline-item>
+            </el-timeline>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -99,6 +115,15 @@
         </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input v-model="form.description" type="textarea" placeholder="请输入模型描述" :rows="3" />
+        </el-form-item>
+        <el-form-item label="是否公开" prop="isPublic">
+          <el-radio-group v-model="form.isPublic">
+            <el-radio :label="0">不公开</el-radio>
+            <el-radio :label="1">公开</el-radio>
+          </el-radio-group>
+          <el-text type="info" size="small" style="display: block; margin-top: 5px">
+            普通用户公开模型需要管理员审核通过后才能在公开模型列表中展示
+          </el-text>
         </el-form-item>
         <el-form-item label="标签" prop="tags">
           <el-select v-model="form.tags" multiple placeholder="请选择相关标签" style="width: 100%">
@@ -151,6 +176,7 @@ import { User, Box, Star, Upload, View, Plus, Search, Setting } from '@element-p
 import { useUserStore } from '@/stores/user'
 import { modelApi } from '@/api/model'
 import { ElMessage, type FormInstance, type UploadFile } from 'element-plus'
+import dayjs from 'dayjs'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -162,6 +188,8 @@ const statistics = ref({
   viewCount: 0
 })
 
+const activities = ref<any[]>([])
+
 const dialogVisible = ref(false)
 const submitLoading = ref(false)
 const formRef = ref<FormInstance>()
@@ -171,6 +199,7 @@ const labelList = ref<any[]>([])
 const form = ref({
   name: '',
   description: '',
+  isPublic: 0, // 默认不公开
   tags: [] as string[],
   coverImage: null as File | null,
   modelFile: null as File | null
@@ -204,12 +233,27 @@ const getLabelList = async () => {
   }
 }
 
+const getActivities = async () => {
+  try {
+    const res: any = await modelApi.getMyActivities(10)
+    if (res.code === 200) {
+      activities.value = res.data || []
+    }
+  } catch (error) {
+    console.error('获取活动失败', error)
+  }
+}
+
 const goToModelList = () => {
   router.push('/dashboard/model/list')
 }
 
 const goToMyCollects = () => {
   router.push('/dashboard/model/collects')
+}
+
+const goToMyModels = () => {
+  router.push('/dashboard/model/my')
 }
 
 const handleUpload = () => {
@@ -246,6 +290,7 @@ const submitForm = async () => {
         const formData = new FormData()
         formData.append('name', form.value.name)
         formData.append('description', form.value.description)
+        formData.append('isPublic', form.value.isPublic.toString())
         form.value.tags.forEach(tag => formData.append('tags', tag))
         if (form.value.coverImage) {
           formData.append('coverImage', form.value.coverImage)
@@ -277,6 +322,7 @@ const resetForm = () => {
   form.value = {
     name: '',
     description: '',
+    isPublic: 0,
     tags: [],
     coverImage: null,
     modelFile: null
@@ -285,8 +331,13 @@ const resetForm = () => {
   formRef.value?.resetFields()
 }
 
+const formatDate = (date: string) => {
+  return date ? dayjs(date).format('YYYY-MM-DD HH:mm') : '-'
+}
+
 onMounted(() => {
   getStatistics()
+  getActivities()
 })
 </script>
 
@@ -402,6 +453,15 @@ onMounted(() => {
   border: 1px dashed #d9d9d9;
   border-radius: 6px;
   line-height: 178px;
+}
+
+.activity-list {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.failed {
+  color: #f56c6c;
 }
 </style>
 

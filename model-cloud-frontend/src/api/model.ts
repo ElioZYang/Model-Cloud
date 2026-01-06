@@ -80,6 +80,41 @@ export const modelApi = {
    */
   getMyCollects(params: any) {
     return request.get('/business/collect/list', { params })
+  },
+
+  /**
+   * 获取我的模型列表
+   */
+  getMyModels(params: any) {
+    return request.get('/business/model/my', { params })
+  },
+
+  /**
+   * 更新模型公开状态
+   */
+  updateModelPublic(id: number, isPublic: number) {
+    return request.put(`/business/model/${id}/public`, { isPublic })
+  },
+
+  /**
+   * 获取待审核模型列表（管理员）
+   */
+  getPendingModels(params: any) {
+    return request.get('/business/model/pending', { params })
+  },
+
+  /**
+   * 审核模型（管理员）
+   */
+  auditModel(id: number, approved: boolean) {
+    return request.post(`/business/model/${id}/audit`, { approved })
+  },
+
+  /**
+   * 获取我的最近活动
+   */
+  getMyActivities(limit = 10) {
+    return request.get('/business/model/my-activities', { params: { limit } })
   }
 }
 

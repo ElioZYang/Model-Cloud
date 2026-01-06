@@ -20,9 +20,17 @@
           <el-icon><Box /></el-icon>
           <span>模型列表</span>
         </el-menu-item>
+        <el-menu-item index="/dashboard/model/my">
+          <el-icon><Folder /></el-icon>
+          <span>我的模型</span>
+        </el-menu-item>
         <el-menu-item index="/dashboard/model/collects">
           <el-icon><Star /></el-icon>
           <span>我的收藏</span>
+        </el-menu-item>
+        <el-menu-item v-if="userStore.isAdmin" index="/dashboard/model/manage">
+          <el-icon><Setting /></el-icon>
+          <span>模型管理</span>
         </el-menu-item>
         <el-menu-item v-if="userStore.isAdmin" index="/dashboard/system/user">
           <el-icon><User /></el-icon>
@@ -68,7 +76,7 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { HomeFilled, Box, Star, User, Expand, Fold, ArrowDown } from '@element-plus/icons-vue'
+import { HomeFilled, Box, Star, User, Expand, Fold, ArrowDown, Folder, Setting } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { authApi } from '@/api/auth'
 

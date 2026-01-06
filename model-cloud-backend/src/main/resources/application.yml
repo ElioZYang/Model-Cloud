@@ -97,7 +97,7 @@ model-cloud:
   gitea:
     url: http://localhost:3000
     token: 038e5236a19ef8fa7c242b6e1196bbaebbe1c8fd
-    username: yanxgz
+    username: yangxz
     password: 123456
     
   

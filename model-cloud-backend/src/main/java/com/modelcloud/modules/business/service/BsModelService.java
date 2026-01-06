@@ -37,6 +37,33 @@ public interface BsModelService {
      * 删除模型（删除数据库记录和Gitea仓库）
      */
     void deleteModel(Long id);
+
+    /**
+     * 分页查询我的模型列表
+     */
+    Page<BsModel> pageMyModels(int pageNum, int pageSize, String keyword, Integer isPublic);
+
+    /**
+     * 更新模型公开状态
+     */
+    void updateModelPublic(Long id, Integer isPublic);
+
+    /**
+     * 分页查询待审核的公开模型（管理员）
+     */
+    Page<BsModel> pagePendingModels(int pageNum, int pageSize, String keyword);
+
+    /**
+     * 审核模型（管理员）
+     * @param id 模型ID
+     * @param approved true=通过，false=驳回
+     */
+    void auditModel(Long id, boolean approved);
+
+    /**
+     * 获取当前用户最近活动（主要用于提示审核失败等）
+     */
+    java.util.List<BsModel> listMyActivities(int limit);
 }
 
 

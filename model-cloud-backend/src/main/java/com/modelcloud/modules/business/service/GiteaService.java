@@ -68,6 +68,36 @@ public class GiteaService {
     }
 
     /**
+     * 确保仓库存在（不存在则创建），返回 clone_url
+     * 按当前配置，所有仓库都创建在配置中的全局账号（如 yangxz）的名下
+     */
+    public String ensureRepository(String repoName, String description) {
+        // 1. 先尝试查询仓库是否已存在
+        String repoApi = giteaConfig.getUrl() + "/api/v1/repos/" + giteaConfig.getUsername() + "/" + repoName;
+        log.info("Checking if Gitea repository exists: {}", repoApi);
+
+        HttpResponse getResp = HttpRequest.get(repoApi)
+                .header("Authorization", "token " + giteaConfig.getToken())
+                .timeout(15000)
+                .execute();
+
+        if (getResp.isOk()) {
+            String cloneUrl = JSONUtil.parseObj(getResp.body()).getStr("clone_url");
+            log.info("Repository already exists: {}", cloneUrl);
+            return cloneUrl;
+        }
+
+        if (getResp.getStatus() != 404) {
+            log.error("Failed to check Gitea repository. Status: {}, Response: {}",
+                    getResp.getStatus(), getResp.body());
+            throw new BusinessException("查询Gitea仓库失败 (状态码: " + getResp.getStatus() + "): " + getResp.body());
+        }
+
+        // 2. 不存在则创建
+        return createRepository(repoName, description);
+    }
+
+    /**
      * 上传文件到仓库
      */
     public void uploadFile(String repoName, String filePath, MultipartFile file) {
@@ -117,6 +147,49 @@ public class GiteaService {
             log.error("Error reading file bytes", e);
             throw new BusinessException("读取文件失败: " + e.getMessage());
         }
+    }
+
+    /**
+     * 上传文本内容为文件到仓库（用于 README 等）
+     */
+    public void uploadContent(String repoName, String filePath, String textContent) {
+        byte[] fileBytes = textContent != null ? textContent.getBytes(java.nio.charset.StandardCharsets.UTF_8) : new byte[0];
+        String content = Base64.getEncoder().encodeToString(fileBytes);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("content", content);
+        body.put("message", "Upload file: " + filePath);
+
+        String encodedPath = cn.hutool.core.util.URLUtil.encode(filePath);
+        String apiUrl = giteaConfig.getUrl() + "/api/v1/repos/" + giteaConfig.getUsername() + "/" + repoName + "/contents/" + encodedPath;
+        log.info("Uploading text content to Gitea: {}", apiUrl);
+
+        body.put("branch", "main");
+        HttpResponse response = HttpRequest.post(apiUrl)
+                .header("Authorization", "token " + giteaConfig.getToken())
+                .header("Content-Type", "application/json")
+                .body(JSONUtil.toJsonStr(body))
+                .timeout(60000)
+                .execute();
+
+        if (!response.isOk() && response.getStatus() != 201) {
+            log.warn("Failed to upload to main branch, trying master branch. Status: {}, Response: {}",
+                    response.getStatus(), response.body());
+            body.put("branch", "master");
+            response = HttpRequest.post(apiUrl)
+                    .header("Authorization", "token " + giteaConfig.getToken())
+                    .header("Content-Type", "application/json")
+                    .body(JSONUtil.toJsonStr(body))
+                    .timeout(60000)
+                    .execute();
+        }
+
+        if (!response.isOk() && response.getStatus() != 201) {
+            log.error("Failed to upload text content to Gitea: {} - Status: {}", response.body(), response.getStatus());
+            throw new BusinessException("上传文件到Gitea失败 (状态码: " + response.getStatus() + "): " + response.body());
+        }
+
+        log.info("Text file uploaded successfully: {}", filePath);
     }
 
     /**
