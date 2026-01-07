@@ -36,3 +36,4 @@ public interface SysUserRoleMapper extends BaseMapper<SysUserRole> {
     List<Long> selectUserIdsByRoleId(@Param("roleId") Long roleId);
 }
 
+

@@ -35,15 +35,28 @@ public class LoginResponse {
         private String username;
         private String nickname;
         private String email;
+        private String phone;
         private String avatar;
         private List<String> roles;
         
-        // 兼容旧版本的构造函数（不包含roles）
+        // 兼容旧版本的构造函数（不包含roles和phone）
         public UserInfo(Long id, String username, String nickname, String email, String avatar) {
             this.id = id;
             this.username = username;
             this.nickname = nickname;
             this.email = email;
+            this.phone = null;
+            this.avatar = avatar;
+            this.roles = new ArrayList<>();
+        }
+        
+        // 包含phone但不包含roles的构造函数
+        public UserInfo(Long id, String username, String nickname, String email, String phone, String avatar) {
+            this.id = id;
+            this.username = username;
+            this.nickname = nickname;
+            this.email = email;
+            this.phone = phone;
             this.avatar = avatar;
             this.roles = new ArrayList<>();
         }

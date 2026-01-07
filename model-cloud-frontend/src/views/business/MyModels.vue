@@ -99,7 +99,7 @@
         <el-form-item label="新状态">
           <el-radio-group v-model="publicForm.isPublic">
             <el-radio :label="0">不公开</el-radio>
-            <el-radio :label="1">公开（需管理员审核）</el-radio>
+            <el-radio :label="1">公开</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>

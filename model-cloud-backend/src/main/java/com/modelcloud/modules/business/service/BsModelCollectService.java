@@ -38,3 +38,4 @@ public interface BsModelCollectService {
     long getMyCollectCount();
 }
 
+

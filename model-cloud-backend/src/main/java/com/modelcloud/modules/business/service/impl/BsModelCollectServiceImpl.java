@@ -8,7 +8,9 @@ import com.modelcloud.modules.business.model.domain.BsModel;
 import com.modelcloud.modules.business.model.domain.BsModelCollect;
 import com.modelcloud.modules.business.service.BsModelCollectService;
 import com.modelcloud.modules.business.service.BsModelService;
+import com.modelcloud.modules.business.service.GiteaService;
 import com.modelcloud.modules.sys.mapper.SysUserMapper;
+import cn.hutool.core.util.StrUtil;
 import com.modelcloud.modules.sys.model.domain.SysUser;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
@@ -35,14 +37,17 @@ public class BsModelCollectServiceImpl implements BsModelCollectService {
     private final BsModelCollectMapper collectMapper;
     private final BsModelMapper modelMapper;
     private final SysUserMapper userMapper;
+    private final GiteaService giteaService;
     
     public BsModelCollectServiceImpl(
             BsModelCollectMapper collectMapper,
             BsModelMapper modelMapper,
-            SysUserMapper userMapper) {
+            SysUserMapper userMapper,
+            GiteaService giteaService) {
         this.collectMapper = collectMapper;
         this.modelMapper = modelMapper;
         this.userMapper = userMapper;
+        this.giteaService = giteaService;
     }
     
     @Override
@@ -152,10 +157,11 @@ public class BsModelCollectServiceImpl implements BsModelCollectService {
         
         Page<BsModel> page = modelMapper.paginate(pageNum, pageSize, modelQuery);
         
-        // 填充作者名称
+        // 填充作者名称和默认封面
         if (page.getRecords() != null) {
             for (BsModel model : page.getRecords()) {
                 fillAuthorName(model);
+                fillDefaultCoverImage(model);
             }
         }
         
@@ -198,6 +204,16 @@ public class BsModelCollectServiceImpl implements BsModelCollectService {
             if (user != null) {
                 model.setAuthorName(user.getNickname());
             }
+        }
+    }
+    
+    /**
+     * 填充默认封面图片（如果封面图片为空）
+     */
+    private void fillDefaultCoverImage(BsModel model) {
+        if (model != null && (StrUtil.isBlank(model.getCoverImage()))) {
+            String defaultCoverUrl = giteaService.getDefaultCoverImageUrl();
+            model.setCoverImage(defaultCoverUrl);
         }
     }
 }

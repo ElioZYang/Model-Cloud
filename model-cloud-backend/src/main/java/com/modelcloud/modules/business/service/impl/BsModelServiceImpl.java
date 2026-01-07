@@ -184,6 +184,7 @@ public class BsModelServiceImpl implements BsModelService {
             if (page.getRecords() != null) {
                 for (BsModel model : page.getRecords()) {
                     fillAuthorName(model);
+                    fillDefaultCoverImage(model);
                 }
             }
             return page;
@@ -200,6 +201,7 @@ public class BsModelServiceImpl implements BsModelService {
             throw new BusinessException("模型不存在");
         }
         fillAuthorName(model);
+        fillDefaultCoverImage(model);
         return model;
     }
 
@@ -209,9 +211,11 @@ public class BsModelServiceImpl implements BsModelService {
         Map<String, Object> stats = new HashMap<>();
         
         try {
-            // 模型总数（所有未删除的模型）
+            // 模型总数（公开且审核通过的模型）
             QueryWrapper totalQuery = QueryWrapper.create()
-                    .where(BS_MODEL.IS_DEL.eq(0));
+                    .where(BS_MODEL.IS_DEL.eq(0))
+                    .and(BS_MODEL.IS_PUBLIC.eq(1))
+                    .and(BS_MODEL.STATUS.eq(20));
             long totalCount = bsModelMapper.selectCountByQuery(totalQuery);
             stats.put("totalCount", totalCount);
             
@@ -296,6 +300,16 @@ public class BsModelServiceImpl implements BsModelService {
             }
         }
     }
+    
+    /**
+     * 填充默认封面图片（如果封面图片为空）
+     */
+    private void fillDefaultCoverImage(BsModel model) {
+        if (model != null && (StrUtil.isBlank(model.getCoverImage()))) {
+            String defaultCoverUrl = giteaService.getDefaultCoverImageUrl();
+            model.setCoverImage(defaultCoverUrl);
+        }
+    }
 
     @Override
     public Page<BsModel> pageMyModels(int pageNum, int pageSize, String keyword, Integer isPublic) {
@@ -316,6 +330,7 @@ public class BsModelServiceImpl implements BsModelService {
             if (page.getRecords() != null) {
                 for (BsModel model : page.getRecords()) {
                     fillAuthorName(model);
+                    fillDefaultCoverImage(model);
                 }
             }
             return page;
@@ -384,6 +399,7 @@ public class BsModelServiceImpl implements BsModelService {
             if (page.getRecords() != null) {
                 for (BsModel model : page.getRecords()) {
                     fillAuthorName(model);
+                    fillDefaultCoverImage(model);
                 }
             }
             return page;
@@ -434,6 +450,7 @@ public class BsModelServiceImpl implements BsModelService {
         if (list != null) {
             for (BsModel model : list) {
                 fillAuthorName(model);
+                fillDefaultCoverImage(model);
             }
         }
         return list;

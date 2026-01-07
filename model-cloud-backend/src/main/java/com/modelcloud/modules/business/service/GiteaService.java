@@ -222,6 +222,16 @@ public class GiteaService {
     }
     
     /**
+     * 获取默认封面图片URL
+     * 默认封面图片位于 imgs 仓库中的 default-cover-img.png
+     */
+    public String getDefaultCoverImageUrl() {
+        String defaultCoverUrl = giteaConfig.getUrl() + "/" + giteaConfig.getUsername() + "/imgs/raw/branch/main/default-cover-img.png";
+        log.debug("Generated default cover image URL: {}", defaultCoverUrl);
+        return defaultCoverUrl;
+    }
+    
+    /**
      * 删除仓库
      */
     public void deleteRepository(String repoName) {

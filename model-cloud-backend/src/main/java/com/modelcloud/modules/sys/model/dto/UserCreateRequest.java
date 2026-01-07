@@ -42,3 +42,4 @@ public class UserCreateRequest {
     private Integer status = 1;
 }
 
+

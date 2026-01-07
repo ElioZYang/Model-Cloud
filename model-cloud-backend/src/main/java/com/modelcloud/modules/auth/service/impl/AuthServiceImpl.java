@@ -104,6 +104,7 @@ public class AuthServiceImpl implements AuthService {
             user.getUsername(),
             user.getNickname() != null ? user.getNickname() : user.getUsername(),
             user.getEmail(),
+            user.getPhone(),
             user.getAvatar(),
             roleCodes
         );
@@ -212,6 +213,7 @@ public class AuthServiceImpl implements AuthService {
             user.getUsername(),
             user.getNickname() != null ? user.getNickname() : user.getUsername(),
             user.getEmail(),
+            user.getPhone(),
             user.getAvatar(),
             roleCodes
         );

@@ -34,6 +34,7 @@ export interface LoginResponse {
     username: string
     nickname: string
     email: string
+    phone?: string
     avatar?: string
     roles?: string[]
   }
