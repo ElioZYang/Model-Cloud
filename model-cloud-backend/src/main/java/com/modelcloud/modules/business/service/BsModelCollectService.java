@@ -30,7 +30,7 @@ public interface BsModelCollectService {
     /**
      * 获取用户收藏的模型列表
      */
-    Page<BsModel> getMyCollectModels(int pageNum, int pageSize);
+    Page<BsModel> getMyCollectModels(int pageNum, int pageSize, String keyword, String tag);
     
     /**
      * 获取用户收藏数量

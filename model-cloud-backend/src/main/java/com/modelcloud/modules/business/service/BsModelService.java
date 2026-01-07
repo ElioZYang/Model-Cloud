@@ -21,7 +21,7 @@ public interface BsModelService {
     /**
      * 分页查询模型列表
      */
-    Page<BsModel> pageModels(int pageNum, int pageSize, String keyword);
+    Page<BsModel> pageModels(int pageNum, int pageSize, String keyword, String tag);
 
     /**
      * 获取模型详情
@@ -41,7 +41,7 @@ public interface BsModelService {
     /**
      * 分页查询我的模型列表
      */
-    Page<BsModel> pageMyModels(int pageNum, int pageSize, String keyword, Integer isPublic);
+    Page<BsModel> pageMyModels(int pageNum, int pageSize, String keyword, Integer isPublic, String tag);
 
     /**
      * 更新模型公开状态

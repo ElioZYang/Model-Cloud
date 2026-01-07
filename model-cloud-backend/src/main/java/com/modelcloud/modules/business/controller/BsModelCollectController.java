@@ -66,8 +66,10 @@ public class BsModelCollectController {
     @GetMapping("/list")
     public Result<Page<BsModel>> getMyCollects(
             @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize) {
-        Page<BsModel> page = collectService.getMyCollectModels(pageNum, pageSize);
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String tag) {
+        Page<BsModel> page = collectService.getMyCollectModels(pageNum, pageSize, keyword, tag);
         return Result.success(page);
     }
 }

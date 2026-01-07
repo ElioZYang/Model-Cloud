@@ -61,8 +61,9 @@ public class BsModelController {
     public Result<Page<BsModel>> list(
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(required = false) String keyword) {
-        Page<BsModel> page = bsModelService.pageModels(pageNum, pageSize, keyword);
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String tag) {
+        Page<BsModel> page = bsModelService.pageModels(pageNum, pageSize, keyword, tag);
         return Result.success(page);
     }
 
@@ -74,8 +75,9 @@ public class BsModelController {
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) Integer isPublic) {
-        Page<BsModel> page = bsModelService.pageMyModels(pageNum, pageSize, keyword, isPublic);
+            @RequestParam(required = false) Integer isPublic,
+            @RequestParam(required = false) String tag) {
+        Page<BsModel> page = bsModelService.pageMyModels(pageNum, pageSize, keyword, isPublic, tag);
         return Result.success(page);
     }
 

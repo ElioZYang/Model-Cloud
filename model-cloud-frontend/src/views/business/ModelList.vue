@@ -1,19 +1,15 @@
 <template>
   <div class="model-list-container">
-    <el-card class="filter-card">
-      <el-form :inline="true" :model="queryParams" class="demo-form-inline">
-        <el-form-item label="模型名称">
-          <el-input v-model="queryParams.keyword" placeholder="搜索模型名称或描述" clearable @keyup.enter="handleQuery" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleQuery">查询</el-button>
-          <el-button :icon="Refresh" @click="resetQuery">重置</el-button>
-        </el-form-item>
-        <el-form-item style="float: right">
-          <el-button type="success" :icon="Plus" @click="handleAdd">上传模型</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <ModelFilterBar
+      v-model:keyword="queryParams.keyword"
+      v-model:tag="queryParams.tag"
+      :show-public-filter="false"
+      @search="handleQuery"
+      @reset="resetQuery"
+    />
+    <div style="margin-bottom: 12px; text-align: right">
+      <el-button type="success" :icon="Plus" @click="handleAdd">上传模型</el-button>
+    </div>
 
     <div class="model-grid">
       <el-row :gutter="20">
@@ -74,13 +70,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, Refresh, Plus, Picture } from '@element-plus/icons-vue'
+import { Plus, Picture } from '@element-plus/icons-vue'
 import { modelApi } from '@/api/model'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import { useUserStore } from '@/stores/user'
 import ModelUploadDialog from '@/components/model/ModelUploadDialog.vue'
 import ModelDeleteButton from '@/components/model/ModelDeleteButton.vue'
+import ModelFilterBar from '@/components/model/ModelFilterBar.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -92,7 +89,8 @@ const defaultCover = 'https://placeholder.com/300x200'
 const queryParams = ref({
   pageNum: 1,
   pageSize: 12,
-  keyword: ''
+  keyword: '',
+  tag: '' as string | null
 })
 
 const getList = async () => {

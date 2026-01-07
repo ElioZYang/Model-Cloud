@@ -4,6 +4,14 @@
       <h2>我的收藏</h2>
     </el-card>
 
+    <ModelFilterBar
+      v-model:keyword="queryParams.keyword"
+      v-model:tag="queryParams.tag"
+      :show-public-filter="false"
+      @search="handleQuery"
+      @reset="resetQuery"
+    />
+
     <div class="model-grid">
       <el-row :gutter="20">
         <el-col v-for="model in modelList" :key="model.id" :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
@@ -60,6 +68,7 @@ import { Picture } from '@element-plus/icons-vue'
 import { modelApi } from '@/api/model'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
+import ModelFilterBar from '@/components/model/ModelFilterBar.vue'
 
 const router = useRouter()
 const modelList = ref<any[]>([])
@@ -69,7 +78,9 @@ const defaultCover = 'https://placeholder.com/300x200'
 
 const queryParams = ref({
   pageNum: 1,
-  pageSize: 12
+  pageSize: 12,
+  keyword: '',
+  tag: '' as string | null,
 })
 
 const getList = async () => {
@@ -96,6 +107,17 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   queryParams.value.pageNum = val
   getList()
+}
+
+const handleQuery = () => {
+  queryParams.value.pageNum = 1
+  getList()
+}
+
+const resetQuery = () => {
+  queryParams.value.keyword = ''
+  queryParams.value.tag = ''
+  handleQuery()
 }
 
 const viewDetail = (model: any) => {

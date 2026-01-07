@@ -128,7 +128,7 @@ public class BsModelCollectServiceImpl implements BsModelCollectService {
     }
     
     @Override
-    public Page<BsModel> getMyCollectModels(int pageNum, int pageSize) {
+    public Page<BsModel> getMyCollectModels(int pageNum, int pageSize, String keyword, String tag) {
         Long userId = SecurityUtils.getCurrentUserId();
         if (userId == null) {
             throw new BusinessException("用户未登录");
@@ -153,6 +153,8 @@ public class BsModelCollectServiceImpl implements BsModelCollectService {
         QueryWrapper modelQuery = QueryWrapper.create()
                 .where(BS_MODEL.ID.in(modelIds))
                 .and(BS_MODEL.IS_DEL.eq(0))
+                .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(cn.hutool.core.util.StrUtil.isNotBlank(keyword)))
+                .and(BS_MODEL.ATTR_LABEL_NAMES.like(tag).when(cn.hutool.core.util.StrUtil.isNotBlank(tag)))
                 .orderBy(BS_MODEL.CREATE_TIME.desc());
         
         Page<BsModel> page = modelMapper.paginate(pageNum, pageSize, modelQuery);

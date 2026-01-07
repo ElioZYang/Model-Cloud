@@ -171,12 +171,13 @@ public class BsModelServiceImpl implements BsModelService {
     }
 
     @Override
-    public Page<BsModel> pageModels(int pageNum, int pageSize, String keyword) {
+    public Page<BsModel> pageModels(int pageNum, int pageSize, String keyword, String tag) {
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .where(BS_MODEL.IS_DEL.eq(0)) // 只查询未删除的记录
                 .and(BS_MODEL.IS_PUBLIC.eq(1)) // 只显示公开的模型
                 .and(BS_MODEL.STATUS.eq(20)) // 只显示审核通过的模型
                 .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(StrUtil.isNotBlank(keyword)))
+                .and(BS_MODEL.ATTR_LABEL_NAMES.like(tag).when(StrUtil.isNotBlank(tag)))
                 .orderBy(BS_MODEL.CREATE_TIME.desc());
         
         try {
@@ -312,7 +313,7 @@ public class BsModelServiceImpl implements BsModelService {
     }
 
     @Override
-    public Page<BsModel> pageMyModels(int pageNum, int pageSize, String keyword, Integer isPublic) {
+    public Page<BsModel> pageMyModels(int pageNum, int pageSize, String keyword, Integer isPublic, String tag) {
         Long userId = SecurityUtils.getCurrentUserId();
         if (userId == null) {
             throw new BusinessException("用户未登录");
@@ -323,6 +324,7 @@ public class BsModelServiceImpl implements BsModelService {
                 .and(BS_MODEL.USER_ID.eq(userId)) // 只查询当前用户的模型
                 .and(BS_MODEL.IS_PUBLIC.eq(isPublic).when(isPublic != null)) // 根据公开状态过滤
                 .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(StrUtil.isNotBlank(keyword)))
+                .and(BS_MODEL.ATTR_LABEL_NAMES.like(tag).when(StrUtil.isNotBlank(tag)))
                 .orderBy(BS_MODEL.CREATE_TIME.desc());
         
         try {

@@ -1,25 +1,16 @@
 <template>
   <div class="model-list-container">
-    <el-card class="filter-card">
-      <el-form :inline="true" :model="queryParams" class="demo-form-inline">
-        <el-form-item label="模型名称">
-          <el-input v-model="queryParams.keyword" placeholder="搜索模型名称或描述" clearable @keyup.enter="handleQuery" />
-        </el-form-item>
-        <el-form-item label="公开状态">
-          <el-select v-model="queryParams.isPublic" placeholder="全部" clearable style="width: 120px">
-            <el-option label="公开" :value="1" />
-            <el-option label="不公开" :value="0" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleQuery">查询</el-button>
-          <el-button :icon="Refresh" @click="resetQuery">重置</el-button>
-        </el-form-item>
-        <el-form-item style="float: right">
-          <el-button type="success" :icon="Plus" @click="handleAdd">上传模型</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <ModelFilterBar
+      v-model:keyword="queryParams.keyword"
+      v-model:tag="queryParams.tag"
+      v-model:isPublic="queryParams.isPublic"
+      :show-public-filter="true"
+      @search="handleQuery"
+      @reset="resetQuery"
+    />
+    <div style="margin-bottom: 12px; text-align: right">
+      <el-button type="success" :icon="Plus" @click="handleAdd">上传模型</el-button>
+    </div>
 
     <div class="model-grid">
       <el-row :gutter="20">
@@ -114,12 +105,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, Refresh, Plus, Picture } from '@element-plus/icons-vue'
+import { Plus, Picture } from '@element-plus/icons-vue'
 import { modelApi } from '@/api/model'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import ModelUploadDialog from '@/components/model/ModelUploadDialog.vue'
 import ModelDeleteButton from '@/components/model/ModelDeleteButton.vue'
+import ModelFilterBar from '@/components/model/ModelFilterBar.vue'
 
 const router = useRouter()
 const modelList = ref<any[]>([])
@@ -134,7 +126,8 @@ const queryParams = ref({
   pageNum: 1,
   pageSize: 12,
   keyword: '',
-  isPublic: undefined as number | undefined
+  isPublic: undefined as number | undefined,
+  tag: '' as string | null
 })
 
 const publicForm = ref({
@@ -161,6 +154,7 @@ const handleQuery = () => {
 const resetQuery = () => {
   queryParams.value.keyword = ''
   queryParams.value.isPublic = undefined
+  queryParams.value.tag = ''
   handleQuery()
 }
 
