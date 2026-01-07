@@ -115,6 +115,40 @@ export const modelApi = {
    */
   getMyActivities(limit = 10) {
     return request.get('/business/model/my-activities', { params: { limit } })
+  },
+
+  /**
+   * 更新模型封面图片
+   */
+  updateModelCover(id: number, coverImage: File) {
+    const formData = new FormData()
+    formData.append('coverImage', coverImage)
+    return request.put(`/business/model/${id}/cover`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
+
+  /**
+   * 更新模型描述
+   */
+  updateModelDescription(id: number, description: string) {
+    return request.put(`/business/model/${id}/description`, { description })
+  },
+
+  /**
+   * 获取模型源码
+   */
+  getModelSourceCode(id: number) {
+    return request.get(`/business/model/${id}/source`)
+  },
+
+  /**
+   * 更新模型源码
+   */
+  updateModelSourceCode(id: number, sourceCode: string, fileName: string) {
+    return request.put(`/business/model/${id}/source`, { sourceCode, fileName })
   }
 }
 

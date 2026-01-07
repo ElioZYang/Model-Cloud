@@ -64,6 +64,27 @@ public interface BsModelService {
      * 获取当前用户最近活动（主要用于提示审核失败等）
      */
     java.util.List<BsModel> listMyActivities(int limit);
+
+    /**
+     * 更新模型封面图片（仅上传者）
+     */
+    void updateModelCover(Long id, org.springframework.web.multipart.MultipartFile coverImage);
+
+    /**
+     * 更新模型描述（仅上传者）
+     */
+    void updateModelDescription(Long id, String description);
+
+    /**
+     * 获取模型源码内容（仅上传者可修改，其他用户只能查看）
+     * 返回Map包含content和fileName
+     */
+    java.util.Map<String, String> getModelSourceCode(Long id);
+
+    /**
+     * 更新模型源码（仅上传者）
+     */
+    void updateModelSourceCode(Long id, String sourceCode, String fileName);
 }
 
 

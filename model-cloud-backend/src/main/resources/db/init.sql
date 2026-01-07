@@ -116,17 +116,30 @@ CREATE TABLE IF NOT EXISTS `bs_model` (
   KEY `idx_is_del` (`is_del`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='模型表';
 
+-- 标签分类表
+CREATE TABLE IF NOT EXISTS `model_label_category` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '分类ID',
+  `name` VARCHAR(50) NOT NULL COMMENT '分类名称',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='模型标签分类表';
+
 -- 模型标签表
 CREATE TABLE IF NOT EXISTS `bs_model_label` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '标签ID',
   `name` VARCHAR(50) NOT NULL COMMENT '标签名称',
   `description` VARCHAR(255) DEFAULT NULL COMMENT '描述',
   `sort` INT DEFAULT 0 COMMENT '排序',
+  `category_id` BIGINT DEFAULT NULL COMMENT '分类ID（外键，指向model_label_category）',
   `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `is_del` INT DEFAULT 0 COMMENT '是否删除：0未删除，1已删除',
   PRIMARY KEY (`id`),
-  KEY `idx_is_del` (`is_del`)
+  KEY `idx_is_del` (`is_del`),
+  KEY `idx_category_id` (`category_id`),
+  CONSTRAINT `fk_label_category` FOREIGN KEY (`category_id`) REFERENCES `model_label_category`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='模型标签表';
 
 -- 模型收藏表
@@ -186,21 +199,32 @@ FROM `sys_user` u, `sys_role` r
 WHERE u.username = 'yangxz' AND r.role_code = 'admin'
 ON DUPLICATE KEY UPDATE `user_id`=`user_id`;
 
--- 插入默认模型标签
-INSERT INTO `bs_model_label` (`name`, `description`, `sort`) VALUES
-('python', 'Python语言相关模型', 1),
-('modelica', 'Modelica语言模型', 2),
-('fmi', 'FMI标准模型', 3),
-('simulink', 'Simulink模型', 4),
-('matlab', 'MATLAB相关模型', 5),
-('c++', 'C++语言模型', 6),
-('java', 'Java语言模型', 7),
-('深度学习', '深度学习模型', 8),
-('机器学习', '机器学习模型', 9),
-('仿真', '仿真模型', 10),
-('优化', '优化算法模型', 11),
-('控制', '控制系统模型', 12)
-ON DUPLICATE KEY UPDATE `name`=`name`;
+-- 重置默认模型标签与分类
+DELETE FROM `bs_model_label`;
+DELETE FROM `model_label_category`;
+
+INSERT INTO `model_label_category` (`name`) VALUES
+('语言类型'),
+('用途');
+
+-- 语言类型 (category_id = 1)
+INSERT INTO `bs_model_label` (`name`, `description`, `sort`, `category_id`) VALUES
+('python', 'Python语言模型', 1, 1),
+('java', 'Java语言模型', 2, 1),
+('c/c++', 'C/C++语言模型', 3, 1),
+('julia', 'Julia语言模型', 4, 1),
+('matlab', 'MATLAB语言模型', 5, 1),
+('simulink', 'Simulink模型', 6, 1),
+('modelica', 'Modelica语言模型', 7, 1);
+
+-- 用途 (category_id = 2)
+INSERT INTO `bs_model_label` (`name`, `description`, `sort`, `category_id`) VALUES
+('建模', '建模相关', 8, 2),
+('仿真', '仿真相关', 9, 2),
+('控制', '控制相关', 10, 2),
+('优化', '优化相关', 11, 2),
+('机器学习', '机器学习相关', 12, 2),
+('深度学习', '深度学习相关', 13, 2);
 
 
 

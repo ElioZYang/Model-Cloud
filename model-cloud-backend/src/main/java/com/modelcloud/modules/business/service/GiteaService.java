@@ -193,6 +193,101 @@ public class GiteaService {
     }
 
     /**
+     * 更新文件内容（需要先获取文件的sha）
+     */
+    public void updateFile(String repoName, String filePath, String content, String sha) {
+        String encodedPath = cn.hutool.core.util.URLUtil.encode(filePath);
+        String apiUrl = giteaConfig.getUrl() + "/api/v1/repos/" + giteaConfig.getUsername() + "/" + repoName + "/contents/" + encodedPath;
+        log.info("Updating file in Gitea: {}", apiUrl);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("content", content);
+        body.put("message", "Update file: " + filePath);
+        body.put("sha", sha);
+        body.put("branch", "main");
+
+        HttpResponse response = HttpRequest.put(apiUrl)
+                .header("Authorization", "token " + giteaConfig.getToken())
+                .header("Content-Type", "application/json")
+                .body(JSONUtil.toJsonStr(body))
+                .timeout(60000)
+                .execute();
+
+        if (!response.isOk() && response.getStatus() != 200) {
+            log.warn("Failed to update on main branch, trying master branch. Status: {}, Response: {}",
+                    response.getStatus(), response.body());
+            body.put("branch", "master");
+            response = HttpRequest.put(apiUrl)
+                    .header("Authorization", "token " + giteaConfig.getToken())
+                    .header("Content-Type", "application/json")
+                    .body(JSONUtil.toJsonStr(body))
+                    .timeout(60000)
+                    .execute();
+        }
+
+        if (!response.isOk() && response.getStatus() != 200) {
+            log.error("Failed to update file in Gitea: {} - Status: {}", response.body(), response.getStatus());
+            throw new BusinessException("更新文件失败 (状态码: " + response.getStatus() + "): " + response.body());
+        }
+
+        log.info("File updated successfully: {}", filePath);
+    }
+
+    /**
+     * 获取文件内容
+     */
+    public String getFileContent(String repoName, String filePath) {
+        String encodedPath = cn.hutool.core.util.URLUtil.encode(filePath);
+        String apiUrl = giteaConfig.getUrl() + "/api/v1/repos/" + giteaConfig.getUsername() + "/" + repoName + "/contents/" + encodedPath;
+        log.info("Getting file content from Gitea: {}", apiUrl);
+
+        HttpResponse response = HttpRequest.get(apiUrl)
+                .header("Authorization", "token " + giteaConfig.getToken())
+                .timeout(30000)
+                .execute();
+
+        if (!response.isOk()) {
+            log.error("Failed to get file content from Gitea: {} - Status: {}", response.body(), response.getStatus());
+            throw new BusinessException("获取文件内容失败 (状态码: " + response.getStatus() + "): " + response.body());
+        }
+
+        cn.hutool.json.JSONObject jsonObject = JSONUtil.parseObj(response.body());
+        String content = jsonObject.getStr("content");
+        if (content != null) {
+            // Gitea返回的content是Base64编码的
+            try {
+                return new String(Base64.getDecoder().decode(content.replaceAll("\\s", "")));
+            } catch (IllegalArgumentException e) {
+                log.error("Failed to decode base64 content", e);
+                throw new BusinessException("解码文件内容失败: " + e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取文件的sha值（用于更新文件）
+     */
+    public String getFileSha(String repoName, String filePath) {
+        String encodedPath = cn.hutool.core.util.URLUtil.encode(filePath);
+        String apiUrl = giteaConfig.getUrl() + "/api/v1/repos/" + giteaConfig.getUsername() + "/" + repoName + "/contents/" + encodedPath;
+        log.info("Getting file sha from Gitea: {}", apiUrl);
+
+        HttpResponse response = HttpRequest.get(apiUrl)
+                .header("Authorization", "token " + giteaConfig.getToken())
+                .timeout(30000)
+                .execute();
+
+        if (!response.isOk()) {
+            log.error("Failed to get file sha from Gitea: {} - Status: {}", response.body(), response.getStatus());
+            throw new BusinessException("获取文件sha失败 (状态码: " + response.getStatus() + "): " + response.body());
+        }
+
+        cn.hutool.json.JSONObject jsonObject = JSONUtil.parseObj(response.body());
+        return jsonObject.getStr("sha");
+    }
+
+    /**
      * 获取仓库存档(zip)下载链接
      */
     public String getArchiveUrl(String repoName) {
@@ -232,6 +327,29 @@ public class GiteaService {
     }
     
     /**
+     * 列出文件夹内容
+     */
+    public java.util.List<cn.hutool.json.JSONObject> listFolderContents(String repoName, String folderPath) {
+        String encodedPath = cn.hutool.core.util.URLUtil.encode(folderPath);
+        String apiUrl = giteaConfig.getUrl() + "/api/v1/repos/" + giteaConfig.getUsername() + "/" + repoName + "/contents/" + encodedPath;
+        log.info("Listing folder contents from Gitea: {}", apiUrl);
+
+        HttpResponse response = HttpRequest.get(apiUrl)
+                .header("Authorization", "token " + giteaConfig.getToken())
+                .timeout(30000)
+                .execute();
+
+        if (!response.isOk()) {
+            log.error("Failed to list folder contents from Gitea: {} - Status: {}", response.body(), response.getStatus());
+            throw new BusinessException("获取文件夹内容失败 (状态码: " + response.getStatus() + "): " + response.body());
+        }
+
+        // 返回 JSON 对象列表，避免 Map 泛型推断问题
+        cn.hutool.json.JSONArray array = JSONUtil.parseArray(response.body());
+        return array.toList(cn.hutool.json.JSONObject.class);
+    }
+
+    /**
      * 删除仓库
      */
     public void deleteRepository(String repoName) {
@@ -252,5 +370,3 @@ public class GiteaService {
         }
     }
 }
-
-

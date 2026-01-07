@@ -21,6 +21,7 @@ public class BsModelLabel implements Serializable {
     private String name;
     private String description;
     private Integer sort;
+    private Long categoryId;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private Integer isDel;

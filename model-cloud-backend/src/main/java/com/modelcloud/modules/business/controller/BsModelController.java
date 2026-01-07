@@ -164,6 +164,72 @@ public class BsModelController {
             return Result.error("删除失败: " + e.getMessage());
         }
     }
+
+    /**
+     * 更新模型封面图片（仅上传者）
+     */
+    @PutMapping("/{id}/cover")
+    public Result<?> updateCover(@PathVariable Long id, 
+                                  @RequestParam("coverImage") org.springframework.web.multipart.MultipartFile coverImage) {
+        try {
+            bsModelService.updateModelCover(id, coverImage);
+            return Result.success("更新封面成功");
+        } catch (Exception e) {
+            log.error("更新模型封面失败", e);
+            return Result.error("更新失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 更新模型描述（仅上传者）
+     */
+    @PutMapping("/{id}/description")
+    public Result<?> updateDescription(@PathVariable Long id, @RequestBody java.util.Map<String, String> request) {
+        try {
+            String description = request.get("description");
+            if (description == null) {
+                return Result.error("description参数不能为空");
+            }
+            bsModelService.updateModelDescription(id, description);
+            return Result.success("更新描述成功");
+        } catch (Exception e) {
+            log.error("更新模型描述失败", e);
+            return Result.error("更新失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取模型源码（所有用户可查看）
+     */
+    @GetMapping("/{id}/source")
+    public Result<java.util.Map<String, String>> getSourceCode(@PathVariable Long id) {
+        try {
+            java.util.Map<String, String> result = bsModelService.getModelSourceCode(id);
+            return Result.success(result);
+        } catch (Exception e) {
+            log.error("获取模型源码失败", e);
+            return Result.error("获取失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 更新模型源码（仅上传者）
+     */
+    @PutMapping("/{id}/source")
+    public Result<?> updateSourceCode(@PathVariable Long id, @RequestBody java.util.Map<String, String> request) {
+        try {
+            String sourceCode = request.get("sourceCode");
+            String fileName = request.get("fileName");
+            if (sourceCode == null || fileName == null) {
+                return Result.error("sourceCode和fileName参数不能为空");
+            }
+            bsModelService.updateModelSourceCode(id, sourceCode, fileName);
+            return Result.success("更新源码成功");
+        } catch (Exception e) {
+            log.error("更新模型源码失败", e);
+            return Result.error("更新失败: " + e.getMessage());
+        }
+    }
 }
 
 

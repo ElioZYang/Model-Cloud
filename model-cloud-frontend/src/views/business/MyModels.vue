@@ -107,7 +107,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Plus, Picture } from '@element-plus/icons-vue'
 import { modelApi } from '@/api/model'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import ModelUploadDialog from '@/components/model/ModelUploadDialog.vue'
 import ModelDeleteButton from '@/components/model/ModelDeleteButton.vue'
@@ -239,33 +239,6 @@ const submitPublicChange = async () => {
     ElMessage.error('设置失败')
   } finally {
     publicSubmitting.value = false
-  }
-}
-
-const handleDelete = async (model: any) => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要删除模型"${model.name}"吗？此操作将删除数据库记录和Gitea仓库，且无法恢复！`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    const res: any = await modelApi.deleteModel(model.id)
-    if (res.code === 200) {
-      ElMessage.success('删除成功')
-      getList()
-    } else {
-      ElMessage.error(res.message || '删除失败')
-    }
-  } catch (error: any) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
-      ElMessage.error('删除失败')
-    }
   }
 }
 
