@@ -1,23 +1,95 @@
 # 生产环境配置
+# 所有敏感信息通过环境变量配置，确保安全性
+
 spring:
+  # 数据源配置（支持Docker容器间通信）
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:model_cloud}?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://${DB_HOST:mysql}:${DB_PORT:3306}/${DB_NAME:model_cloud}?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    password: ${DB_PASSWORD}
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      auto-commit: true
+      idle-timeout: 30000
+      pool-name: ModelCloudHikariCP
+      max-lifetime: 1800000
+      connection-timeout: 30000
+  
+  # Redis配置（支持Docker容器间通信）
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
+      host: ${REDIS_HOST:redis}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+    
+    # MongoDB配置（支持Docker容器间通信）
     mongodb:
-      uri: mongodb://${MONGO_HOST:localhost}:${MONGO_PORT:27017}/${MONGO_DB:model_cloud}
+      uri: mongodb://${MONGO_USERNAME:}${MONGO_USERNAME:+:}${MONGO_PASSWORD}${MONGO_PASSWORD:+@}${MONGO_HOST:mongodb}:${MONGO_PORT:27017}/${MONGO_DB:model_cloud}?authSource=${MONGO_AUTH_DB:admin}
+      database: ${MONGO_DB:model_cloud}
+  
+  # 文件上传配置
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 500MB
 
+# 日志配置（生产环境）
 logging:
   level:
     root: INFO
     com.modelcloud: INFO
   file:
     name: logs/model-cloud.log
+    max-size: 100MB
+    max-history: 30
+  pattern:
+    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n'
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n'
+
+# 应用配置（生产环境）
+model-cloud:
+  # JWT配置（使用环境变量）
+  jwt:
+    secret: ${JWT_SECRET:model-cloud-secret-key-2025-secure-long-string-32bytes}
+    expiration: ${JWT_EXPIRATION:86400000}  # 24小时
+    header: Authorization
+    token-prefix: Bearer 
+  
+  # 文件上传配置
+  upload:
+    windows-path: ${UPLOAD_WINDOWS_PATH:C:/uploads/model-cloud/}
+    linux-path: ${UPLOAD_LINUX_PATH:/home/uploads/model-cloud/}
+    ftp-use: ${FTP_USE:false}
+    ftp-hostname: ${FTP_HOSTNAME:}
+    ftp-port: ${FTP_PORT:21}
+    ftp-username: ${FTP_USERNAME:}
+    ftp-password: ${FTP_PASSWORD:}
+  
+  # Gitea配置（使用环境变量保护敏感信息）
+  gitea:
+    url: ${GITEA_URL:http://gitea:3000}
+    token: ${GITEA_TOKEN}
+    username: ${GITEA_USERNAME:yangxz}
+    password: ${GITEA_PASSWORD}
+  
+  # 安全配置
+  security:
+    maximum-sessions: 100
+    remember-me-key: ${REMEMBER_ME_KEY:MODEL_CLOUD_REMEMBER}
+    open-apis:
+      - /auth/login
+      - /auth/captcha
+      - /auth/register
+      - /public/**
 
 
 
