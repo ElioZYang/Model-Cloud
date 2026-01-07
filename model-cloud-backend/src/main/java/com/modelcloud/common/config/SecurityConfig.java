@@ -54,7 +54,8 @@ public class SecurityConfig {
                     "/public/**",
                     "/business/label/list",
                     "/business/model/list",
-                    "/business/model/{id}"
+                    "/business/model/{id}",
+                    "/api/sse/**"  // SSE端点需要认证，但允许跨域
                 ).permitAll()
                 // 其他请求需要认证
                 .anyRequest().authenticated()

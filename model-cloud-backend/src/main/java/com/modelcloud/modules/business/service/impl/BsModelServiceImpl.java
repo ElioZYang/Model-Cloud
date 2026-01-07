@@ -14,6 +14,7 @@ import com.modelcloud.modules.business.service.BsModelService;
 import com.modelcloud.modules.business.service.GiteaService;
 import com.modelcloud.modules.sys.mapper.SysUserMapper;
 import com.modelcloud.modules.sys.model.domain.SysUser;
+import com.modelcloud.modules.sys.service.SiteStatService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +49,7 @@ public class BsModelServiceImpl implements BsModelService {
     private final SysUserMapper sysUserMapper;
     private final com.modelcloud.modules.business.service.BsModelCollectService collectService;
     private final GiteaConfig giteaConfig;
+    private final SiteStatService siteStatService;
 
     public BsModelServiceImpl(
             BsModelMapper bsModelMapper,
@@ -55,13 +57,15 @@ public class BsModelServiceImpl implements BsModelService {
             GiteaService giteaService, 
             SysUserMapper sysUserMapper,
             com.modelcloud.modules.business.service.BsModelCollectService collectService,
-            GiteaConfig giteaConfig) {
+            GiteaConfig giteaConfig,
+            SiteStatService siteStatService) {
         this.bsModelMapper = bsModelMapper;
         this.bsModelCollectMapper = bsModelCollectMapper;
         this.giteaService = giteaService;
         this.sysUserMapper = sysUserMapper;
         this.collectService = collectService;
         this.giteaConfig = giteaConfig;
+        this.siteStatService = siteStatService;
     }
 
     @Override
@@ -259,8 +263,9 @@ public class BsModelServiceImpl implements BsModelService {
                 stats.put("myCollectCount", 0);
             }
             
-            // 浏览量（暂时返回0，后续可以扩展）
-            stats.put("viewCount", 0);
+            // 浏览量：全站总访问次数（成功登录次数）
+            long totalVisitCount = siteStatService.getTotalVisitCount();
+            stats.put("viewCount", totalVisitCount);
             
             return stats;
         } catch (Exception e) {

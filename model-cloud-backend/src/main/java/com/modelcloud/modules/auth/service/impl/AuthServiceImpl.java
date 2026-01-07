@@ -12,6 +12,7 @@ import com.modelcloud.modules.auth.service.CaptchaService;
 import com.modelcloud.modules.sys.mapper.SysRoleMapper;
 import com.modelcloud.modules.sys.mapper.SysUserMapper;
 import com.modelcloud.modules.sys.mapper.SysUserRoleMapper;
+import com.modelcloud.modules.sys.service.SiteStatService;
 import com.modelcloud.modules.sys.model.domain.SysRole;
 import com.modelcloud.modules.sys.model.domain.SysUser;
 import com.mybatisflex.core.query.QueryWrapper;
@@ -39,6 +40,7 @@ public class AuthServiceImpl implements AuthService {
     private final CaptchaService captchaService;
     private final PasswordUtil passwordUtil;
     private final JwtUtil jwtUtil;
+    private final SiteStatService siteStatService;
     
     public AuthServiceImpl(
             SysUserMapper userMapper,
@@ -46,13 +48,15 @@ public class AuthServiceImpl implements AuthService {
             SysRoleMapper roleMapper,
             CaptchaService captchaService,
             PasswordUtil passwordUtil,
-            JwtUtil jwtUtil) {
+            JwtUtil jwtUtil,
+            SiteStatService siteStatService) {
         this.userMapper = userMapper;
         this.userRoleMapper = userRoleMapper;
         this.roleMapper = roleMapper;
         this.captchaService = captchaService;
         this.passwordUtil = passwordUtil;
         this.jwtUtil = jwtUtil;
+        this.siteStatService = siteStatService;
     }
     
     @Override
@@ -110,7 +114,17 @@ public class AuthServiceImpl implements AuthService {
         );
         
         log.info("用户登录成功: {}, 角色: {}", user.getUsername(), roleCodes);
-        
+
+        // 统计站点访问次数（每次成功登录记录一次访问）
+        try {
+            log.info("开始记录站点访问，userId={}", user.getId());
+            siteStatService.recordVisit(user.getId());
+            log.info("站点访问记录成功，userId={}", user.getId());
+        } catch (Exception e) {
+            // 统计失败不影响登录主流程
+            log.error("记录站点访问失败，userId={}", user.getId(), e);
+        }
+
         return new LoginResponse(token, userInfo);
     }
     

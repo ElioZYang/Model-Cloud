@@ -24,6 +24,7 @@ import java.net.UnknownHostException;
 @Slf4j
 @SpringBootApplication
 @EnableMongoRepositories("com.modelcloud.modules.**.repository")
+@org.springframework.scheduling.annotation.EnableAsync
 public class ModelCloudApplication {
     public static void main(String[] args) throws UnknownHostException {
         ConfigurableApplicationContext application = SpringApplication.run(ModelCloudApplication.class, args);

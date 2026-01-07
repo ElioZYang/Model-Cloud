@@ -113,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { User, Box, Star, Upload, View, Plus, Search, Setting } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
@@ -203,12 +203,107 @@ const formatDate = (date: string) => {
   return date ? dayjs(date).format('YYYY-MM-DD HH:mm') : '-'
 }
 
+// SSE连接相关
+let eventSource: EventSource | null = null
+let reconnectTimer: number | null = null
+
+// 建立SSE连接，实时接收浏览量更新
+const connectSSE = () => {
+  // 如果已经存在连接，先关闭
+  if (eventSource) {
+    disconnectSSE()
+  }
+
+  // 如果浏览器不支持EventSource，则不建立连接
+  if (typeof EventSource === 'undefined') {
+    console.warn('浏览器不支持EventSource，无法建立SSE连接')
+    return
+  }
+
+  try {
+    // 获取baseURL（从axios配置中获取）
+    const baseURL = '/api'
+    const sseUrl = `${baseURL}/sse/visit-count`
+    
+    eventSource = new EventSource(sseUrl)
+    
+    // 监听连接成功事件
+    eventSource.addEventListener('connected', (event: any) => {
+      console.log('SSE连接成功:', event.data)
+      // 清除重连定时器
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer)
+        reconnectTimer = null
+      }
+    })
+    
+    // 监听浏览量更新事件
+    eventSource.addEventListener('visitCountUpdate', (event: any) => {
+      const newCount = parseInt(event.data, 10)
+      if (!isNaN(newCount)) {
+        console.log('收到浏览量更新:', newCount)
+        statistics.value.viewCount = newCount
+        // 同步更新sessionStorage
+        const saved = sessionStorage.getItem('modelStats')
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved)
+            parsed.viewCount = newCount
+            sessionStorage.setItem('modelStats', JSON.stringify(parsed))
+          } catch (e) {
+            console.error('更新sessionStorage失败', e)
+          }
+        }
+      }
+    })
+    
+    // 监听错误事件
+    eventSource.onerror = (error) => {
+      console.error('SSE连接错误:', error)
+      // EventSource会自动重连，但如果连接完全关闭，我们手动重连
+      if (eventSource?.readyState === EventSource.CLOSED) {
+        // 清除之前的重连定时器
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer)
+        }
+        // 5秒后尝试重连
+        reconnectTimer = window.setTimeout(() => {
+          console.log('尝试重新连接SSE...')
+          connectSSE()
+        }, 5000)
+      }
+    }
+  } catch (error) {
+    console.error('建立SSE连接失败:', error)
+  }
+}
+
+// 关闭SSE连接
+const disconnectSSE = () => {
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer)
+    reconnectTimer = null
+  }
+  if (eventSource) {
+    eventSource.close()
+    eventSource = null
+    console.log('SSE连接已关闭')
+  }
+}
+
 onMounted(() => {
   initStatsFromSession()
   if (!statsLoaded.value) {
     getStatistics()
   }
   getActivities()
+  // 建立SSE连接
+  connectSSE()
+})
+
+onUnmounted(() => {
+  // 组件销毁时关闭SSE连接
+  disconnectSSE()
 })
 </script>
 
