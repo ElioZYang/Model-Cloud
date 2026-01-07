@@ -108,6 +108,7 @@ import { useRouter } from 'vue-router'
 import { Plus, Picture } from '@element-plus/icons-vue'
 import { modelApi } from '@/api/model'
 import { ElMessage } from 'element-plus'
+import { refreshHomeStats } from '@/utils/stats'
 import dayjs from 'dayjs'
 import ModelUploadDialog from '@/components/model/ModelUploadDialog.vue'
 import ModelDeleteButton from '@/components/model/ModelDeleteButton.vue'
@@ -231,6 +232,7 @@ const submitPublicChange = async () => {
       ElMessage.success('设置成功')
       publicDialogVisible.value = false
       getList()
+      await refreshHomeStats()
     } else {
       ElMessage.error(res.message || '设置失败')
     }

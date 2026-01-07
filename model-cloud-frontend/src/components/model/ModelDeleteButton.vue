@@ -13,6 +13,7 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { modelApi } from '@/api/model'
+import { refreshHomeStats } from '@/utils/stats'
 
 const props = defineProps<{
   model: { id: number; name: string }
@@ -42,6 +43,7 @@ const confirmDelete = async () => {
     const res: any = await modelApi.deleteModel(props.model.id)
     if (res.code === 200) {
       ElMessage.success('删除成功')
+      await refreshHomeStats()
       emit('deleted')
     } else {
       ElMessage.error(res.message || '删除失败')

@@ -71,6 +71,7 @@ import { Plus } from '@element-plus/icons-vue'
 import { ElMessage, type FormInstance, type UploadFile } from 'element-plus'
 import { modelApi } from '@/api/model'
 import { useUserStore } from '@/stores/user'
+import { refreshHomeStats } from '@/utils/stats'
 
 const props = defineProps<{
   modelValue: boolean
@@ -166,6 +167,7 @@ const submitForm = async () => {
         const res: any = await modelApi.createModel(formData)
         if (res.code === 200) {
           ElMessage.success('上传成功')
+          await refreshHomeStats()
           visibleInner.value = false
           emit('success')
         } else {

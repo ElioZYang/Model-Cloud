@@ -254,9 +254,10 @@ public class GiteaService {
         cn.hutool.json.JSONObject jsonObject = JSONUtil.parseObj(response.body());
         String content = jsonObject.getStr("content");
         if (content != null) {
-            // Gitea返回的content是Base64编码的
+            // Gitea返回的content是Base64编码的，这里按UTF-8解码，避免中文乱码
             try {
-                return new String(Base64.getDecoder().decode(content.replaceAll("\\s", "")));
+                byte[] bytes = Base64.getDecoder().decode(content.replaceAll("\\s", ""));
+                return new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
             } catch (IllegalArgumentException e) {
                 log.error("Failed to decode base64 content", e);
                 throw new BusinessException("解码文件内容失败: " + e.getMessage());

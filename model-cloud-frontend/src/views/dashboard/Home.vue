@@ -21,7 +21,7 @@
               <el-icon><Box /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-value">{{ statistics.totalCount || 0 }}</div>
+              <div class="stat-value">{{ statsLoaded ? statistics.totalCount : '...' }}</div>
               <div class="stat-label">模型总数</div>
             </div>
           </div>
@@ -34,7 +34,7 @@
               <el-icon><Star /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-value">{{ statistics.myCollectCount || 0 }}</div>
+              <div class="stat-value">{{ statsLoaded ? statistics.myCollectCount : '...' }}</div>
               <div class="stat-label">我的收藏</div>
             </div>
           </div>
@@ -47,7 +47,7 @@
               <el-icon><Upload /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-value">{{ statistics.myUploadCount || 0 }}</div>
+              <div class="stat-value">{{ statsLoaded ? statistics.myUploadCount : '...' }}</div>
               <div class="stat-label">我的模型</div>
             </div>
           </div>
@@ -60,7 +60,7 @@
               <el-icon><View /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-value">{{ statistics.viewCount || 0 }}</div>
+              <div class="stat-value">{{ statsLoaded ? statistics.viewCount : '...' }}</div>
               <div class="stat-label">浏览量</div>
             </div>
           </div>
@@ -130,6 +130,21 @@ const statistics = ref({
   myCollectCount: 0,
   viewCount: 0
 })
+const statsLoaded = ref(false)
+
+const initStatsFromSession = () => {
+  const saved = sessionStorage.getItem('modelStats')
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved)
+      statistics.value = { ...statistics.value, ...parsed }
+      statsLoaded.value = true
+    } catch (e) {
+      console.error('恢复统计信息失败', e)
+      sessionStorage.removeItem('modelStats')
+    }
+  }
+}
 
 const activities = ref<any[]>([])
 
@@ -140,6 +155,8 @@ const getStatistics = async () => {
     const res: any = await modelApi.getStatistics()
     if (res.code === 200) {
       statistics.value = res.data || statistics.value
+      statsLoaded.value = true
+      sessionStorage.setItem('modelStats', JSON.stringify(statistics.value))
     }
   } catch (error) {
     console.error('获取统计信息失败', error)
@@ -187,7 +204,10 @@ const formatDate = (date: string) => {
 }
 
 onMounted(() => {
-  getStatistics()
+  initStatsFromSession()
+  if (!statsLoaded.value) {
+    getStatistics()
+  }
   getActivities()
 })
 </script>

@@ -195,6 +195,7 @@ import dayjs from 'dayjs'
 import { useUserStore } from '@/stores/user'
 import ModelDeleteButton from '@/components/model/ModelDeleteButton.vue'
 import type { UploadFile } from 'element-plus'
+import { refreshHomeStats } from '@/utils/stats'
 
 const route = useRoute()
 const router = useRouter()
@@ -294,6 +295,7 @@ const toggleCollect = async () => {
       if (res.code === 200) {
         isCollected.value = false
         ElMessage.success('已取消收藏')
+        await refreshHomeStats()
       } else {
         ElMessage.error(res.message || '取消收藏失败')
       }
@@ -302,6 +304,7 @@ const toggleCollect = async () => {
       if (res.code === 200) {
         isCollected.value = true
         ElMessage.success('已收藏')
+        await refreshHomeStats()
       } else {
         ElMessage.error(res.message || '收藏失败')
       }

@@ -6,7 +6,9 @@ import com.modelcloud.common.config.GiteaConfig;
 import com.modelcloud.common.exception.BusinessException;
 import com.modelcloud.common.tools.SecurityUtils;
 import com.modelcloud.modules.business.mapper.BsModelMapper;
+import com.modelcloud.modules.business.mapper.BsModelCollectMapper;
 import com.modelcloud.modules.business.model.domain.BsModel;
+import com.modelcloud.modules.business.model.domain.BsModelCollect;
 import com.modelcloud.modules.business.model.request.ModelUploadRequest;
 import com.modelcloud.modules.business.service.BsModelService;
 import com.modelcloud.modules.business.service.GiteaService;
@@ -29,6 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.modelcloud.modules.business.model.domain.table.BsModelTableDef.BS_MODEL;
+import static com.modelcloud.modules.business.model.domain.table.BsModelCollectTableDef.BS_MODEL_COLLECT;
 
 /**
  * 模型服务实现类
@@ -40,18 +43,21 @@ import static com.modelcloud.modules.business.model.domain.table.BsModelTableDef
 public class BsModelServiceImpl implements BsModelService {
 
     private final BsModelMapper bsModelMapper;
+    private final BsModelCollectMapper bsModelCollectMapper;
     private final GiteaService giteaService;
     private final SysUserMapper sysUserMapper;
     private final com.modelcloud.modules.business.service.BsModelCollectService collectService;
     private final GiteaConfig giteaConfig;
 
     public BsModelServiceImpl(
-            BsModelMapper bsModelMapper, 
+            BsModelMapper bsModelMapper,
+            BsModelCollectMapper bsModelCollectMapper, 
             GiteaService giteaService, 
             SysUserMapper sysUserMapper,
             com.modelcloud.modules.business.service.BsModelCollectService collectService,
             GiteaConfig giteaConfig) {
         this.bsModelMapper = bsModelMapper;
+        this.bsModelCollectMapper = bsModelCollectMapper;
         this.giteaService = giteaService;
         this.sysUserMapper = sysUserMapper;
         this.collectService = collectService;
@@ -298,7 +304,24 @@ public class BsModelServiceImpl implements BsModelService {
         model.setIsDel(1);
         model.setUpdateTime(LocalDateTime.now());
         bsModelMapper.update(model);
-        
+
+        // 同步逻辑删除该模型的所有收藏记录
+        try {
+            QueryWrapper collectQuery = QueryWrapper.create()
+                    .where(BS_MODEL_COLLECT.MODEL_ID.eq(id))
+                    .and(BS_MODEL_COLLECT.IS_DEL.eq(0));
+            List<BsModelCollect> collects = bsModelCollectMapper.selectListByQuery(collectQuery);
+            if (collects != null && !collects.isEmpty()) {
+                for (BsModelCollect collect : collects) {
+                    collect.setIsDel(1);
+                    bsModelCollectMapper.update(collect);
+                }
+            }
+        } catch (Exception e) {
+            // 收藏记录的逻辑删除失败不影响模型删除主流程，只记录日志
+            log.warn("删除模型时同步逻辑删除收藏记录失败: modelId={}", id, e);
+        }
+
         log.info("Model deleted successfully: {}", id);
     }
 
