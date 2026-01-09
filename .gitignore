@@ -28,11 +28,4 @@ dist-ssr
 .env.local
 .env.*.local
 
-### 部署相关文档（包含服务器IP等敏感信息） ###
-model-cloud-backend/数据库初始化指南.md
-登录注册功能验证指南.md
-服务器IP配置说明.md
-docker-compose.yml
-服务器部署快速指南.md
-生产环境部署指南.md
 
