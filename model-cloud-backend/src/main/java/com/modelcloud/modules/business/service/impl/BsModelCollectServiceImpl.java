@@ -64,18 +64,28 @@ public class BsModelCollectServiceImpl implements BsModelCollectService {
             throw new BusinessException("模型不存在");
         }
         
-        // 检查是否已收藏
+        // 检查是否已存在收藏记录（包括逻辑删除的记录）
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .where(BS_MODEL_COLLECT.USER_ID.eq(userId))
-                .and(BS_MODEL_COLLECT.MODEL_ID.eq(modelId))
-                .and(BS_MODEL_COLLECT.IS_DEL.eq(0));
+                .and(BS_MODEL_COLLECT.MODEL_ID.eq(modelId));
         BsModelCollect existCollect = collectMapper.selectOneByQuery(queryWrapper);
         
         if (existCollect != null) {
-            throw new BusinessException("已收藏该模型");
+            // 如果记录已存在
+            if (existCollect.getIsDel() == 0) {
+                // 已收藏，无需重复操作
+                throw new BusinessException("已收藏该模型");
+            } else {
+                // 之前收藏过但已取消，恢复收藏（逻辑删除恢复）
+                existCollect.setIsDel(0);
+                existCollect.setCreateTime(LocalDateTime.now()); // 更新收藏时间为当前时间
+                collectMapper.update(existCollect);
+                log.info("用户 {} 重新收藏了模型 {}（恢复之前的收藏记录）", userId, modelId);
+                return;
+            }
         }
         
-        // 创建收藏记录
+        // 不存在记录，创建新的收藏记录
         BsModelCollect collect = new BsModelCollect();
         collect.setUserId(userId);
         collect.setModelId(modelId);

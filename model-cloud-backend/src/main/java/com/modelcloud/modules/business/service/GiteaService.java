@@ -196,13 +196,20 @@ public class GiteaService {
      * 更新文件内容（需要先获取文件的sha）
      */
     public void updateFile(String repoName, String filePath, String content, String sha) {
+        updateFile(repoName, filePath, content, sha, "Update file: " + filePath);
+    }
+
+    /**
+     * 更新文件内容（需要先获取文件的sha，支持自定义 commit message）
+     */
+    public void updateFile(String repoName, String filePath, String content, String sha, String commitMessage) {
         String encodedPath = cn.hutool.core.util.URLUtil.encode(filePath);
         String apiUrl = giteaConfig.getUrl() + "/api/v1/repos/" + giteaConfig.getUsername() + "/" + repoName + "/contents/" + encodedPath;
         log.info("Updating file in Gitea: {}", apiUrl);
 
         Map<String, Object> body = new HashMap<>();
         body.put("content", content);
-        body.put("message", "Update file: " + filePath);
+        body.put("message", commitMessage);
         body.put("sha", sha);
         body.put("branch", "main");
 

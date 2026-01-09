@@ -280,8 +280,59 @@ SELECT '  - bs_model_label (模型标签表)' AS tables;
 SELECT '  - bs_model (模型表)' AS tables;
 SELECT '  - bs_model_collect (模型收藏表)' AS tables;
 SELECT '  - sys_site_stat (站点统计表)' AS tables;
+
+-- ===================================================================
+-- 6. 创建数据库触发器
+-- 当用户或模型的 is_del 被设置为 1 时，自动将 bs_model_collect 中相应记录的 is_del 也设置为 1
+-- ===================================================================
+
+-- 删除已存在的触发器（如果存在）
+DROP TRIGGER IF EXISTS `trg_user_delete_collect`;
+DROP TRIGGER IF EXISTS `trg_model_delete_collect`;
+
+-- 创建用户删除触发器
+DELIMITER $$
+
+CREATE TRIGGER `trg_user_delete_collect`
+AFTER UPDATE ON `sys_user`
+FOR EACH ROW
+BEGIN
+    -- 检查 is_del 是否从 0 变为 1
+    IF OLD.is_del = 0 AND NEW.is_del = 1 THEN
+        -- 更新该用户的所有收藏记录（只更新 is_del=0 的记录，避免重复更新）
+        UPDATE `bs_model_collect`
+        SET `is_del` = 1
+        WHERE `user_id` = NEW.id
+          AND `is_del` = 0;
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- 创建模型删除触发器
+DELIMITER $$
+
+CREATE TRIGGER `trg_model_delete_collect`
+AFTER UPDATE ON `bs_model`
+FOR EACH ROW
+BEGIN
+    -- 检查 is_del 是否从 0 变为 1
+    IF OLD.is_del = 0 AND NEW.is_del = 1 THEN
+        -- 更新该模型的所有收藏记录（只更新 is_del=0 的记录，避免重复更新）
+        UPDATE `bs_model_collect`
+        SET `is_del` = 1
+        WHERE `model_id` = NEW.id
+          AND `is_del` = 0;
+    END IF;
+END$$
+
+DELIMITER ;
+
 SELECT '已插入基础数据：' AS info;
 SELECT '  - 3个系统角色（超级管理员、管理员、普通用户）' AS data;
 SELECT '  - 2个标签分类（语言类型、用途）' AS data;
 SELECT '  - 13个模型标签' AS data;
+SELECT '已创建触发器：' AS info;
+SELECT '  - trg_user_delete_collect (用户删除时自动删除收藏记录)' AS triggers;
+SELECT '  - trg_model_delete_collect (模型删除时自动删除收藏记录)' AS triggers;
 

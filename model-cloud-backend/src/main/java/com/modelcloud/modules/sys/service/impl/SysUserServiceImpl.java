@@ -4,6 +4,8 @@ import cn.hutool.core.util.StrUtil;
 import com.modelcloud.common.constant.CommonConstant;
 import com.modelcloud.common.exception.BusinessException;
 import com.modelcloud.common.tools.PasswordUtil;
+import com.modelcloud.modules.business.mapper.BsModelCollectMapper;
+import com.modelcloud.modules.business.model.domain.BsModelCollect;
 import com.modelcloud.modules.sys.mapper.SysRoleMapper;
 import com.modelcloud.modules.sys.mapper.SysUserMapper;
 import com.modelcloud.modules.sys.mapper.SysUserRoleMapper;
@@ -24,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.modelcloud.modules.business.model.domain.table.BsModelCollectTableDef.BS_MODEL_COLLECT;
 import static com.modelcloud.modules.sys.model.domain.table.SysUserTableDef.SYS_USER;
 
 /**
@@ -39,16 +42,19 @@ public class SysUserServiceImpl implements SysUserService {
     private final SysUserRoleMapper userRoleMapper;
     private final SysRoleMapper roleMapper;
     private final PasswordUtil passwordUtil;
+    private final BsModelCollectMapper modelCollectMapper;
     
     public SysUserServiceImpl(
             SysUserMapper userMapper,
             SysUserRoleMapper userRoleMapper,
             SysRoleMapper roleMapper,
-            PasswordUtil passwordUtil) {
+            PasswordUtil passwordUtil,
+            BsModelCollectMapper modelCollectMapper) {
         this.userMapper = userMapper;
         this.userRoleMapper = userRoleMapper;
         this.roleMapper = roleMapper;
         this.passwordUtil = passwordUtil;
+        this.modelCollectMapper = modelCollectMapper;
     }
     
     @Override
@@ -321,6 +327,23 @@ public class SysUserServiceImpl implements SysUserService {
         
         // 删除用户角色关联
         userRoleMapper.deleteByUserId(id);
+        
+        // 同步逻辑删除该用户的所有收藏记录
+        try {
+            QueryWrapper collectQuery = QueryWrapper.create()
+                    .where(BS_MODEL_COLLECT.USER_ID.eq(id))
+                    .and(BS_MODEL_COLLECT.IS_DEL.eq(CommonConstant.IS_DEL_NO));
+            List<BsModelCollect> collects = modelCollectMapper.selectListByQuery(collectQuery);
+            if (collects != null && !collects.isEmpty()) {
+                for (BsModelCollect collect : collects) {
+                    collect.setIsDel(CommonConstant.IS_DEL_YES);
+                    modelCollectMapper.update(collect);
+                }
+            }
+        } catch (Exception e) {
+            // 收藏记录的逻辑删除失败不影响用户删除主流程，只记录日志
+            log.warn("删除用户时同步逻辑删除收藏记录失败: userId={}", id, e);
+        }
         
         log.info("删除用户成功: {}", id);
     }
