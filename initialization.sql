@@ -7,9 +7,9 @@
 -- ===================================================================
 
 -- 1. 创建数据库
-CREATE DATABASE IF NOT EXISTS `model_temp` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS `model_cloud` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE `model_temp`;
+USE `model_cloud`;
 
 -- ===================================================================
 -- 2. 创建基础表（无外键依赖的表）

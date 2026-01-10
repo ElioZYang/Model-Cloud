@@ -2,9 +2,9 @@
 # 所有敏感信息通过环境变量配置，确保安全性
 
 spring:
-  # 数据源配置（支持Docker容器间通信）
+  # 数据源配置（JAR包部署：连接Docker容器外部端口）
   datasource:
-    url: jdbc:mysql://${DB_HOST:mysql}:${DB_PORT:3306}/${DB_NAME:model_cloud}?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/${DB_NAME:model_cloud}?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD}
     hikari:
@@ -16,10 +16,10 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
   
-  # Redis配置（支持Docker容器间通信）
+  # Redis配置（JAR包部署：连接Docker容器外部端口）
   data:
     redis:
-      host: ${REDIS_HOST:redis}
+      host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       timeout: 5000ms
@@ -30,9 +30,9 @@ spring:
           min-idle: 0
           max-wait: -1ms
     
-    # MongoDB配置（支持Docker容器间通信）
+    # MongoDB配置（JAR包部署：连接Docker容器外部端口）
     mongodb:
-      uri: mongodb://${MONGO_USERNAME:}${MONGO_USERNAME:+:}${MONGO_PASSWORD}${MONGO_PASSWORD:+@}${MONGO_HOST:mongodb}:${MONGO_PORT:27017}/${MONGO_DB:model_cloud}?authSource=${MONGO_AUTH_DB:admin}
+      uri: mongodb://${MONGO_USERNAME:}${MONGO_USERNAME:+:}${MONGO_PASSWORD}${MONGO_PASSWORD:+@}${MONGO_HOST:localhost}:${MONGO_PORT:27018}/${MONGO_DB:model_cloud}?authSource=${MONGO_AUTH_DB:admin}
       database: ${MONGO_DB:model_cloud}
   
   # 文件上传配置
@@ -48,7 +48,7 @@ logging:
     root: INFO
     com.modelcloud: INFO
   file:
-    name: logs/model-cloud.log
+    name: ${LOG_PATH:~/model-cloud/logs/model-cloud.log}
     max-size: 100MB
     max-history: 30
   pattern:
@@ -74,9 +74,9 @@ model-cloud:
     ftp-username: ${FTP_USERNAME:}
     ftp-password: ${FTP_PASSWORD:}
   
-  # Gitea配置（使用环境变量保护敏感信息）
+  # Gitea配置（JAR包部署：连接Docker容器外部端口，使用环境变量保护敏感信息）
   gitea:
-    url: ${GITEA_URL:http://gitea:3000}
+    url: ${GITEA_URL:http://localhost:3030}
     token: ${GITEA_TOKEN}
     username: ${GITEA_USERNAME:yangxz}
     password: ${GITEA_PASSWORD}
