@@ -39,5 +39,15 @@ public class ModelUploadRequest {
      * 是否公开：0不公开，1公开
      */
     private Integer isPublic;
+
+    /**
+     * 共享协议
+     */
+    private String license;
+
+    /**
+     * 模型格式
+     */
+    private String format;
 }
 

@@ -53,6 +53,7 @@ public class SecurityConfig {
                     "/auth/captcha",
                     "/public/**",
                     "/business/label/list",
+                    "/business/label/category/list",
                     "/business/model/list",
                     "/business/model/{id}",
                     "/api/sse/**"  // SSE端点需要认证，但允许跨域

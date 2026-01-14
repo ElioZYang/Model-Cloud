@@ -25,6 +25,13 @@ public class GiteaService {
 
     public GiteaService(GiteaConfig giteaConfig) {
         this.giteaConfig = giteaConfig;
+        // 验证配置是否正确加载
+        if (giteaConfig.getToken() == null || giteaConfig.getToken().trim().isEmpty()) {
+            log.warn("Gitea token is not configured! Please check application.yml");
+        } else {
+            log.info("Gitea configuration loaded: url={}, username={}, token length={}", 
+                    giteaConfig.getUrl(), giteaConfig.getUsername(), giteaConfig.getToken().length());
+        }
     }
 
     /**
@@ -102,6 +109,13 @@ public class GiteaService {
      */
     public void uploadFile(String repoName, String filePath, MultipartFile file) {
         try {
+            // 检查 token 是否为空
+            String token = giteaConfig.getToken();
+            if (token == null || token.trim().isEmpty()) {
+                log.error("Gitea token is null or empty!");
+                throw new BusinessException("Gitea token 未配置，请检查配置文件");
+            }
+            
             byte[] fileBytes = file.getBytes();
             String content = Base64.getEncoder().encodeToString(fileBytes);
 
@@ -114,27 +128,62 @@ public class GiteaService {
             
             String apiUrl = giteaConfig.getUrl() + "/api/v1/repos/" + giteaConfig.getUsername() + "/" + repoName + "/contents/" + encodedPath;
             log.info("Uploading file to Gitea: {}", apiUrl);
+            log.debug("Using Gitea token: {}...{}", token.length() > 8 ? token.substring(0, 8) : token, token.length() > 4 ? token.substring(token.length() - 4) : "");
+            log.debug("Gitea username: {}", giteaConfig.getUsername());
             
             // 首先尝试使用 main 分支
             body.put("branch", "main");
-            HttpResponse response = HttpRequest.post(apiUrl)
-                    .header("Authorization", "token " + giteaConfig.getToken())
+            
+            // 构建请求，添加必要的头部
+            HttpRequest request = HttpRequest.post(apiUrl)
+                    .header("Authorization", "token " + token)
                     .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
                     .body(JSONUtil.toJsonStr(body))
-                    .timeout(60000) // 设置60秒超时
-                    .execute();
+                    .timeout(60000);
+            
+            log.debug("Request headers: Authorization=token {}..., Content-Type=application/json", 
+                    token.length() > 8 ? token.substring(0, 8) : token);
+            
+            HttpResponse response = request.execute();
+            
+            // 如果 token 方式失败，尝试 Bearer 方式
+            if (!response.isOk() && response.getStatus() != 201 && response.getStatus() == 401) {
+                log.warn("Token authentication failed, trying Bearer authentication. Status: {}, Response: {}", 
+                        response.getStatus(), response.body());
+                response = HttpRequest.post(apiUrl)
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json")
+                        .header("Accept", "application/json")
+                        .body(JSONUtil.toJsonStr(body))
+                        .timeout(60000)
+                        .execute();
+            }
 
             // 如果 main 分支失败，尝试 master 分支
             if (!response.isOk() && response.getStatus() != 201) {
                 log.warn("Failed to upload to main branch, trying master branch. Status: {}, Response: {}", 
                         response.getStatus(), response.body());
                 body.put("branch", "master");
+                // 先尝试 token 方式
                 response = HttpRequest.post(apiUrl)
-                        .header("Authorization", "token " + giteaConfig.getToken())
+                        .header("Authorization", "token " + token)
                         .header("Content-Type", "application/json")
                         .body(JSONUtil.toJsonStr(body))
                         .timeout(60000)
                         .execute();
+                
+                // 如果还是失败，尝试 Bearer 方式
+                if (!response.isOk() && response.getStatus() != 201 && response.getStatus() == 401) {
+                    log.warn("Token authentication failed for master branch, trying Bearer. Status: {}, Response: {}", 
+                            response.getStatus(), response.body());
+                    response = HttpRequest.post(apiUrl)
+                            .header("Authorization", "Bearer " + token)
+                            .header("Content-Type", "application/json")
+                            .body(JSONUtil.toJsonStr(body))
+                            .timeout(60000)
+                            .execute();
+                }
             }
 
             if (!response.isOk() && response.getStatus() != 201) {

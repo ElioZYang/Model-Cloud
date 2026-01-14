@@ -32,6 +32,8 @@ public class BsModelController {
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @RequestParam(value = "isPublic", defaultValue = "0") Integer isPublic,
+            @RequestParam(value = "license", required = false) String license,
+            @RequestParam(value = "format", required = false) String format,
             @RequestParam(value = "tags", required = false) String[] tags,
             @RequestParam(value = "coverImage", required = false) org.springframework.web.multipart.MultipartFile coverImage,
             @RequestParam("modelFile") org.springframework.web.multipart.MultipartFile modelFile) {
@@ -40,6 +42,8 @@ public class BsModelController {
             request.setName(name);
             request.setDescription(description);
             request.setIsPublic(isPublic != null ? isPublic : 0);
+            request.setLicense(license);
+            request.setFormat(format);
             if (tags != null) {
                 request.setTags(java.util.Arrays.asList(tags));
             }

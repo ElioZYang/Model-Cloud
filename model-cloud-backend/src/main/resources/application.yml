@@ -97,7 +97,7 @@ model-cloud:
   # ⚠️ 生产环境请使用环境变量配置，不要在此处硬编码敏感信息
   gitea:
     url: http://localhost:3000  # 开发环境默认值
-    token: 038e5236a19ef8fa7c242b6e1196bbaebbe1c8fd  # ⚠️ 仅用于本地开发，生产环境使用环境变量
+    token: 5c0b0d2ecec6fce451bb006a0c512d7c3091d2c7  # ⚠️ 仅用于本地开发，生产环境使用环境变量
     username: yangxz
     password: 123456  # ⚠️ 仅用于本地开发，生产环境使用环境变量
     

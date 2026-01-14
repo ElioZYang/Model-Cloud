@@ -6,46 +6,18 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 模型标签实体类
+ * 模型标签分类实体类
  * 
  * @author model-cloud
  */
 @Data
-@Table("bs_model_label")
-public class BsModelLabel implements Serializable {
+@Table("model_label_category")
+public class ModelLabelCategory implements Serializable {
     private static final long serialVersionUID = 1L;
     
     @Id
     private Long id;
     private String name;
-    private String description;
     private Integer sort;
-    private Long categoryId;
-    private Integer isDel;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

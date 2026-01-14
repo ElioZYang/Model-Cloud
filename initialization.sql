@@ -54,8 +54,7 @@ CREATE TABLE IF NOT EXISTS `sys_role` (
 CREATE TABLE IF NOT EXISTS `model_label_category` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '分类ID',
   `name` VARCHAR(50) NOT NULL COMMENT '分类名称',
-  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `sort` INT DEFAULT 0 COMMENT '排序',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='模型标签分类表';
@@ -85,10 +84,8 @@ CREATE TABLE IF NOT EXISTS `bs_model_label` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '标签ID',
   `name` VARCHAR(50) NOT NULL COMMENT '标签名称',
   `description` VARCHAR(255) DEFAULT NULL COMMENT '描述',
-  `sort` INT DEFAULT 0 COMMENT '排序',
   `category_id` BIGINT DEFAULT NULL COMMENT '分类ID（外键，指向model_label_category）',
-  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `sort` INT DEFAULT 0 COMMENT '排序',
   `is_del` INT DEFAULT 0 COMMENT '是否删除：0未删除，1已删除',
   PRIMARY KEY (`id`),
   KEY `idx_is_del` (`is_del`),
@@ -181,31 +178,48 @@ WHERE u.username = 'admin' AND r.role_code = 'super_admin'
 ON DUPLICATE KEY UPDATE `user_id`=`user_id`;
 
 -- 5.2 插入标签分类
-INSERT INTO `model_label_category` (`name`) VALUES
-('语言类型'),
-('用途')
-ON DUPLICATE KEY UPDATE `name`=`name`;
+INSERT INTO `model_label_category` (`id`, `name`, `sort`) VALUES
+(1, '处理器', 3),
+(2, '文件格式', 4),
+(3, '仿真领域', 1),
+(4, '主要功能', 2),
+(5, '操作系统', 5),
+(6, '软件依赖', 6),
+(7, '编程语言', 7);
 
--- 5.3 插入模型标签（语言类型）
-INSERT INTO `bs_model_label` (`name`, `description`, `sort`, `category_id`) VALUES
-('python', 'Python语言模型', 1, (SELECT `id` FROM `model_label_category` WHERE `name` = '语言类型' LIMIT 1)),
-('java', 'Java语言模型', 2, (SELECT `id` FROM `model_label_category` WHERE `name` = '语言类型' LIMIT 1)),
-('c/c++', 'C/C++语言模型', 3, (SELECT `id` FROM `model_label_category` WHERE `name` = '语言类型' LIMIT 1)),
-('julia', 'Julia语言模型', 4, (SELECT `id` FROM `model_label_category` WHERE `name` = '语言类型' LIMIT 1)),
-('matlab', 'MATLAB语言模型', 5, (SELECT `id` FROM `model_label_category` WHERE `name` = '语言类型' LIMIT 1)),
-('simulink', 'Simulink模型', 6, (SELECT `id` FROM `model_label_category` WHERE `name` = '语言类型' LIMIT 1)),
-('modelica', 'Modelica语言模型', 7, (SELECT `id` FROM `model_label_category` WHERE `name` = '语言类型' LIMIT 1))
-ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `description`=VALUES(`description`), `sort`=VALUES(`sort`), `category_id`=VALUES(`category_id`);
-
--- 5.4 插入模型标签（用途）
-INSERT INTO `bs_model_label` (`name`, `description`, `sort`, `category_id`) VALUES
-('建模', '建模相关', 8, (SELECT `id` FROM `model_label_category` WHERE `name` = '用途' LIMIT 1)),
-('仿真', '仿真相关', 9, (SELECT `id` FROM `model_label_category` WHERE `name` = '用途' LIMIT 1)),
-('控制', '控制相关', 10, (SELECT `id` FROM `model_label_category` WHERE `name` = '用途' LIMIT 1)),
-('优化', '优化相关', 11, (SELECT `id` FROM `model_label_category` WHERE `name` = '用途' LIMIT 1)),
-('机器学习', '机器学习相关', 12, (SELECT `id` FROM `model_label_category` WHERE `name` = '用途' LIMIT 1)),
-('深度学习', '深度学习相关', 13, (SELECT `id` FROM `model_label_category` WHERE `name` = '用途' LIMIT 1))
-ON DUPLICATE KEY UPDATE `name`=VALUES(`name`), `description`=VALUES(`description`), `sort`=VALUES(`sort`), `category_id`=VALUES(`category_id`);
+-- 5.3 插入模型标签
+INSERT INTO `bs_model_label` (`name`, `category_id`, `is_del`) VALUES
+-- 处理器 (category_id = 1)
+('CPU', 1, 0),
+('GPU', 1,0),
+-- 文件格式 (category_id = 2)
+('FMU', 2,0),
+('M', 2, 0),
+('INP', 2,  0),
+-- 仿真领域 (category_id = 3)
+('动力性能', 3, 0),
+('结构安全', 3, 0),
+('热管理', 3, 0),
+('电控系统', 3,  0),
+-- 主要功能 (category_id = 4)
+('建模', 4,  0),
+('分析仿真', 4,  0),
+('后处理', 4,  0),
+-- 操作系统 (category_id = 5)
+('Windows', 5,  0),
+('CentOS', 5,  0),
+('Ubuntu', 5,  0),
+-- 软件依赖 (category_id = 6)
+('OpenModelica', 6,  0),
+('Matlab/Simulink', 6,  0),
+('Ansys', 6,  0),
+('AutoCAD', 6,  0),
+('Fluent', 6,  0),
+-- 编程语言 (category_id = 7)
+('C', 7,  0),
+('Modelica', 7,  0),
+('Matlab', 7,  0),
+('Python', 7,  0);
 
 
 -- 5.5 设置重要记录不可删除

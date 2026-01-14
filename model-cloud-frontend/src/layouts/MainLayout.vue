@@ -18,7 +18,7 @@
         </el-menu-item>
         <el-menu-item index="/dashboard/model/list">
           <el-icon><Box /></el-icon>
-          <span>模型列表</span>
+          <span>公开模型</span>
         </el-menu-item>
         <el-menu-item index="/dashboard/model/my">
           <el-icon><Folder /></el-icon>
@@ -26,7 +26,7 @@
         </el-menu-item>
         <el-menu-item index="/dashboard/model/collects">
           <el-icon><Star /></el-icon>
-          <span>我的收藏</span>
+          <span>模型收藏</span>
         </el-menu-item>
         <el-menu-item v-if="userStore.isAdmin" index="/dashboard/model/manage">
           <el-icon><Setting /></el-icon>

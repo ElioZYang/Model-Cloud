@@ -46,6 +46,13 @@ export const modelApi = {
   getLabelList() {
     return request.get('/business/label/list')
   },
+
+  /**
+   * 获取标签分类列表
+   */
+  getCategoryList() {
+    return request.get('/business/label/category/list')
+  },
   
   /**
    * 获取模型统计信息

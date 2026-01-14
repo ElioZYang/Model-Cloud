@@ -147,6 +147,12 @@ public class BsModelServiceImpl implements BsModelService {
             readme.append("## 基本信息\n\n");
             readme.append("- 作者：").append(displayName).append("\n");
             readme.append("- 上传时间：").append(LocalDateTime.now()).append("\n");
+            if (StrUtil.isNotBlank(request.getLicense())) {
+                readme.append("- 协议类型：").append(request.getLicense()).append("\n");
+            }
+            if (StrUtil.isNotBlank(request.getFormat())) {
+                readme.append("- 模型格式：").append(request.getFormat()).append("\n");
+            }
             if (request.getTags() != null && !request.getTags().isEmpty()) {
                 readme.append("- 标签：").append(String.join(", ", request.getTags())).append("\n");
             }
