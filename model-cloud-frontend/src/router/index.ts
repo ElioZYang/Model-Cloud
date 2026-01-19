@@ -70,6 +70,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '我的收藏' }
       },
       {
+        path: 'model/deploy',
+        name: 'ModelDeploy',
+        component: () => import('@/views/business/ModelDeploy.vue'),
+        meta: { title: '模型部署' }
+      },
+      {
         path: 'system/user',
         name: 'UserList',
         component: () => import('@/views/system/UserList.vue'),

@@ -2,7 +2,7 @@
   <el-container class="main-layout">
     <el-aside width="200px" class="sidebar">
       <div class="logo">
-        <h3>模型管理系统</h3>
+        <h3>云端模型库</h3>
       </div>
       <el-menu
         :default-active="activeMenu"
@@ -27,6 +27,10 @@
         <el-menu-item index="/dashboard/model/collects">
           <el-icon><Star /></el-icon>
           <span>模型收藏</span>
+        </el-menu-item>
+        <el-menu-item index="/dashboard/model/deploy">
+          <el-icon><Operation /></el-icon>
+          <span>模型部署</span>
         </el-menu-item>
         <el-menu-item v-if="userStore.isAdmin" index="/dashboard/model/manage">
           <el-icon><Setting /></el-icon>
@@ -76,7 +80,7 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { HomeFilled, Box, Star, User, Expand, Fold, ArrowDown, Folder, Setting } from '@element-plus/icons-vue'
+import { HomeFilled, Box, Star, User, Expand, Fold, ArrowDown, Folder, Setting, Operation } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { authApi } from '@/api/auth'
 
