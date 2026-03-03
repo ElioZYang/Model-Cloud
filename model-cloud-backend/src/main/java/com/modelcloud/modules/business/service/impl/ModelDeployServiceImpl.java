@@ -317,8 +317,8 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         }
         
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .where("user_id", userId)
-                .and("is_del", 0)
+                .where("user_id = ?", userId)
+                .and("is_del = ?", 0)
                 .orderBy("create_time", false);
         
         return projectMapper.paginate(pageNum, pageSize, queryWrapper);
@@ -400,7 +400,7 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         }
         
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .where("user_id", userId)
+                .where("user_id = ?", userId)
                 .orderBy("create_time", false);
         
         return taskMapper.paginate(pageNum, pageSize, queryWrapper);

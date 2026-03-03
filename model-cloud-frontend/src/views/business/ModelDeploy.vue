@@ -232,6 +232,36 @@
                 />
               </el-select>
             </el-form-item>
+            <el-form-item>
+              <el-button @click="handleDownloadChart" :disabled="!selectedResultVariable">
+                下载图表PNG
+              </el-button>
+            </el-form-item>
+          </el-form>
+          <el-form inline size="small" style="margin-bottom: 12px">
+            <el-form-item label="导出参数">
+              <el-select
+                v-model="selectedExportVariables"
+                multiple
+                collapse-tags
+                collapse-tags-tooltip
+                style="width: 420px"
+                placeholder="请选择要导出的参数"
+                :disabled="availableVariables.length === 0"
+              >
+                <el-option
+                  v-for="item in availableVariables"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="handleDownloadResultCsv" :disabled="selectedExportVariables.length === 0">
+                导出CSV
+              </el-button>
+            </el-form-item>
           </el-form>
           <div ref="chartContainer" style="width: 100%; height: 500px"></div>
         </el-tab-pane>
@@ -280,6 +310,28 @@
           </template>
         </el-table-column>
       </el-table>
+    </el-dialog>
+
+    <el-dialog v-model="showSaveProjectDialog" title="保存项目" width="420px" :close-on-click-modal="false">
+      <el-form :model="saveProjectForm" label-width="90px">
+        <el-form-item label="项目名称" required>
+          <el-input v-model="saveProjectForm.name" maxlength="120" show-word-limit placeholder="请输入项目名称" />
+        </el-form-item>
+        <el-form-item label="项目描述">
+          <el-input
+            v-model="saveProjectForm.description"
+            type="textarea"
+            :rows="3"
+            maxlength="500"
+            show-word-limit
+            placeholder="请输入项目描述（可选）"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showSaveProjectDialog = false">取消</el-button>
+        <el-button type="primary" :loading="saving" @click="handleConfirmSaveProject">保存</el-button>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -330,6 +382,7 @@ const resultTab = ref('chart')
 const codePreviewVisible = ref(false)
 const generatedCode = ref('')
 const showProjectDialog = ref(false)
+const showSaveProjectDialog = ref(false)
 const projectList = ref<ModelingProject[]>([])
 const simulationLogs = ref<Array<{ time: string; type: string; message: string }>>([])
 const chartContainer = ref<HTMLElement>()
@@ -339,6 +392,7 @@ const simulationTaskId = ref<number | null>(null)
 const pollingTimer = ref<number | null>(null)
 const availableVariables = ref<string[]>([])
 const selectedResultVariable = ref('')
+const selectedExportVariables = ref<string[]>([])
 const resultSeriesData = ref<Record<string, number[]>>({})
 const resultTimeData = ref<number[]>([])
 let chartInstance: echarts.ECharts | null = null
@@ -358,6 +412,10 @@ const currentProject = ref<{
   description?: string
 }>({
   name: '未命名项目'
+})
+const saveProjectForm = reactive({
+  name: '',
+  description: ''
 })
 
 // 计算属性：过滤后的组件列表
@@ -879,6 +937,8 @@ const handleCopyCode = async () => {
 // 新建项目
 const handleNewProject = () => {
   currentProject.value = { name: '未命名项目' }
+  saveProjectForm.name = ''
+  saveProjectForm.description = ''
   nodes.value = []
   edges.value = []
   selectedNode.value = null
@@ -886,35 +946,98 @@ const handleNewProject = () => {
 }
 
 // 保存项目
-const handleSaveProject = async () => {
+const handleSaveProject = () => {
   if (nodes.value.length === 0) {
     ElMessage.warning('画布为空，无法保存')
     return
   }
+  saveProjectForm.name = currentProject.value.name || ''
+  saveProjectForm.description = currentProject.value.description || ''
+  showSaveProjectDialog.value = true
+}
 
+const handleConfirmSaveProject = async () => {
+  const projectName = String(saveProjectForm.name || '').trim()
+  if (!projectName) {
+    ElMessage.warning('请输入项目名称')
+    return
+  }
   try {
+    let targetProjectId = currentProject.value.id
+    const conflictProject = await findProjectByName(projectName)
+    if (conflictProject && conflictProject.id !== currentProject.value.id) {
+      try {
+        await ElMessageBox.confirm(
+          `已存在同名项目「${projectName}」。点击“覆盖保存”将更新该项目；点击“另存为”将创建新项目。`,
+          '项目名称冲突',
+          {
+            type: 'warning',
+            confirmButtonText: '覆盖保存',
+            cancelButtonText: '另存为',
+            distinguishCancelAndClose: true
+          }
+        )
+        targetProjectId = conflictProject.id
+      } catch (action: any) {
+        if (action === 'cancel') {
+          targetProjectId = undefined
+        } else {
+          return
+        }
+      }
+    }
+
     saving.value = true
     const projectData = {
       nodes: nodes.value,
       edges: edges.value
     }
     const modelicaCode = generateModelicaCode()
-
-    const res = await modelDeployApi.saveProject({
-      name: currentProject.value.name,
-      description: currentProject.value.description,
+    const payload = {
+      name: projectName,
+      description: String(saveProjectForm.description || '').trim(),
       projectData: JSON.stringify(projectData),
       modelicaCode
-    })
+    }
+
+    const res = targetProjectId
+      ? await modelDeployApi.updateProject(targetProjectId, payload)
+      : await modelDeployApi.saveProject(payload)
 
     if (res.code === 200) {
-      currentProject.value.id = res.data
+      if (!targetProjectId) {
+        currentProject.value.id = res.data
+      } else {
+        currentProject.value.id = targetProjectId
+      }
+      currentProject.value.name = payload.name
+      currentProject.value.description = payload.description
+      showSaveProjectDialog.value = false
+      await loadProjectList()
       ElMessage.success('项目保存成功')
     }
   } catch (error: any) {
     ElMessage.error('保存项目失败: ' + (error.message || '未知错误'))
   } finally {
     saving.value = false
+  }
+}
+
+const findProjectByName = async (name: string): Promise<ModelingProject | undefined> => {
+  const normalizedName = String(name || '').trim()
+  if (!normalizedName) {
+    return undefined
+  }
+  try {
+    const res = await modelDeployApi.getUserProjects(1, 200)
+    if (res.code !== 200) {
+      return undefined
+    }
+    return (res.data.records || []).find(
+      (project) => String(project.name || '').trim() === normalizedName
+    )
+  } catch {
+    return undefined
   }
 }
 
@@ -979,6 +1102,7 @@ const handleStartSimulation = async () => {
     simulationLogs.value = []
     availableVariables.value = []
     selectedResultVariable.value = ''
+    selectedExportVariables.value = []
     resultSeriesData.value = {}
     resultTimeData.value = []
     addLog('info', '开始仿真...')
@@ -1254,6 +1378,7 @@ const applyResultData = (raw: any) => {
   resultSeriesData.value = variables
   availableVariables.value = keys
   selectedResultVariable.value = keys[0] || ''
+  selectedExportVariables.value = [...keys]
 
   nextTick(() => {
     renderChart()
@@ -1300,6 +1425,54 @@ const renderChart = () => {
 watch(selectedResultVariable, () => {
   renderChart()
 })
+
+const handleDownloadChart = () => {
+  if (!chartInstance) {
+    ElMessage.warning('暂无可下载图表')
+    return
+  }
+  const dataUrl = chartInstance.getDataURL({
+    type: 'png',
+    pixelRatio: 2,
+    backgroundColor: '#ffffff'
+  })
+  const a = document.createElement('a')
+  a.href = dataUrl
+  a.download = `simulation-chart-${dayjs().format('YYYYMMDD-HHmmss')}.png`
+  a.click()
+}
+
+const toCsvCell = (value: any): string => {
+  const text = value == null ? '' : String(value)
+  const escaped = text.replace(/"/g, '""')
+  return /[",\n]/.test(escaped) ? `"${escaped}"` : escaped
+}
+
+const handleDownloadResultCsv = () => {
+  if (resultTimeData.value.length === 0) {
+    ElMessage.warning('暂无可导出的仿真数据')
+    return
+  }
+  const selected = selectedExportVariables.value.filter((v) => !!resultSeriesData.value[v])
+  if (selected.length === 0) {
+    ElMessage.warning('请选择要导出的仿真参数')
+    return
+  }
+  const headers = ['time', ...selected]
+  const rows: string[] = [headers.map(toCsvCell).join(',')]
+  for (let i = 0; i < resultTimeData.value.length; i += 1) {
+    const row = [resultTimeData.value[i], ...selected.map((v) => resultSeriesData.value[v]?.[i] ?? '')]
+    rows.push(row.map(toCsvCell).join(','))
+  }
+  const csvContent = '\uFEFF' + rows.join('\n')
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `simulation-data-${dayjs().format('YYYYMMDD-HHmmss')}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 </script>
 
