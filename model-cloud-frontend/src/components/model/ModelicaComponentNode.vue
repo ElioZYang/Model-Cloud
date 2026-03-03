@@ -1,34 +1,39 @@
 <template>
   <div class="modelica-component-node" :class="{ selected: !!props.selected }">
-    <div class="node-header">
+    <div class="node-cover">
       <el-image
         v-if="coverImage"
         :src="coverImage"
-        class="node-icon"
-        fit="cover"
+        class="node-image"
+        fit="contain"
       >
         <template #error>
-          <el-icon class="node-icon-fallback"><Box /></el-icon>
+          <div class="node-image-fallback">
+            <el-icon class="node-icon-fallback"><Box /></el-icon>
+          </div>
         </template>
       </el-image>
-      <el-icon v-else class="node-icon-fallback"><Box /></el-icon>
+      <div v-else class="node-image-fallback">
+        <el-icon class="node-icon-fallback"><Box /></el-icon>
+      </div>
+    </div>
+    <div class="node-title">
       <span class="node-label">{{ label || props.data?.componentName || 'Component' }}</span>
     </div>
-    <div class="node-connectors">
-      <div
-        v-for="connector in connectorList"
-        :key="connector.name"
-        class="connector-item"
-        :class="getConnectorClass(connector)"
-      >
+    <div class="node-connectors-overlay">
+      <template v-for="layout in connectorLayouts" :key="layout.connector.name">
         <Handle
-          :id="connector.name"
-          :type="getConnectorType(connector)"
-          :position="getConnectorPosition(connector)"
+          :id="layout.connector.name"
+          :type="getConnectorType(layout.connector, layout.position)"
+          :position="layout.position"
+          :style="getHandleStyle(layout)"
           class="connector-handle"
+          :class="getConnectorClass(layout.connector)"
         />
-        <span class="connector-label">{{ connector.name }}</span>
-      </div>
+        <span class="connector-label" :style="getLabelStyle(layout)">
+          {{ layout.connector.name }}
+        </span>
+      </template>
     </div>
   </div>
 </template>
@@ -66,6 +71,65 @@ const label = computed(() => {
   return props.label || props.data?.componentName || ''
 })
 
+type Side = 'left' | 'right' | 'top' | 'bottom'
+type ConnectorLayout = {
+  connector: Connector
+  position: Position
+  side: Side
+  sideIndex: number
+  sideCount: number
+}
+
+const connectorLayouts = computed<ConnectorLayout[]>(() => {
+  const list = connectorList.value || []
+  const sides: Side[] = list.map((connector, index) => decideSide(connector, index))
+  const sideCounts: Record<Side, number> = { left: 0, right: 0, top: 0, bottom: 0 }
+  sides.forEach((s) => {
+    sideCounts[s] += 1
+  })
+
+  const runningIndex: Record<Side, number> = { left: 0, right: 0, top: 0, bottom: 0 }
+  return list.map((connector, index) => {
+    const side = sides[index]
+    runningIndex[side] += 1
+    return {
+      connector,
+      position: sideToPosition(side),
+      side,
+      sideIndex: runningIndex[side],
+      sideCount: sideCounts[side]
+    }
+  })
+})
+
+const sideToPosition = (side: Side): Position => {
+  switch (side) {
+    case 'left':
+      return Position.Left
+    case 'right':
+      return Position.Right
+    case 'top':
+      return Position.Top
+    case 'bottom':
+      return Position.Bottom
+  }
+}
+
+const decideSide = (connector: Connector, index: number): Side => {
+  const name = String(connector.name || '').toLowerCase()
+  if (name === 'p') return 'left'
+  if (name === 'n') return 'right'
+
+  // 默认端口放置顺序：左、右、上、下
+  const baseOrder: Side[] = ['left', 'right', 'top', 'bottom']
+  if (index < 4) {
+    return baseOrder[index]
+  }
+
+  // 超过四个：其余端口依次放在上、下
+  return (index - 4) % 2 === 0 ? 'top' : 'bottom'
+}
+
 // 获取connector的CSS类
 const getConnectorClass = (connector: Connector) => {
   const type = connector.type || ''
@@ -76,39 +140,55 @@ const getConnectorClass = (connector: Connector) => {
 }
 
 // 获取connector的Handle类型（source或target）
-const getConnectorType = (connector: Connector): 'source' | 'target' => {
+const getConnectorType = (connector: Connector, position: Position): 'source' | 'target' => {
+  const name = String(connector.name || '').toLowerCase()
+  if (name === 'p') return 'source'
+  if (name === 'n') return 'target'
+
   const type = connector.type || ''
   // 简化处理：PositivePin作为source，NegativePin作为target
   if (type.includes('PositivePin')) return 'source'
   if (type.includes('NegativePin')) return 'target'
-  // 默认：第一个为source，其他为target
-  const list = connectorList.value
-  const index = list.findIndex(c => c.name === connector.name)
-  return index === 0 ? 'source' : 'target'
+  // 其他端口按位置给默认方向
+  return position === Position.Right || position === Position.Bottom ? 'target' : 'source'
 }
 
-// 获取connector的位置（left或right）
-const getConnectorPosition = (connector: Connector): Position => {
-  const type = connector.type || ''
-  // 简化处理：PositivePin在左侧，NegativePin在右侧
-  if (type.includes('PositivePin')) return Position.Left
-  if (type.includes('NegativePin')) return Position.Right
-  // 默认：第一个在左侧，其他在右侧
-  const list = connectorList.value
-  const index = list.findIndex(c => c.name === connector.name)
-  return index === 0 ? Position.Left : Position.Right
+const getHandleStyle = (layout: ConnectorLayout) => {
+  const ratio = layout.sideIndex / (layout.sideCount + 1)
+  const percent = `${Math.round(ratio * 100)}%`
+  if (layout.side === 'left' || layout.side === 'right') {
+    return { top: percent }
+  }
+  return { left: percent }
+}
+
+const getLabelStyle = (layout: ConnectorLayout) => {
+  const ratio = layout.sideIndex / (layout.sideCount + 1)
+  const percent = `${Math.round(ratio * 100)}%`
+  if (layout.side === 'left') {
+    return { left: '-24px', top: `calc(${percent} - 8px)` }
+  }
+  if (layout.side === 'right') {
+    return { right: '-24px', top: `calc(${percent} - 8px)` }
+  }
+  if (layout.side === 'top') {
+    return { top: '-22px', left: `calc(${percent} - 10px)` }
+  }
+  return { bottom: '-22px', left: `calc(${percent} - 10px)` }
 }
 </script>
 
 <style scoped>
 .modelica-component-node {
+  position: relative;
   background: white;
   border: 2px solid #e4e7ed;
   border-radius: 8px;
-  padding: 8px;
-  min-width: 120px;
+  padding: 0;
+  min-width: 160px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.2s;
+  overflow: hidden;
 }
 
 .modelica-component-node.selected {
@@ -116,62 +196,55 @@ const getConnectorPosition = (connector: Connector): Position => {
   box-shadow: 0 2px 12px rgba(64, 158, 255, 0.3);
 }
 
-.node-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
+.node-cover {
+  width: 100%;
+  height: 96px;
+  overflow: hidden;
   border-bottom: 1px solid #e4e7ed;
+  background: #fff;
 }
 
-.node-icon {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  border-radius: 4px;
-  margin-right: 8px;
-  border: 1px solid #e4e7ed;
+.node-image {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
-.node-icon-fallback {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  font-size: 20px;
-  color: #409eff;
-  margin-right: 8px;
+.node-image-fallback {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(135deg, #f8fbff, #eef5ff);
+}
+
+.node-icon-fallback {
+  font-size: 26px;
+  color: #409eff;
+}
+
+.node-title {
+  margin: 0;
+  padding: 4px 6px;
+  text-align: center;
 }
 
 .node-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: #303133;
-  flex: 1;
+  display: inline-block;
+  max-width: 142px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.node-connectors {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.connector-item {
-  display: flex;
-  align-items: center;
-  position: relative;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.connector-item:hover {
-  background-color: #f5f7fa;
+.node-connectors-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .connector-handle {
@@ -181,6 +254,7 @@ const getConnectorPosition = (connector: Connector): Position => {
   border: 2px solid white;
   background: #409eff;
   cursor: crosshair;
+  pointer-events: all;
 }
 
 .connector-positive .connector-handle {
@@ -192,9 +266,15 @@ const getConnectorPosition = (connector: Connector): Position => {
 }
 
 .connector-label {
+  position: absolute;
   font-size: 12px;
   color: #606266;
-  margin-left: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 3px;
+  padding: 0 2px;
+  line-height: 16px;
+  user-select: none;
+  pointer-events: none;
 }
 </style>
 

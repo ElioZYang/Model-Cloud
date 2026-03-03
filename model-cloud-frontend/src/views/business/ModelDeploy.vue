@@ -86,6 +86,7 @@
               v-model:nodes="nodes"
               v-model:edges="edges"
               :default-edge-options="{ type: 'smoothstep' }"
+              :node-types="nodeTypes"
               @node-click="handleNodeClick"
               @edge-click="handleEdgeClick"
               @pane-click="handlePaneClick"
@@ -289,6 +290,7 @@ import { VueFlow, useVueFlow } from '@vue-flow/core'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import type { Node, Edge, Connection } from '@vue-flow/core'
+import ModelicaComponentNode from '@/components/model/ModelicaComponentNode.vue'
 import {
   Search,
   Document,
@@ -310,6 +312,9 @@ import dayjs from 'dayjs'
 const nodes = ref<Node[]>([])
 const edges = ref<Edge[]>([])
 const { setCenter, fitView } = useVueFlow()
+const nodeTypes = {
+  modelicaComponent: ModelicaComponentNode
+} as any
 
 // 数据
 const components = ref<Component[]>([])
@@ -487,7 +492,7 @@ const handleDrop = async (event: DragEvent) => {
 
     const newNode: Node = {
       id: nodeId,
-      type: 'default',
+      type: 'modelicaComponent',
       position: position,
       data: {
         componentId: componentData.id,
