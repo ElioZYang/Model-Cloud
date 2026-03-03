@@ -7,7 +7,7 @@
           <h2>Modelica在线建模与仿真</h2>
         </div>
         <div class="toolbar-right">
-          <el-button :icon="Document" @click="showProjectDialog = true">我的项目</el-button>
+          <el-button :icon="Document" @click="handleOpenProjectDialog">我的项目</el-button>
           <el-button type="primary" :icon="FolderOpened" @click="handleNewProject">新建项目</el-button>
           <el-button :icon="DocumentAdd" @click="handleSaveProject" :loading="saving">保存项目</el-button>
         </div>
@@ -174,6 +174,9 @@
             >
               停止
             </el-button>
+            <el-button :icon="View" :disabled="!hasCachedResult" @click="handleOpenLatestResult">
+              查看仿真结果
+            </el-button>
           </div>
         </div>
       </template>
@@ -217,53 +220,46 @@
       <el-tabs v-model="resultTab">
         <el-tab-pane label="结果图表" name="chart">
           <el-form inline size="small" style="margin-bottom: 12px">
-            <el-form-item label="输出变量">
-              <el-select
-                v-model="selectedResultVariable"
-                style="width: 320px"
-                placeholder="请选择输出变量"
-                :disabled="availableVariables.length === 0"
-              >
-                <el-option
-                  v-for="item in availableVariables"
-                  :key="item"
-                  :label="item"
-                  :value="item"
-                />
-              </el-select>
+            <el-form-item label="已选参数">
+              <el-tag type="info">{{ selectedResultVariables.length }}</el-tag>
             </el-form-item>
             <el-form-item>
-              <el-button @click="handleDownloadChart" :disabled="!selectedResultVariable">
+              <el-button @click="handleDownloadChart" :disabled="selectedResultVariables.length === 0">
                 下载图表PNG
               </el-button>
             </el-form-item>
-          </el-form>
-          <el-form inline size="small" style="margin-bottom: 12px">
-            <el-form-item label="导出参数">
-              <el-select
-                v-model="selectedExportVariables"
-                multiple
-                collapse-tags
-                collapse-tags-tooltip
-                style="width: 420px"
-                placeholder="请选择要导出的参数"
-                :disabled="availableVariables.length === 0"
-              >
-                <el-option
-                  v-for="item in availableVariables"
-                  :key="item"
-                  :label="item"
-                  :value="item"
-                />
-              </el-select>
-            </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handleDownloadResultCsv" :disabled="selectedExportVariables.length === 0">
+              <el-button type="primary" @click="handleDownloadResultCsv" :disabled="selectedResultVariables.length === 0">
                 导出CSV
               </el-button>
             </el-form-item>
           </el-form>
-          <div ref="chartContainer" style="width: 100%; height: 500px"></div>
+          <div class="result-chart-layout">
+            <div class="result-sidebar">
+              <el-collapse v-model="expandedResultGroups">
+                <el-collapse-item
+                  v-for="group in resultVariableGroups"
+                  :key="group.group"
+                  :name="group.group"
+                >
+                  <template #title>
+                    <span>{{ group.group }}</span>
+                    <el-tag size="small" style="margin-left: 8px">{{ group.variables.length }}</el-tag>
+                  </template>
+                  <el-checkbox-group v-model="selectedResultVariables" class="result-checkbox-group">
+                    <el-checkbox
+                      v-for="variable in group.variables"
+                      :key="variable"
+                      :label="variable"
+                    >
+                      {{ getDisplayVariableName(variable, group.group) }}
+                    </el-checkbox>
+                  </el-checkbox-group>
+                </el-collapse-item>
+              </el-collapse>
+            </div>
+            <div ref="chartContainer" class="result-chart-container"></div>
+          </div>
         </el-tab-pane>
         <el-tab-pane label="运行日志" name="logs">
           <div class="simulation-logs">
@@ -391,10 +387,11 @@ const loading = ref(false)
 const simulationTaskId = ref<number | null>(null)
 const pollingTimer = ref<number | null>(null)
 const availableVariables = ref<string[]>([])
-const selectedResultVariable = ref('')
-const selectedExportVariables = ref<string[]>([])
+const selectedResultVariables = ref<string[]>([])
+const expandedResultGroups = ref<string[]>([])
 const resultSeriesData = ref<Record<string, number[]>>({})
 const resultTimeData = ref<number[]>([])
+const hasCachedResult = ref(false)
 let chartInstance: echarts.ECharts | null = null
 
 // 仿真参数
@@ -429,6 +426,25 @@ const filteredComponents = computed(() => {
       c.name.toLowerCase().includes(keyword) ||
       (c.description && c.description.toLowerCase().includes(keyword))
   )
+})
+
+const resultVariableGroups = computed(() => {
+  const groups: Record<string, string[]> = {}
+  availableVariables.value.forEach((variable) => {
+    const token = String(variable || '')
+    const splitIndex = token.indexOf('.')
+    const group = splitIndex > 0 ? token.slice(0, splitIndex) : '系统变量'
+    if (!groups[group]) {
+      groups[group] = []
+    }
+    groups[group].push(token)
+  })
+  return Object.keys(groups)
+    .sort()
+    .map((group) => ({
+      group,
+      variables: groups[group].sort()
+    }))
 })
 
 // 初始化
@@ -1085,9 +1101,15 @@ const loadProjectList = async () => {
     if (res.code === 200) {
       projectList.value = res.data.records || []
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('加载项目列表失败:', error)
+    ElMessage.error('获取项目列表失败: ' + (error.message || '未知错误'))
   }
+}
+
+const handleOpenProjectDialog = async () => {
+  await loadProjectList()
+  showProjectDialog.value = true
 }
 
 // 开始仿真
@@ -1101,10 +1123,11 @@ const handleStartSimulation = async () => {
     simulating.value = true
     simulationLogs.value = []
     availableVariables.value = []
-    selectedResultVariable.value = ''
-    selectedExportVariables.value = []
+    selectedResultVariables.value = []
+    expandedResultGroups.value = []
     resultSeriesData.value = {}
     resultTimeData.value = []
+    hasCachedResult.value = false
     addLog('info', '开始仿真...')
 
     const modelCode = generateModelicaCode()
@@ -1377,8 +1400,9 @@ const applyResultData = (raw: any) => {
   resultTimeData.value = time
   resultSeriesData.value = variables
   availableVariables.value = keys
-  selectedResultVariable.value = keys[0] || ''
-  selectedExportVariables.value = [...keys]
+  selectedResultVariables.value = []
+  expandedResultGroups.value = resultVariableGroups.value.map((item) => item.group)
+  hasCachedResult.value = keys.length > 0
 
   nextTick(() => {
     renderChart()
@@ -1389,8 +1413,8 @@ const renderChart = () => {
   if (!chartContainer.value) {
     return
   }
-  const variable = selectedResultVariable.value
-  if (!variable || !resultSeriesData.value[variable]) {
+  const selected = selectedResultVariables.value.filter((v) => !!resultSeriesData.value[v])
+  if (selected.length === 0) {
     return
   }
   if (!chartInstance) {
@@ -1398,7 +1422,7 @@ const renderChart = () => {
   }
   chartInstance.setOption({
     title: {
-      text: `变量: ${variable}`
+      text: selected.length === 1 ? `变量: ${selected[0]}` : `变量数量: ${selected.length}`
     },
     tooltip: {
       trigger: 'axis'
@@ -1411,20 +1435,21 @@ const renderChart = () => {
     yAxis: {
       type: 'value'
     },
-    series: [
-      {
-        name: variable,
-        type: 'line',
-        showSymbol: false,
-        data: resultSeriesData.value[variable]
-      }
-    ]
+    legend: {
+      type: 'scroll'
+    },
+    series: selected.map((variable) => ({
+      name: variable,
+      type: 'line',
+      showSymbol: false,
+      data: resultSeriesData.value[variable]
+    }))
   })
 }
 
-watch(selectedResultVariable, () => {
+watch(selectedResultVariables, () => {
   renderChart()
-})
+}, { deep: true })
 
 const handleDownloadChart = () => {
   if (!chartInstance) {
@@ -1442,6 +1467,25 @@ const handleDownloadChart = () => {
   a.click()
 }
 
+const handleOpenLatestResult = () => {
+  if (!hasCachedResult.value) {
+    ElMessage.info('暂无可查看的历史仿真结果')
+    return
+  }
+  resultDialogVisible.value = true
+  nextTick(() => {
+    renderChart()
+  })
+}
+
+const getDisplayVariableName = (variable: string, group: string): string => {
+  if (group === '系统变量') {
+    return variable
+  }
+  const prefix = `${group}.`
+  return variable.startsWith(prefix) ? variable.slice(prefix.length) : variable
+}
+
 const toCsvCell = (value: any): string => {
   const text = value == null ? '' : String(value)
   const escaped = text.replace(/"/g, '""')
@@ -1453,7 +1497,7 @@ const handleDownloadResultCsv = () => {
     ElMessage.warning('暂无可导出的仿真数据')
     return
   }
-  const selected = selectedExportVariables.value.filter((v) => !!resultSeriesData.value[v])
+  const selected = selectedResultVariables.value.filter((v) => !!resultSeriesData.value[v])
   if (selected.length === 0) {
     ElMessage.warning('请选择要导出的仿真参数')
     return
@@ -1614,6 +1658,33 @@ const handleDownloadResultCsv = () => {
 
 .simulation-panel {
   flex-shrink: 0;
+}
+
+.result-chart-layout {
+  display: flex;
+  gap: 12px;
+  height: 500px;
+}
+
+.result-sidebar {
+  width: 300px;
+  overflow-y: auto;
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+  padding: 8px;
+  background: #fafafa;
+}
+
+.result-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.result-chart-container {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
 }
 
 .simulation-logs {

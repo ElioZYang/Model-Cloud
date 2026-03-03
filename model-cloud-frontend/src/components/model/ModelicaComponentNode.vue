@@ -248,20 +248,42 @@ const getLabelStyle = (layout: ConnectorLayout) => {
 }
 
 .connector-handle {
-  width: 10px;
-  height: 10px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  border: 2px solid white;
-  background: #409eff;
+  border: none;
+  background: transparent;
   cursor: crosshair;
   pointer-events: all;
 }
 
+.connector-handle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: #409eff;
+  box-sizing: border-box;
+}
+
 .connector-positive .connector-handle {
+  background: transparent;
+}
+
+.connector-positive .connector-handle::after {
   background: #67c23a;
 }
 
 .connector-negative .connector-handle {
+  background: transparent;
+}
+
+.connector-negative .connector-handle::after {
   background: #f56c6c;
 }
 
