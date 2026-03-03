@@ -1,40 +1,58 @@
 import axios from 'axios'
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import type {
+  AxiosResponse,
+  InternalAxiosRequestConfig
+} from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 import { useUserStore } from '@/stores/user'
 
+export interface ApiResponse<T = any> {
+  code: number
+  message: string
+  data: T
+  timestamp?: string
+}
+
+type RequestClient = {
+  interceptors: any
+  get<T = any>(url: string, config?: any): Promise<ApiResponse<T>>
+  post<T = any>(url: string, data?: any, config?: any): Promise<ApiResponse<T>>
+  put<T = any>(url: string, data?: any, config?: any): Promise<ApiResponse<T>>
+  delete<T = any>(url: string, config?: any): Promise<ApiResponse<T>>
+}
+
 // 创建axios实例
-const service: AxiosInstance = axios.create({
+const service = axios.create({
   baseURL: '/api',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json;charset=UTF-8'
   }
-})
+}) as unknown as RequestClient
 
 // 请求拦截器
 service.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
+  (config: InternalAxiosRequestConfig) => {
     // 添加Token到请求头
     const token = localStorage.getItem('token')
-    if (token && config.headers) {
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
     // 如果是 FormData，不设置 Content-Type，让浏览器自动设置（包含 boundary）
-    if (config.data instanceof FormData && config.headers) {
+    if (config.data instanceof FormData) {
       delete config.headers['Content-Type']
     }
     return config
   },
-  (error) => {
+  (error: any) => {
     return Promise.reject(error)
   }
 )
 
 // 响应拦截器
 service.interceptors.response.use(
-  (response: AxiosResponse) => {
+  (response: AxiosResponse<ApiResponse>) => {
     const res = response.data
     // 根据后端返回的数据结构处理
     if (res.code !== 200) {
@@ -55,7 +73,7 @@ service.interceptors.response.use(
     }
     return res
   },
-  (error) => {
+  (error: any) => {
     // HTTP错误处理
     if (error.response) {
       const { status, data } = error.response

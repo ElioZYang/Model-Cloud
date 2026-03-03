@@ -18,8 +18,15 @@ import com.modelcloud.modules.business.service.ModelDeployService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -48,6 +55,10 @@ public class ModelDeployServiceImpl implements ModelDeployService {
     private final BsModelService bsModelService;
     private final com.modelcloud.modules.sys.mapper.SysUserMapper sysUserMapper;
     private final GiteaService giteaService;
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${model-cloud.simulation.base-url:http://localhost:8000/api/v1/simulation}")
+    private String simulationBaseUrl;
     
     public ModelDeployServiceImpl(
             BsModelMapper bsModelMapper,
@@ -129,6 +140,7 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         result.put("sourceCode", sourceCode != null ? sourceCode.get("content") : null);
         result.put("fileName", sourceCode != null ? sourceCode.get("fileName") : null);
         result.put("coverImage", model.getCoverImage());
+        result.put("className", model.getName());
         
         // 解析.mo文件，提取参数和接口信息
         Map<String, Object> parameters = new HashMap<>();
@@ -138,13 +150,17 @@ public class ModelDeployServiceImpl implements ModelDeployService {
             try {
                 com.modelcloud.modules.business.utils.ModelicaParser.ModelicaComponentInfo info = 
                     com.modelcloud.modules.business.utils.ModelicaParser.parseModel(sourceCode.get("content"));
+                if (StrUtil.isNotBlank(info.getClassName())) {
+                    result.put("className", info.getClassName());
+                }
                 
                 // 转换参数
                 for (com.modelcloud.modules.business.utils.ModelicaParser.ParameterInfo param : info.getParameters()) {
-                    Map<String, String> paramMap = new HashMap<>();
-                    paramMap.put("type", param.getType());
-                    paramMap.put("defaultValue", param.getDefaultValue());
-                    parameters.put(param.getName(), paramMap);
+                    String defaultValue = param.getDefaultValue();
+                    if (StrUtil.isBlank(defaultValue)) {
+                        defaultValue = "0";
+                    }
+                    parameters.put(param.getName(), defaultValue);
                 }
                 
                 // 转换接口
@@ -350,9 +366,7 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         task.setStartTime(LocalDateTime.now());
         
         taskMapper.insert(task);
-        
-        // TODO: 调用仿真服务API提交任务
-        // 这里先返回任务ID，后续实现与仿真服务的通信
+        submitToSimulationService(task);
         
         log.info("创建仿真任务: taskId={}, userId={}", task.getTaskId(), userId);
         
@@ -374,7 +388,7 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         if (!task.getUserId().equals(userId)) {
             throw new BusinessException("无权访问此任务");
         }
-        
+        syncTaskStatusFromSimulation(task);
         return task;
     }
     
@@ -390,6 +404,79 @@ public class ModelDeployServiceImpl implements ModelDeployService {
                 .orderBy("create_time", false);
         
         return taskMapper.paginate(pageNum, pageSize, queryWrapper);
+    }
+
+    private void submitToSimulationService(BsSimulationTask task) {
+        String submitUrl = simulationBaseUrl + "/submit";
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("taskId", task.getTaskId());
+        payload.put("modelCode", task.getModelCode());
+        payload.put("simulationParams", JSON.parseObject(task.getSimulationParams()));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(submitUrl, entity, String.class);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new BusinessException("仿真服务提交失败，HTTP状态: " + response.getStatusCode().value());
+            }
+            task.setStatus("running");
+            task.setProgress(5);
+            taskMapper.update(task);
+        } catch (RestClientException e) {
+            task.setStatus("failed");
+            task.setErrorMessage("调用仿真服务失败: " + e.getMessage());
+            task.setEndTime(LocalDateTime.now());
+            taskMapper.update(task);
+            throw new BusinessException("调用仿真服务失败: " + e.getMessage());
+        }
+    }
+
+    private void syncTaskStatusFromSimulation(BsSimulationTask task) {
+        if (task == null || StrUtil.isBlank(task.getTaskId())) {
+            return;
+        }
+        if ("completed".equals(task.getStatus()) || "failed".equals(task.getStatus()) || "cancelled".equals(task.getStatus())) {
+            return;
+        }
+
+        String statusUrl = simulationBaseUrl + "/tasks/" + task.getTaskId();
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(statusUrl, String.class);
+            if (!response.getStatusCode().is2xxSuccessful() || StrUtil.isBlank(response.getBody())) {
+                return;
+            }
+            com.alibaba.fastjson2.JSONObject json = JSON.parseObject(response.getBody());
+            String status = json.getString("status");
+            Integer progress = json.getInteger("progress");
+            String errorMessage = json.getString("errorMessage");
+            String resultFileUrl = json.getString("resultFileUrl");
+            Object resultData = json.get("resultData");
+
+            if (StrUtil.isNotBlank(status)) {
+                task.setStatus(status);
+            }
+            if (progress != null) {
+                task.setProgress(progress);
+            }
+            if (StrUtil.isNotBlank(errorMessage)) {
+                task.setErrorMessage(errorMessage);
+            }
+            if (StrUtil.isNotBlank(resultFileUrl)) {
+                task.setResultFileUrl(resultFileUrl);
+            }
+            if (resultData != null) {
+                task.setResultData(JSON.toJSONString(resultData));
+            }
+            if ("completed".equals(status) || "failed".equals(status) || "cancelled".equals(status)) {
+                task.setEndTime(LocalDateTime.now());
+            }
+            taskMapper.update(task);
+        } catch (Exception e) {
+            log.warn("同步仿真任务状态失败 taskId={}, reason={}", task.getTaskId(), e.getMessage());
+        }
     }
 }
 

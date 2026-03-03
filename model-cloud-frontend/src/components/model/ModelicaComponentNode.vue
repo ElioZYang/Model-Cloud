@@ -1,5 +1,5 @@
 <template>
-  <div class="modelica-component-node" :class="{ selected: selected }">
+  <div class="modelica-component-node" :class="{ selected: !!props.selected }">
     <div class="node-header">
       <el-image
         v-if="coverImage"
@@ -12,7 +12,7 @@
         </template>
       </el-image>
       <el-icon v-else class="node-icon-fallback"><Box /></el-icon>
-      <span class="node-label">{{ label || data?.componentName || 'Component' }}</span>
+      <span class="node-label">{{ label || props.data?.componentName || 'Component' }}</span>
     </div>
     <div class="node-connectors">
       <div
@@ -35,26 +35,35 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Handle, useNode } from '@vue-flow/core'
+import { Handle, Position } from '@vue-flow/core'
 import { Box } from '@element-plus/icons-vue'
 import type { Connector } from '@/api/model-deploy'
 
-// 使用useNode获取节点数据
-const { data, selected } = useNode()
+type NodeData = {
+  componentName?: string
+  connectors?: Connector[]
+  coverImage?: string
+}
+
+const props = defineProps<{
+  data?: NodeData
+  selected?: boolean
+  label?: string
+}>()
 
 // 从节点数据中获取connectors
 const connectorList = computed(() => {
-  return data.value?.connectors || []
+  return props.data?.connectors || []
 })
 
 // 从节点数据中获取coverImage
 const coverImage = computed(() => {
-  return data.value?.coverImage || ''
+  return props.data?.coverImage || ''
 })
 
 // 从节点数据中获取label
 const label = computed(() => {
-  return data.value?.componentName || ''
+  return props.label || props.data?.componentName || ''
 })
 
 // 获取connector的CSS类
@@ -79,15 +88,15 @@ const getConnectorType = (connector: Connector): 'source' | 'target' => {
 }
 
 // 获取connector的位置（left或right）
-const getConnectorPosition = (connector: Connector): 'left' | 'right' => {
+const getConnectorPosition = (connector: Connector): Position => {
   const type = connector.type || ''
   // 简化处理：PositivePin在左侧，NegativePin在右侧
-  if (type.includes('PositivePin')) return 'left'
-  if (type.includes('NegativePin')) return 'right'
+  if (type.includes('PositivePin')) return Position.Left
+  if (type.includes('NegativePin')) return Position.Right
   // 默认：第一个在左侧，其他在右侧
   const list = connectorList.value
   const index = list.findIndex(c => c.name === connector.name)
-  return index === 0 ? 'left' : 'right'
+  return index === 0 ? Position.Left : Position.Right
 }
 </script>
 

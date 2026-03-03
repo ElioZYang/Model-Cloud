@@ -11,6 +11,7 @@ export interface Connector {
 export interface Component {
   id: number
   name: string
+  className?: string
   description?: string
   coverImage?: string
   sourceCode?: string
@@ -55,7 +56,7 @@ export interface SimulationTask {
   status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
   progress: number
   resultFileUrl?: string
-  resultData?: string // JSON字符串
+  resultData?: string | Record<string, any>
   errorMessage?: string
   startTime?: string
   endTime?: string

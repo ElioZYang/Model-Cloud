@@ -112,5 +112,9 @@ model-cloud:
       - /auth/register
       - /public/**
 
+  # 仿真服务配置
+  simulation:
+    base-url: http://localhost:8000/api/v1/simulation
+
 
 

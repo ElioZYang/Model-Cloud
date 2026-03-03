@@ -41,7 +41,7 @@
             :key="component.id"
             class="component-item"
             draggable="true"
-            @dragstart="handleDragStart($event, component)"
+            @dragstart.capture="handleDragStart($event, component)"
           >
             <el-image
               :src="component.coverImage || defaultCover"
@@ -64,23 +64,28 @@
       </el-card>
 
       <!-- 中间：建模画布 -->
-      <div class="canvas-area">
+      <div class="canvas-area" @drop.prevent.stop="handleDrop" @dragover.prevent.stop="handleDragOver">
         <el-card class="canvas-card" shadow="never">
           <template #header>
             <div class="panel-header">
               <span>建模画布</span>
               <div>
+                <el-tag size="small" style="margin-right: 8px">节点: {{ nodes.length }}</el-tag>
                 <el-button size="small" :icon="Delete" @click="handleClearCanvas">清空</el-button>
                 <el-button size="small" :icon="View" @click="handlePreviewCode">预览代码</el-button>
               </div>
             </div>
           </template>
-          <div class="vue-flow-container" ref="flowContainer">
+          <div
+            class="vue-flow-container"
+            ref="flowContainer"
+            @drop.prevent.stop="handleDrop"
+            @dragover.prevent.stop="handleDragOver"
+          >
             <VueFlow
               v-model:nodes="nodes"
               v-model:edges="edges"
               :default-edge-options="{ type: 'smoothstep' }"
-              :node-types="nodeTypes"
               @node-click="handleNodeClick"
               @edge-click="handleEdgeClick"
               @pane-click="handlePaneClick"
@@ -98,8 +103,12 @@
         </template>
         <div v-if="selectedNode" class="property-content">
           <el-form :model="selectedNodeProperties" label-width="100px" size="small">
-            <el-form-item label="组件名称">
-              <el-input v-model="selectedNode.data.label" disabled />
+            <el-form-item label="组件实例名">
+              <el-input
+                v-model="selectedNodeInstanceName"
+                placeholder="请输入组件实例名"
+                @change="handleNodeNameChange"
+              />
             </el-form-item>
             <el-form-item label="组件类型">
               <el-input v-model="selectedNode.data.componentType" disabled />
@@ -206,6 +215,23 @@
     >
       <el-tabs v-model="resultTab">
         <el-tab-pane label="结果图表" name="chart">
+          <el-form inline size="small" style="margin-bottom: 12px">
+            <el-form-item label="输出变量">
+              <el-select
+                v-model="selectedResultVariable"
+                style="width: 320px"
+                placeholder="请选择输出变量"
+                :disabled="availableVariables.length === 0"
+              >
+                <el-option
+                  v-for="item in availableVariables"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                />
+              </el-select>
+            </el-form-item>
+          </el-form>
           <div ref="chartContainer" style="width: 100%; height: 500px"></div>
         </el-tab-pane>
         <el-tab-pane label="运行日志" name="logs">
@@ -241,7 +267,7 @@
     </el-dialog>
 
     <!-- 项目列表对话框 -->
-    <el-dialog v-model="showProjectDialog" title="我的项目" width="60%">
+    <el-dialog v-model="showProjectDialogComputed" title="我的项目" width="60%">
       <el-table :data="projectList" style="width: 100%">
         <el-table-column prop="name" label="项目名称" />
         <el-table-column prop="description" label="描述" />
@@ -258,12 +284,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, nextTick, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, computed, nextTick, onUnmounted, watch } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import type { Node, Edge, Connection } from '@vue-flow/core'
-import ModelicaComponentNode from '@/components/model/ModelicaComponentNode.vue'
 import {
   Search,
   Document,
@@ -284,12 +309,7 @@ import dayjs from 'dayjs'
 // Vue Flow
 const nodes = ref<Node[]>([])
 const edges = ref<Edge[]>([])
-const { getViewport, screenToFlowCoordinate } = useVueFlow()
-
-// 自定义节点类型
-const nodeTypes = {
-  modelicaComponent: ModelicaComponentNode
-}
+const { setCenter, fitView } = useVueFlow()
 
 // 数据
 const components = ref<Component[]>([])
@@ -297,6 +317,7 @@ const componentSearchKeyword = ref('')
 const defaultCover = 'https://via.placeholder.com/300x200?text=No+Image'
 const selectedNode = ref<Node | null>(null)
 const selectedNodeProperties = ref<Record<string, any>>({})
+const selectedNodeInstanceName = ref('')
 const saving = ref(false)
 const simulating = ref(false)
 const resultDialogVisible = ref(false)
@@ -309,6 +330,13 @@ const simulationLogs = ref<Array<{ time: string; type: string; message: string }
 const chartContainer = ref<HTMLElement>()
 const flowContainer = ref<HTMLElement>()
 const loading = ref(false)
+const simulationTaskId = ref<number | null>(null)
+const pollingTimer = ref<number | null>(null)
+const availableVariables = ref<string[]>([])
+const selectedResultVariable = ref('')
+const resultSeriesData = ref<Record<string, number[]>>({})
+const resultTimeData = ref<number[]>([])
+let chartInstance: echarts.ECharts | null = null
 
 // 仿真参数
 const simulationParams = reactive({
@@ -343,28 +371,14 @@ const filteredComponents = computed(() => {
 // 初始化
 onMounted(async () => {
   await loadComponents()
-  
-  // 等待 Vue Flow 初始化后，绑定拖拽事件到 pane
-  await nextTick()
-  const vueFlowEl = document.querySelector('.vue-flow')
-  if (vueFlowEl) {
-    const paneEl = vueFlowEl.querySelector('.vue-flow__pane') as HTMLElement
-    if (paneEl) {
-      paneEl.addEventListener('drop', handleDrop)
-      paneEl.addEventListener('dragover', handleDragOver)
-    }
-  }
 })
 
 // 清理事件监听
 onUnmounted(() => {
-  const vueFlowEl = document.querySelector('.vue-flow')
-  if (vueFlowEl) {
-    const paneEl = vueFlowEl.querySelector('.vue-flow__pane') as HTMLElement
-    if (paneEl) {
-      paneEl.removeEventListener('drop', handleDrop)
-      paneEl.removeEventListener('dragover', handleDragOver)
-    }
+  clearPollingTimer()
+  if (chartInstance) {
+    chartInstance.dispose()
+    chartInstance = null
   }
 })
 
@@ -397,7 +411,9 @@ const handleComponentSearch = () => {
 // 拖拽开始
 const handleDragStart = (event: DragEvent, component: Component) => {
   if (event.dataTransfer) {
-    event.dataTransfer.setData('application/json', JSON.stringify(component))
+    const payload = JSON.stringify(component)
+    event.dataTransfer.setData('application/json', payload)
+    event.dataTransfer.setData('text/plain', payload)
     event.dataTransfer.effectAllowed = 'copy'
   }
 }
@@ -409,42 +425,90 @@ const handleDrop = async (event: DragEvent) => {
   if (!event.dataTransfer) return
 
   try {
-    const componentData = JSON.parse(event.dataTransfer.getData('application/json')) as Component
-    
-    // 使用 Vue Flow 的坐标转换，将屏幕坐标转换为画布坐标
-    const position = screenToFlowCoordinate({
-      x: event.clientX,
-      y: event.clientY
-    })
-
-    // 加载组件详情（包括connectors）
-    const detailRes = await modelDeployApi.getComponentDetail(componentData.id)
-    if (detailRes.code !== 200) {
-      ElMessage.error('加载组件详情失败')
+    const rawData =
+      event.dataTransfer.getData('application/json') ||
+      event.dataTransfer.getData('text/plain')
+    if (!rawData) {
+      ElMessage.warning('未获取到拖拽组件数据')
       return
     }
+    const componentData = JSON.parse(rawData) as Component
+    
+    // 使用容器相对坐标，确保节点一定在当前可见区域
+    let position = { x: 120 + nodes.value.length * 20, y: 80 + nodes.value.length * 20 }
+    if (flowContainer.value) {
+      const rect = flowContainer.value.getBoundingClientRect()
+      const x = event.clientX - rect.left - 80
+      const y = event.clientY - rect.top - 30
+      const maxX = Math.max(20, rect.width - 180)
+      const maxY = Math.max(20, rect.height - 120)
+      position = {
+        x: Math.min(Math.max(20, x), maxX),
+        y: Math.min(Math.max(20, y), maxY)
+      }
+    }
 
-    const componentDetail = detailRes.data
+    // 加载组件详情（包括connectors），失败时使用兜底数据，保证可拖拽建模
+    let componentDetail: any = {
+      className: componentData.className || componentData.name,
+      coverImage: componentData.coverImage,
+      parameters: componentData.parameters || {},
+      connectors: {
+        list: [
+          { name: 'p', type: 'Modelica.Electrical.Analog.Interfaces.PositivePin' },
+          { name: 'n', type: 'Modelica.Electrical.Analog.Interfaces.NegativePin' }
+        ]
+      }
+    }
+    try {
+      const detailRes = await modelDeployApi.getComponentDetail(componentData.id)
+      if (detailRes.code === 200 && detailRes.data) {
+        componentDetail = detailRes.data
+      } else {
+        ElMessage.warning('组件详情加载失败，已使用默认引脚')
+      }
+    } catch {
+      ElMessage.warning('组件详情加载异常，已使用默认引脚')
+    }
+
     const connectors = componentDetail.connectors?.list || componentDetail.ports?.list || []
 
     // 创建节点
-    const nodeId = `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const nodeId = `node_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
+    const normalizedProperties = normalizeComponentParameters(componentDetail.parameters || {})
+    const defaultProperties = getDefaultPropertiesByType(
+      String(componentDetail.className || componentData.className || componentData.name),
+      String(componentData.name)
+    )
+    const finalProperties =
+      Object.keys(normalizedProperties).length > 0 ? normalizedProperties : defaultProperties
+    const baseInstanceName = normalizeModelicaIdentifier(componentData.name)
+    const instanceName = generateUniqueInstanceName(baseInstanceName, nodes.value)
+
     const newNode: Node = {
       id: nodeId,
-      type: 'modelicaComponent', // 使用自定义节点类型
+      type: 'default',
       position: position,
       data: {
         componentId: componentData.id,
         componentName: componentData.name,
-        componentType: componentData.name,
+        instanceName,
+        componentType: resolveModelicaType(componentDetail.className || componentData.name, componentData.name),
         coverImage: componentDetail.coverImage || componentData.coverImage,
         connectors: connectors,
-        properties: componentDetail.parameters || {}
+        properties: finalProperties
       },
-      label: componentData.name
+      label: instanceName
     }
 
-    nodes.value.push(newNode)
+    nodes.value = [...nodes.value, newNode]
+    await nextTick()
+    try {
+      setCenter(position.x, position.y, { zoom: 1.2, duration: 300 })
+      fitView({ padding: 0.2, duration: 300 })
+    } catch {
+      // ignore viewport errors
+    }
     ElMessage.success(`已添加组件: ${componentData.name}`)
   } catch (error: any) {
     console.error('添加组件失败:', error)
@@ -465,17 +529,50 @@ const handleDragOver = (event: DragEvent) => {
 // 加载节点属性
 const loadNodeProperties = async (node: Node) => {
   try {
+    selectedNodeInstanceName.value = String(
+      node.data?.instanceName || node.label || node.id
+    )
+    const localProperties = (node.data?.properties || {}) as Record<string, any>
+    if (Object.keys(localProperties).length > 0) {
+      selectedNodeProperties.value = { ...localProperties }
+      return
+    }
+
     const componentId = node.data?.componentId
     if (componentId) {
       const res = await modelDeployApi.getComponentDetail(componentId)
-      if (res.code === 200 && res.data.parameters) {
-        selectedNodeProperties.value = { ...res.data.parameters }
+      if (res.code === 200) {
+        const normalized = normalizeComponentParameters(res.data?.parameters || {})
+        const fallback = getDefaultPropertiesByType(
+          String(node.data?.componentType || ''),
+          String(node.data?.componentName || '')
+        )
+        const merged = Object.keys(normalized).length > 0 ? normalized : fallback
+        selectedNodeProperties.value = { ...merged }
+        if (!node.data) {
+          node.data = {}
+        }
+        node.data.properties = { ...merged }
+        return
       }
-    } else {
-      selectedNodeProperties.value = node.data?.properties || {}
     }
+
+    const fallback = getDefaultPropertiesByType(
+      String(node.data?.componentType || ''),
+      String(node.data?.componentName || '')
+    )
+    selectedNodeProperties.value = { ...fallback }
+    if (!node.data) {
+      node.data = {}
+    }
+    node.data.properties = { ...fallback }
   } catch (error) {
     console.error('加载组件属性失败:', error)
+    const fallback = getDefaultPropertiesByType(
+      String(node.data?.componentType || ''),
+      String(node.data?.componentName || '')
+    )
+    selectedNodeProperties.value = { ...fallback }
   }
 }
 
@@ -487,6 +584,21 @@ const handlePropertyChange = () => {
     }
     selectedNode.value.data.properties = { ...selectedNodeProperties.value }
   }
+}
+
+const handleNodeNameChange = () => {
+  if (!selectedNode.value) return
+  const normalized = normalizeModelicaIdentifier(selectedNodeInstanceName.value || '')
+  if (!normalized) {
+    ElMessage.warning('实例名不能为空')
+    return
+  }
+  selectedNodeInstanceName.value = normalized
+  if (!selectedNode.value.data) {
+    selectedNode.value.data = {}
+  }
+  selectedNode.value.data.instanceName = normalized
+  selectedNode.value.label = normalized
 }
 
 // 删除节点
@@ -529,20 +641,57 @@ const generateModelicaCode = (): string => {
   lines.push('  // 自动生成的Modelica模型')
   lines.push('')
 
-  // 导入语句（简化处理，实际应该根据组件类型导入）
-  lines.push('  import Modelica.Electrical.Analog.Basic.*;')
-  lines.push('  import Modelica.Electrical.Analog.Sources.*;')
-  lines.push('')
+  const nodeNameMap = buildUniqueNodeNameMap(nodes.value)
 
   // 组件实例声明
+  const groundNodeIds: string[] = []
   nodes.value.forEach((node) => {
-    const componentType = node.data?.componentType || 'Resistor'
-    const nodeId = node.id
+    const componentType = resolveModelicaType(
+      String(node.data?.componentType || ''),
+      String(node.data?.componentName || '')
+    )
+    const nodeName = String(node.data?.componentName || '').toLowerCase()
+    if (componentType.includes('.Ground') || nodeName.includes('ground') || nodeName.includes('接地')) {
+      groundNodeIds.push(node.id)
+    }
+    const nodeId = nodeNameMap[node.id]
     const properties = node.data?.properties || {}
-    const params = Object.entries(properties)
-      .map(([key, value]) => `${key}=${value}`)
-      .join(', ')
-    lines.push(`  ${componentType} ${nodeId}(${params || ''});`)
+    const paramItems: string[] = []
+    Object.entries(properties).forEach(([key, value]) => {
+      const safeName = normalizeModelicaIdentifier(key)
+      if (!safeName) {
+        return
+      }
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        paramItems.push(`${safeName}=${value}`)
+        return
+      }
+      if (typeof value === 'boolean') {
+        paramItems.push(`${safeName}=${value ? 'true' : 'false'}`)
+        return
+      }
+      if (typeof value === 'string') {
+        const trimmed = value.trim()
+        if (!trimmed) {
+          return
+        }
+        const numeric = Number(trimmed)
+        if (!Number.isNaN(numeric)) {
+          paramItems.push(`${safeName}=${numeric}`)
+          return
+        }
+        // 仅允许简单标识符字符串，避免生成非法Modelica表达式
+        if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(trimmed)) {
+          paramItems.push(`${safeName}=${trimmed}`)
+        }
+      }
+    })
+
+    if (paramItems.length > 0) {
+      lines.push(`  ${componentType} ${nodeId}(${paramItems.join(', ')});`)
+    } else {
+      lines.push(`  ${componentType} ${nodeId};`)
+    }
   })
 
   lines.push('')
@@ -550,14 +699,166 @@ const generateModelicaCode = (): string => {
 
   // 连接语句
   edges.value.forEach((edge) => {
-    const source = edge.source
-    const target = edge.target
-    lines.push(`  connect(${source}.p, ${target}.n);`)
+    const source = nodeNameMap[edge.source]
+    const target = nodeNameMap[edge.target]
+    if (!source || !target) {
+      return
+    }
+    const sourceNode = nodes.value.find((n) => n.id === edge.source)
+    const targetNode = nodes.value.find((n) => n.id === edge.target)
+    const sourceConnectors = (sourceNode?.data?.connectors || []) as Array<{ name: string; type?: string }>
+    const targetConnectors = (targetNode?.data?.connectors || []) as Array<{ name: string; type?: string }>
+
+    const sourceHandle =
+      edge.sourceHandle ||
+      pickConnectorName(sourceConnectors, ['p', 'flange_a', 'u', 'inPort']) ||
+      sourceConnectors[0]?.name ||
+      'p'
+    const sourceType =
+      sourceConnectors.find((c) => c.name === sourceHandle)?.type ||
+      'Modelica.Electrical.Analog.Interfaces.Pin'
+    const targetHandle =
+      edge.targetHandle ||
+      pickCompatibleTargetHandle(sourceType, targetConnectors, sourceHandle) ||
+      pickConnectorName(targetConnectors, ['n', 'flange_b', 'y', 'outPort']) ||
+      targetConnectors[0]?.name ||
+      'n'
+    lines.push(`  connect(${source}.${sourceHandle}, ${target}.${targetHandle});`)
   })
+
+  // 若模型中没有接地，自动补一个Ground，避免浮地电路导致求解失败
+  if (groundNodeIds.length === 0 && nodes.value.length > 0) {
+    const autoGroundId = 'auto_ground'
+    lines.splice(lines.indexOf('equation') - 1, 0, `  Modelica.Electrical.Analog.Basic.Ground ${autoGroundId};`)
+
+    const refNode = nodes.value.find((node) => {
+      const connectors = node.data?.connectors || []
+      return connectors.some((c: any) => c.name === 'n') || connectors.some((c: any) => c.name === 'p')
+    })
+    if (refNode) {
+      const refConnectors = refNode.data?.connectors || []
+      const hasN = refConnectors.some((c: any) => c.name === 'n')
+      const refHandle = hasN ? 'n' : 'p'
+      const refNodeName = nodeNameMap[refNode.id]
+      if (refNodeName) {
+        lines.push(`  connect(${autoGroundId}.p, ${refNodeName}.${refHandle});`)
+      }
+    }
+  }
 
   lines.push('end GeneratedModel;')
 
   return lines.join('\n')
+}
+
+const normalizeModelicaIdentifier = (name: string): string => {
+  const normalized = String(name || '')
+    .replace(/[^\w]/g, '_')
+    .replace(/^\d+/, '')
+  return normalized || 'Resistor'
+}
+
+const buildUniqueNodeNameMap = (list: Node[]): Record<string, string> => {
+  const used = new Set<string>()
+  const map: Record<string, string> = {}
+  list.forEach((node, index) => {
+    const preferred = normalizeModelicaIdentifier(
+      String(node.data?.instanceName || node.label || `comp_${index + 1}`)
+    )
+    let name = preferred
+    let i = 1
+    while (used.has(name)) {
+      i += 1
+      name = `${preferred}_${i}`
+    }
+    used.add(name)
+    map[node.id] = name
+  })
+  return map
+}
+
+const generateUniqueInstanceName = (base: string, existingNodes: Node[]): string => {
+  const normalizedBase = normalizeModelicaIdentifier(base || 'component')
+  const existing = new Set(
+    existingNodes.map((n) =>
+      String(n.data?.instanceName || n.label || '').trim().toLowerCase()
+    )
+  )
+  if (!existing.has(normalizedBase.toLowerCase())) {
+    return normalizedBase
+  }
+  let index = 2
+  while (existing.has(`${normalizedBase}${index}`.toLowerCase())) {
+    index += 1
+  }
+  return `${normalizedBase}${index}`
+}
+
+const normalizeComponentParameters = (rawParams: Record<string, any>): Record<string, any> => {
+  const result: Record<string, any> = {}
+  Object.entries(rawParams || {}).forEach(([key, value]) => {
+    if (!key) return
+    let v: any = value
+    if (v && typeof v === 'object' && 'defaultValue' in (v as Record<string, any>)) {
+      v = (v as Record<string, any>).defaultValue
+    }
+    if (typeof v === 'string') {
+      const trimmed = v.trim()
+      if (trimmed !== '') {
+        const numeric = Number(trimmed)
+        if (!Number.isNaN(numeric)) {
+          result[key] = numeric
+          return
+        }
+      }
+      result[key] = v
+      return
+    }
+    result[key] = v
+  })
+  return result
+}
+
+const getDefaultPropertiesByType = (componentType: string, componentName: string): Record<string, any> => {
+  const t = `${componentType} ${componentName}`.toLowerCase()
+  if (t.includes('constantvoltage') || t.includes('sinevoltage') || t.includes('电源') || t.includes('voltage')) {
+    return { V: 12 }
+  }
+  if (t.includes('resistor') || t.includes('电阻')) {
+    return { R: 10 }
+  }
+  if (t.includes('inductor') || t.includes('电感')) {
+    return { L: 0.1 }
+  }
+  if (t.includes('capacitor') || t.includes('电容')) {
+    return { C: 0.001 }
+  }
+  return {}
+}
+
+const resolveModelicaType = (candidate: string, displayName: string): string => {
+  const raw = String(candidate || '').trim()
+  if (/^[A-Za-z_][A-Za-z0-9_.]*$/.test(raw) && raw.includes('.')) {
+    return raw
+  }
+  const c = `${raw} ${displayName}`.toLowerCase()
+  if (c.includes('resistor') || c.includes('电阻')) return 'Modelica.Electrical.Analog.Basic.Resistor'
+  if (c.includes('inductor') || c.includes('电感')) return 'Modelica.Electrical.Analog.Basic.Inductor'
+  if (c.includes('capacitor') || c.includes('电容')) return 'Modelica.Electrical.Analog.Basic.Capacitor'
+  if (c.includes('ground') || c.includes('接地')) return 'Modelica.Electrical.Analog.Basic.Ground'
+  if (c.includes('currentsensor') || c.includes('ammeter') || c.includes('电流表')) {
+    return 'Modelica.Electrical.Analog.Sensors.CurrentSensor'
+  }
+  if (c.includes('voltagesensor') || c.includes('电压表')) return 'Modelica.Electrical.Analog.Sensors.VoltageSensor'
+  if (c.includes('sine') || c.includes('正弦')) return 'Modelica.Electrical.Analog.Sources.SineVoltage'
+  if (c.includes('current') || c.includes('电流源')) return 'Modelica.Electrical.Analog.Sources.ConstantCurrent'
+  if (c.includes('source') || c.includes('voltage') || c.includes('电源')) {
+    return 'Modelica.Electrical.Analog.Sources.ConstantVoltage'
+  }
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(raw)) {
+    return raw
+  }
+  return 'Modelica.Electrical.Analog.Basic.Resistor'
 }
 
 // 复制代码
@@ -589,8 +890,8 @@ const handleSaveProject = async () => {
   try {
     saving.value = true
     const projectData = {
-      nodes: getNodes.value,
-      edges: getEdges.value
+      nodes: nodes.value,
+      edges: edges.value
     }
     const modelicaCode = generateModelicaCode()
 
@@ -671,6 +972,10 @@ const handleStartSimulation = async () => {
   try {
     simulating.value = true
     simulationLogs.value = []
+    availableVariables.value = []
+    selectedResultVariable.value = ''
+    resultSeriesData.value = {}
+    resultTimeData.value = []
     addLog('info', '开始仿真...')
 
     const modelCode = generateModelicaCode()
@@ -685,9 +990,10 @@ const handleStartSimulation = async () => {
     })
 
     if (res.code === 200) {
+      simulationTaskId.value = res.data
       addLog('success', '仿真任务已提交，任务ID: ' + res.data)
-      // TODO: 轮询任务状态
       ElMessage.success('仿真任务已提交')
+      await startPollingSimulationStatus(res.data)
     }
   } catch (error: any) {
     addLog('error', '仿真失败: ' + (error.message || '未知错误'))
@@ -706,6 +1012,7 @@ const handlePauseSimulation = () => {
 // 停止仿真
 const handleStopSimulation = () => {
   simulating.value = false
+  clearPollingTimer()
   addLog('warning', '仿真已停止')
   ElMessage.warning('仿真已停止')
 }
@@ -747,10 +1054,51 @@ const handlePaneClick = () => {
   selectedNode.value = null
 }
 
+const pickConnectorName = (
+  connectors: Array<{ name: string; type?: string }>,
+  preferred: string[]
+): string | undefined => {
+  const preferredSet = new Set(preferred.map((v) => v.toLowerCase()))
+  return connectors.find((c) => preferredSet.has(String(c.name || '').toLowerCase()))?.name
+}
+
+const isCompatibleConnectorType = (sourceType: string, targetType: string): boolean => {
+  if (sourceType === targetType) return true
+  if (sourceType.includes('Pin') && targetType.includes('Pin')) return true
+  if (sourceType.includes('Flange') && targetType.includes('Flange')) return true
+  if (sourceType.includes('RealInput') && targetType.includes('RealOutput')) return true
+  if (sourceType.includes('RealOutput') && targetType.includes('RealInput')) return true
+  if (sourceType.includes('BooleanInput') && targetType.includes('BooleanOutput')) return true
+  if (sourceType.includes('BooleanOutput') && targetType.includes('BooleanInput')) return true
+  return false
+}
+
+const pickCompatibleTargetHandle = (
+  sourceType: string,
+  targetConnectors: Array<{ name: string; type?: string }>,
+  sourceHandle?: string
+): string | undefined => {
+  const lowerSourceHandle = String(sourceHandle || '').toLowerCase()
+  if (sourceType.includes('Pin')) {
+    // 电气组件优先选对向端口，避免默认落到同名端口（例如 p->p）
+    if (lowerSourceHandle === 'p') {
+      const n = targetConnectors.find((c) => String(c.name || '').toLowerCase() === 'n')
+      if (n) return n.name
+    }
+    if (lowerSourceHandle === 'n') {
+      const p = targetConnectors.find((c) => String(c.name || '').toLowerCase() === 'p')
+      if (p) return p.name
+    }
+  }
+  return targetConnectors.find((c) =>
+    isCompatibleConnectorType(sourceType, c.type || 'Modelica.Electrical.Analog.Interfaces.Pin')
+  )?.name
+}
+
 // 连接处理
 // 连线处理（验证连接是否合法）
-const handleConnect = async (connection: Connection) => {
-  if (!connection.source || !connection.target || !connection.sourceHandle || !connection.targetHandle) {
+const handleConnect = (connection: Connection) => {
+  if (!connection.source || !connection.target) {
     return
   }
 
@@ -763,25 +1111,44 @@ const handleConnect = async (connection: Connection) => {
     return
   }
 
-  // 获取源接口和目标接口
-  const sourceConnector = sourceNode.data?.connectors?.find((c: any) => c.name === connection.sourceHandle)
-  const targetConnector = targetNode.data?.connectors?.find((c: any) => c.name === connection.targetHandle)
+  const sourceConnectors = (sourceNode.data?.connectors || []) as Array<{ name: string; type?: string }>
+  const targetConnectors = (targetNode.data?.connectors || []) as Array<{ name: string; type?: string }>
 
-  if (!sourceConnector || !targetConnector) {
-    ElMessage.warning('无法找到连接的接口')
-    return
-  }
+  const sourceHandle =
+    connection.sourceHandle ||
+    pickConnectorName(sourceConnectors, ['p', 'flange_a', 'u', 'inPort']) ||
+    sourceConnectors[0]?.name ||
+    'p'
+
+  const sourceConnector = sourceConnectors.find((c) => c.name === sourceHandle) || sourceConnectors[0]
+  const sourceType = sourceConnector?.type || 'Modelica.Electrical.Analog.Interfaces.Pin'
+
+  let targetHandle =
+    connection.targetHandle ||
+    pickCompatibleTargetHandle(sourceType, targetConnectors, sourceHandle) ||
+    pickConnectorName(targetConnectors, ['n', 'flange_b', 'y', 'outPort']) ||
+    targetConnectors[0]?.name ||
+    'n'
+  let targetConnector = targetConnectors.find((c) => c.name === targetHandle) || targetConnectors[0]
 
   // 验证连接类型是否兼容（简化处理：检查类型是否匹配或兼容）
   // 实际应该调用后端API验证，这里先做简单检查
-  const sourceType = sourceConnector.type || ''
-  const targetType = targetConnector.type || ''
+  let targetType = targetConnector?.type || 'Modelica.Electrical.Analog.Interfaces.Pin'
 
-  // 检查类型是否相同或兼容（例如PositivePin和NegativePin可以连接）
-  const isCompatible = sourceType === targetType || 
-                       (sourceType.includes('PositivePin') && targetType.includes('NegativePin')) ||
-                       (sourceType.includes('NegativePin') && targetType.includes('PositivePin')) ||
-                       sourceType.includes('Pin') && targetType.includes('Pin')
+  let isCompatible = isCompatibleConnectorType(sourceType, targetType)
+  if (!isCompatible && !connection.targetHandle) {
+    const preferredAutoHandle = pickCompatibleTargetHandle(sourceType, targetConnectors, sourceHandle)
+    const autoTarget = targetConnectors.find((c) => c.name === preferredAutoHandle) ||
+      targetConnectors.find((c) =>
+        isCompatibleConnectorType(sourceType, c.type || 'Modelica.Electrical.Analog.Interfaces.Pin')
+      )
+    if (autoTarget) {
+      targetHandle = autoTarget.name
+      targetConnector = autoTarget
+      targetType = autoTarget.type || 'Modelica.Electrical.Analog.Interfaces.Pin'
+      isCompatible = true
+    }
+  }
 
   if (!isCompatible) {
     ElMessage.warning(`接口类型不兼容: ${sourceType} 与 ${targetType} 无法连接`)
@@ -789,14 +1156,145 @@ const handleConnect = async (connection: Connection) => {
     return
   }
 
-  // 连接合法，允许创建边
+  const duplicated = edges.value.some((edge) => {
+    return (
+      edge.source === connection.source &&
+      edge.target === connection.target &&
+      (edge.sourceHandle || 'p') === sourceHandle &&
+      (edge.targetHandle || 'n') === targetHandle
+    )
+  })
+  if (duplicated) {
+    ElMessage.warning('该连线已存在')
+    return
+  }
+
+  edges.value = [...edges.value, {
+    id: `edge_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+    source: connection.source,
+    target: connection.target,
+    sourceHandle,
+    targetHandle,
+    type: 'smoothstep'
+  } as Edge]
+
   ElMessage.success('连接成功')
 }
 
-// 旧的handleConnect（已废弃，保留以防需要）
-const handleConnectOld = (connection: Connection) => {
-  edges.value.push(connection as Edge)
+const clearPollingTimer = () => {
+  if (pollingTimer.value !== null) {
+    window.clearInterval(pollingTimer.value)
+    pollingTimer.value = null
+  }
 }
+
+const startPollingSimulationStatus = async (taskId: number) => {
+  clearPollingTimer()
+
+  const fetchStatus = async () => {
+    try {
+      const statusRes = await modelDeployApi.getSimulationStatus(taskId)
+      if (statusRes.code !== 200 || !statusRes.data) {
+        return
+      }
+      const task = statusRes.data
+      if (task.progress != null) {
+        addLog('info', `任务状态: ${task.status}, 进度: ${task.progress}%`)
+      } else {
+        addLog('info', `任务状态: ${task.status}`)
+      }
+
+      if (task.status === 'completed') {
+        simulating.value = false
+        clearPollingTimer()
+        addLog('success', '仿真完成，正在展示结果')
+        applyResultData(task.resultData)
+        resultDialogVisible.value = true
+      } else if (task.status === 'failed' || task.status === 'cancelled') {
+        simulating.value = false
+        clearPollingTimer()
+        addLog('error', task.errorMessage || '仿真失败')
+        ElMessage.error(task.errorMessage || '仿真失败')
+      }
+    } catch (error: any) {
+      addLog('warning', `查询任务状态失败: ${error.message || '未知错误'}`)
+    }
+  }
+
+  await fetchStatus()
+  pollingTimer.value = window.setInterval(fetchStatus, 3000)
+}
+
+const applyResultData = (raw: any) => {
+  if (!raw) {
+    ElMessage.warning('仿真完成，但没有结果数据')
+    return
+  }
+  let parsed: any = raw
+  if (typeof raw === 'string') {
+    try {
+      parsed = JSON.parse(raw)
+    } catch {
+      ElMessage.warning('结果数据格式无法解析')
+      return
+    }
+  }
+  const time = Array.isArray(parsed.time) ? parsed.time : []
+  const variables = parsed.variables && typeof parsed.variables === 'object' ? parsed.variables : {}
+  const keys = Array.isArray(parsed.availableVariables)
+    ? parsed.availableVariables
+    : Object.keys(variables)
+
+  resultTimeData.value = time
+  resultSeriesData.value = variables
+  availableVariables.value = keys
+  selectedResultVariable.value = keys[0] || ''
+
+  nextTick(() => {
+    renderChart()
+  })
+}
+
+const renderChart = () => {
+  if (!chartContainer.value) {
+    return
+  }
+  const variable = selectedResultVariable.value
+  if (!variable || !resultSeriesData.value[variable]) {
+    return
+  }
+  if (!chartInstance) {
+    chartInstance = echarts.init(chartContainer.value)
+  }
+  chartInstance.setOption({
+    title: {
+      text: `变量: ${variable}`
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      type: 'category',
+      name: 'time',
+      data: resultTimeData.value
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        name: variable,
+        type: 'line',
+        showSymbol: false,
+        data: resultSeriesData.value[variable]
+      }
+    ]
+  })
+}
+
+watch(selectedResultVariable, () => {
+  renderChart()
+})
 
 </script>
 
@@ -856,6 +1354,11 @@ const handleConnectOld = (connection: Connection) => {
 .vue-flow-container {
   flex: 1;
   min-height: 0;
+  height: 100%;
+  min-height: 420px;
+  background: #f8fafc;
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
 }
 
 .vue-flow {

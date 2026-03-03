@@ -28,12 +28,12 @@ class Settings(BaseSettings):
     REDIS_DB: int = 0
     
     # OpenModelica配置
-    OMC_PATH: str = "/usr/bin/omc"
-    OMC_WORK_DIR: str = "/tmp/modelica_simulations"
+    OMC_PATH: str = "omc"
+    OMC_WORK_DIR: str = "./runtime/modelica_simulations"
     
     # 文件存储配置
-    TEMP_DIR: str = "/tmp/modelica_simulations"
-    RESULT_DIR: str = "/tmp/modelica_results"
+    TEMP_DIR: str = "./runtime/modelica_simulations"
+    RESULT_DIR: str = "./runtime/modelica_results"
     CLEANUP_INTERVAL: int = 3600  # 清理间隔（秒）
     FILE_RETENTION_HOURS: int = 24  # 文件保留时间（小时）
     
