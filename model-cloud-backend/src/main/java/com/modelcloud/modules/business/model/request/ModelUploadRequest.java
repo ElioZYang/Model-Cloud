@@ -49,5 +49,10 @@ public class ModelUploadRequest {
      * 模型格式
      */
     private String format;
+
+    /**
+     * 上传类型：model(模型) / component(基础组件)
+     */
+    private String modelKind;
 }
 

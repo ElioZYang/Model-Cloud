@@ -18,12 +18,19 @@ import com.modelcloud.modules.sys.service.SiteStatService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +57,10 @@ public class BsModelServiceImpl implements BsModelService {
     private final com.modelcloud.modules.business.service.BsModelCollectService collectService;
     private final GiteaConfig giteaConfig;
     private final SiteStatService siteStatService;
+    @Value("${model-cloud.icon.base-url:/api/business/model/icon}")
+    private String iconBaseUrl;
+    @Value("${model-cloud.icon.storage-dir:./runtime/modelica-icons}")
+    private String iconStorageDir;
 
     public BsModelServiceImpl(
             BsModelMapper bsModelMapper,
@@ -182,21 +193,34 @@ public class BsModelServiceImpl implements BsModelService {
         // 使用存档下载链接作为 repoUrl，方便前端直接下载
         model.setRepoUrl(giteaService.getArchiveUrl(repoName));
         model.setCoverImage(coverImageUrl);
-        // 根据是否公开设置审核状态：
-        // - 普通用户公开模型需要审核（10）
-        // - 管理员/超级管理员公开模型可直接通过（20）
-        // - 不公开模型直接通过（20）
-        Integer isPublic = request.getIsPublic() != null ? request.getIsPublic() : 0;
-        model.setIsPublic(isPublic);
-        boolean isAdmin = SecurityUtils.isAdmin();
-        if (isPublic == 1) {
-            if (isAdmin) {
-                model.setStatus(20); // 管理员上传公开模型，直接审核通过
-            } else {
-                model.setStatus(10); // 普通用户公开模型需要审核
+        String modelKind = StrUtil.blankToDefault(request.getModelKind(), "model").trim().toLowerCase();
+        boolean isComponent = "component".equals(modelKind);
+        model.setAttrType(isComponent ? "component" : "model");
+
+        // 基础组件仅允许超级管理员维护，且不进入公开模型列表
+        if (isComponent) {
+            if (!SecurityUtils.isSuperAdmin()) {
+                throw new BusinessException("仅超级管理员可上传基础组件");
             }
+            model.setIsPublic(0);
+            model.setStatus(20);
         } else {
-            model.setStatus(20); // 不公开模型直接通过
+            // 普通模型保持现有逻辑
+            // - 普通用户公开模型需要审核（10）
+            // - 管理员/超级管理员公开模型可直接通过（20）
+            // - 不公开模型直接通过（20）
+            Integer isPublic = request.getIsPublic() != null ? request.getIsPublic() : 0;
+            model.setIsPublic(isPublic);
+            boolean isAdmin = SecurityUtils.isAdmin();
+            if (isPublic == 1) {
+                if (isAdmin) {
+                    model.setStatus(20); // 管理员上传公开模型，直接审核通过
+                } else {
+                    model.setStatus(10); // 普通用户公开模型需要审核
+                }
+            } else {
+                model.setStatus(20); // 不公开模型直接通过
+            }
         }
         model.setIsDel(0); // 设置为未删除
         model.setCreateTime(createTime);
@@ -216,6 +240,7 @@ public class BsModelServiceImpl implements BsModelService {
                 .where(BS_MODEL.IS_DEL.eq(0)) // 只查询未删除的记录
                 .and(BS_MODEL.IS_PUBLIC.eq(1)) // 只显示公开的模型
                 .and(BS_MODEL.STATUS.eq(20)) // 只显示审核通过的模型
+                .and(BS_MODEL.ATTR_TYPE.isNull().or(BS_MODEL.ATTR_TYPE.ne("component"))) // 排除基础组件
                 .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(StrUtil.isNotBlank(keyword)))
                 .and(BS_MODEL.ATTR_LABEL_NAMES.like(tag).when(StrUtil.isNotBlank(tag)))
                 .orderBy(BS_MODEL.CREATE_TIME.desc());
@@ -256,7 +281,8 @@ public class BsModelServiceImpl implements BsModelService {
             QueryWrapper totalQuery = QueryWrapper.create()
                     .where(BS_MODEL.IS_DEL.eq(0))
                     .and(BS_MODEL.IS_PUBLIC.eq(1))
-                    .and(BS_MODEL.STATUS.eq(20));
+                    .and(BS_MODEL.STATUS.eq(20))
+                    .and(BS_MODEL.ATTR_TYPE.isNull().or(BS_MODEL.ATTR_TYPE.ne("component")));
             long totalCount = bsModelMapper.selectCountByQuery(totalQuery);
             stats.put("totalCount", totalCount);
             
@@ -264,7 +290,8 @@ public class BsModelServiceImpl implements BsModelService {
             if (userId != null) {
                 QueryWrapper myUploadQuery = QueryWrapper.create()
                         .where(BS_MODEL.IS_DEL.eq(0))
-                        .and(BS_MODEL.USER_ID.eq(userId));
+                        .and(BS_MODEL.USER_ID.eq(userId))
+                        .and(BS_MODEL.ATTR_TYPE.isNull().or(BS_MODEL.ATTR_TYPE.ne("component")));
                 long myUploadCount = bsModelMapper.selectCountByQuery(myUploadQuery);
                 stats.put("myUploadCount", myUploadCount);
             } else {
@@ -486,6 +513,7 @@ public class BsModelServiceImpl implements BsModelService {
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .where(BS_MODEL.IS_DEL.eq(0)) // 只查询未删除的记录
                 .and(BS_MODEL.USER_ID.eq(userId)) // 只查询当前用户的模型
+                .and(BS_MODEL.ATTR_TYPE.isNull().or(BS_MODEL.ATTR_TYPE.ne("component"))) // 我的模型列表排除基础组件
                 .and(BS_MODEL.IS_PUBLIC.eq(isPublic).when(isPublic != null)) // 根据公开状态过滤
                 .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(StrUtil.isNotBlank(keyword)))
                 .and(BS_MODEL.ATTR_LABEL_NAMES.like(tag).when(StrUtil.isNotBlank(tag)))
@@ -847,6 +875,299 @@ public class BsModelServiceImpl implements BsModelService {
         bsModelMapper.update(model);
 
         log.info("更新模型源码成功: modelId={}, fileName={}", id, fileName);
+    }
+
+    @Override
+    public Page<BsModel> pageAdminModels(int pageNum, int pageSize, String keyword, String tag, String modelKind) {
+        SecurityUtils.requireSuperAdmin();
+
+        String normalizedKind = StrUtil.blankToDefault(modelKind, "all").trim().toLowerCase();
+        QueryWrapper queryWrapper = QueryWrapper.create()
+                .where(BS_MODEL.IS_DEL.eq(0))
+                .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(StrUtil.isNotBlank(keyword)))
+                .and(BS_MODEL.ATTR_LABEL_NAMES.like(tag).when(StrUtil.isNotBlank(tag)))
+                .orderBy(BS_MODEL.CREATE_TIME.desc());
+
+        if ("component".equals(normalizedKind)) {
+            queryWrapper.and(BS_MODEL.ATTR_TYPE.eq("component"));
+        } else if ("model".equals(normalizedKind)) {
+            queryWrapper.and(BS_MODEL.ATTR_TYPE.isNull().or(BS_MODEL.ATTR_TYPE.ne("component")));
+        }
+
+        Page<BsModel> page = bsModelMapper.paginate(pageNum, pageSize, queryWrapper);
+        if (page.getRecords() != null) {
+            for (BsModel model : page.getRecords()) {
+                fillAuthorName(model);
+                fillDefaultCoverImage(model);
+            }
+        }
+        return page;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchUpdateModelKind(List<Long> ids, String modelKind) {
+        SecurityUtils.requireSuperAdmin();
+        if (ids == null || ids.isEmpty()) {
+            throw new BusinessException("请选择至少一条记录");
+        }
+        String normalizedKind = StrUtil.blankToDefault(modelKind, "").trim().toLowerCase();
+        if (!"model".equals(normalizedKind) && !"component".equals(normalizedKind)) {
+            throw new BusinessException("modelKind仅支持 model 或 component");
+        }
+
+        for (Long id : ids) {
+            if (id == null) {
+                continue;
+            }
+            BsModel model = bsModelMapper.selectOneById(id);
+            if (model == null || model.getIsDel() == 1) {
+                continue;
+            }
+            model.setAttrType(normalizedKind);
+            if ("component".equals(normalizedKind)) {
+                model.setIsPublic(0);
+                model.setStatus(20);
+            }
+            model.setUpdateTime(LocalDateTime.now());
+            bsModelMapper.update(model);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<Long, String> batchGenerateModelIcons(List<Long> ids) {
+        SecurityUtils.requireSuperAdmin();
+        if (ids == null || ids.isEmpty()) {
+            throw new BusinessException("请选择至少一条记录");
+        }
+        Map<Long, String> result = new HashMap<>();
+        for (Long id : ids) {
+            if (id == null) continue;
+            BsModel model = bsModelMapper.selectOneById(id);
+            if (model == null || model.getIsDel() == 1) continue;
+            try {
+                String iconUrl = generateAndPersistIcon(model);
+                result.put(id, iconUrl);
+            } catch (Exception e) {
+                result.put(id, "");
+                log.warn("生成图标失败 modelId={}, reason={}", id, e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public String getModelIconFilePath(Long modelId) {
+        return Path.of(iconStorageDir, modelId + ".svg").toAbsolutePath().toString();
+    }
+
+    private String generateAndPersistIcon(BsModel model) {
+        Map<String, String> source = getModelSourceCode(model.getId());
+        String content = source.get("content");
+        if (StrUtil.isBlank(content)) {
+            throw new BusinessException("模型源码为空");
+        }
+        String className = resolveModelClassName(content, model.getName());
+        String iconAnnotation = readIconAnnotationByOmc(content, className);
+        if (StrUtil.isBlank(iconAnnotation)) {
+            // 兼容“包装类无自身Icon，仅extends父类”的场景
+            List<String> parentCandidates = resolveParentClassCandidates(content, className);
+            for (String candidate : parentCandidates) {
+                iconAnnotation = readIconAnnotationByOmc(content, candidate);
+                if (StrUtil.isNotBlank(iconAnnotation)) {
+                    break;
+                }
+            }
+        }
+        String svg = com.modelcloud.modules.business.utils.ModelicaIconSvgRenderer.render(iconAnnotation);
+        if (StrUtil.isBlank(svg)) {
+            // 保底：即使无法从annotation还原，也生成一个可用占位图标，避免整批失败
+            svg = buildFallbackIconSvg(model.getName());
+        }
+
+        Path dir = Path.of(iconStorageDir).toAbsolutePath();
+        try {
+            Files.createDirectories(dir);
+            Path iconFile = dir.resolve(model.getId() + ".svg");
+            Files.writeString(iconFile, svg, StandardCharsets.UTF_8);
+            String iconUrl = iconBaseUrl + "/" + model.getId() + ".svg?t=" + System.currentTimeMillis();
+            model.setCoverImage(iconUrl);
+            model.setUpdateTime(LocalDateTime.now());
+            bsModelMapper.update(model);
+            return iconUrl;
+        } catch (Exception e) {
+            throw new BusinessException("保存图标文件失败: " + e.getMessage());
+        }
+    }
+
+    private String resolveModelClassName(String sourceCode, String fallbackName) {
+        String withinPrefix = parseWithinPrefix(sourceCode);
+        String className = "";
+        try {
+            com.modelcloud.modules.business.utils.ModelicaParser.ModelicaComponentInfo info =
+                    com.modelcloud.modules.business.utils.ModelicaParser.parseModel(sourceCode);
+            if (info != null && StrUtil.isNotBlank(info.getClassName())) {
+                className = info.getClassName().trim();
+            }
+        } catch (Exception ignored) {
+            // ignore
+        }
+        if (StrUtil.isBlank(className)) {
+            className = StrUtil.blankToDefault(fallbackName, "GeneratedModel");
+        }
+        // 如果是短类名且存在 within 前缀，拼成完整限定名
+        if (!className.contains(".") && StrUtil.isNotBlank(withinPrefix)) {
+            className = withinPrefix + "." + className;
+        }
+        return className;
+    }
+
+    private String readIconAnnotationByOmc(String sourceCode, String className) {
+        Path tempDir = null;
+        try {
+            tempDir = Files.createTempDirectory("modelcloud-icon-");
+            Path mo = tempDir.resolve("IconModel.mo");
+            Path mos = tempDir.resolve("icon.mos");
+            Files.writeString(mo, sourceCode, StandardCharsets.UTF_8);
+
+            String script = "cd(\"" + tempDir.toAbsolutePath().toString().replace("\\", "/") + "\");\n"
+                    + "loadModel(Modelica);\n"
+                    + "loadFile(\"IconModel.mo\");\n"
+                    + "getIconAnnotation(" + className + ");\n";
+            Files.writeString(mos, script, StandardCharsets.UTF_8);
+
+            ProcessBuilder pb = new ProcessBuilder("omc", mos.toAbsolutePath().toString());
+            pb.redirectErrorStream(true);
+            Process p = pb.start();
+            StringBuilder out = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    out.append(line).append('\n');
+                }
+            }
+            int exit = p.waitFor();
+            if (exit != 0) {
+                throw new BusinessException("omc执行失败: " + out);
+            }
+            String annotation = extractAnnotationExpression(out.toString());
+            if (StrUtil.isBlank(annotation)) {
+                log.warn("Icon注解提取失败 className={}, omcOutput={}", className, out);
+            }
+            return annotation;
+        } catch (Exception e) {
+            throw new BusinessException("调用OpenModelica失败: " + e.getMessage());
+        } finally {
+            if (tempDir != null) {
+                try {
+                    Files.walk(tempDir)
+                            .sorted(Collections.reverseOrder())
+                            .forEach(path -> {
+                                try { Files.deleteIfExists(path); } catch (Exception ignored) {}
+                            });
+                } catch (Exception ignored) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    private String extractAnnotationExpression(String output) {
+        if (StrUtil.isBlank(output)) return "";
+        int start = output.lastIndexOf('{');
+        while (start >= 0) {
+            int level = 0;
+            boolean inString = false;
+            for (int i = start; i < output.length(); i++) {
+                char c = output.charAt(i);
+                if (c == '"' && (i == start || output.charAt(i - 1) != '\\')) {
+                    inString = !inString;
+                }
+                if (inString) {
+                    continue;
+                }
+                if (c == '{') {
+                    level++;
+                } else if (c == '}') {
+                    level--;
+                    if (level == 0) {
+                        return output.substring(start, i + 1).trim();
+                    }
+                }
+            }
+            start = output.lastIndexOf('{', start - 1);
+        }
+        return "";
+    }
+
+    private String parseWithinPrefix(String sourceCode) {
+        if (StrUtil.isBlank(sourceCode)) {
+            return "";
+        }
+        String[] lines = sourceCode.split("\\r?\\n");
+        for (String line : lines) {
+            String t = String.valueOf(line).trim();
+            if (t.startsWith("within ")) {
+                String value = t.substring("within ".length()).trim();
+                if (value.endsWith(";")) {
+                    value = value.substring(0, value.length() - 1).trim();
+                }
+                if (!"".equals(value)) {
+                    return value;
+                }
+            }
+            // within 一般出现在文件前几行，遇到 class/model 提前结束
+            if (t.startsWith("model ") || t.startsWith("class ") || t.startsWith("package ")
+                    || t.startsWith("block ") || t.startsWith("function ") || t.startsWith("record ")) {
+                break;
+            }
+        }
+        return "";
+    }
+
+    private List<String> resolveParentClassCandidates(String sourceCode, String resolvedClassName) {
+        List<String> result = new ArrayList<>();
+        if (StrUtil.isBlank(sourceCode)) {
+            return result;
+        }
+        String withinPrefix = parseWithinPrefix(sourceCode);
+        String[] lines = sourceCode.split("\\r?\\n");
+        for (String line : lines) {
+            String t = String.valueOf(line).trim();
+            if (t.startsWith("extends ")) {
+                String value = t.substring("extends ".length()).trim();
+                int cut = value.indexOf('(');
+                if (cut > 0) {
+                    value = value.substring(0, cut).trim();
+                }
+                if (value.endsWith(";")) {
+                    value = value.substring(0, value.length() - 1).trim();
+                }
+                if (StrUtil.isBlank(value)) {
+                    continue;
+                }
+                if (value.contains(".")) {
+                    result.add(value);
+                } else if (StrUtil.isNotBlank(withinPrefix)) {
+                    result.add(withinPrefix + "." + value);
+                } else {
+                    result.add(value);
+                }
+            }
+        }
+        // 去重
+        return result.stream().distinct().toList();
+    }
+
+    private String buildFallbackIconSvg(String modelName) {
+        String text = StrUtil.blankToDefault(modelName, "Model");
+        String safeText = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        return "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 120\">"
+                + "<rect x=\"8\" y=\"8\" width=\"184\" height=\"104\" rx=\"8\" ry=\"8\" fill=\"#f8fbff\" stroke=\"#409eff\" stroke-width=\"2\"/>"
+                + "<text x=\"100\" y=\"62\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"16\" fill=\"#303133\">"
+                + safeText + "</text>"
+                + "</svg>";
     }
 
     /**

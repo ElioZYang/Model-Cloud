@@ -1,0 +1,2 @@
+﻿loadModel(Modelica);
+getClassNames(Modelica.Electrical.Analog.Ideal, recursive=false, qualified=true, sort=true);

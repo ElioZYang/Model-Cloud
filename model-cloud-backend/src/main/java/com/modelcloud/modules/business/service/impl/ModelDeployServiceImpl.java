@@ -77,11 +77,11 @@ public class ModelDeployServiceImpl implements ModelDeployService {
     
     @Override
     public List<BsModel> getComponents(String category, String keyword) {
-        // 查询所有公开的、审核通过的模型（用于模型部署）
+        // 查询所有基础组件（component），由超级管理员维护后在部署页使用
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .where(BS_MODEL.IS_DEL.eq(0))
-                .and(BS_MODEL.IS_PUBLIC.eq(1))
                 .and(BS_MODEL.STATUS.eq(20))
+                .and(BS_MODEL.ATTR_TYPE.eq("component"))
                 .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(StrUtil.isNotBlank(keyword)))
                 .orderBy(BS_MODEL.CREATE_TIME.desc());
         

@@ -1,0 +1,2 @@
+﻿loadModel(Modelica);
+getIconAnnotation(Modelica.Electrical.Analog.Ideal.IdealSwitch);

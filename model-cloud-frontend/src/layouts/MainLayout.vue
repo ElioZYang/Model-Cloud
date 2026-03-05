@@ -36,6 +36,10 @@
           <el-icon><Setting /></el-icon>
           <span>模型管理</span>
         </el-menu-item>
+        <el-menu-item v-if="userStore.isSuperAdmin" index="/dashboard/model/component-manage">
+          <el-icon><Setting /></el-icon>
+          <span>基础组件管理</span>
+        </el-menu-item>
         <el-menu-item v-if="userStore.isAdmin" index="/dashboard/system/user">
           <el-icon><User /></el-icon>
           <span>用户管理</span>

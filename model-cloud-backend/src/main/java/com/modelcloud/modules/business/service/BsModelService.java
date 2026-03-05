@@ -85,6 +85,28 @@ public interface BsModelService {
      * 更新模型源码（仅上传者）
      */
     void updateModelSourceCode(Long id, String sourceCode, String fileName);
+
+    /**
+     * 超级管理员分页查询模型（按类型）
+     * modelKind: all/model/component
+     */
+    Page<BsModel> pageAdminModels(int pageNum, int pageSize, String keyword, String tag, String modelKind);
+
+    /**
+     * 超级管理员批量设置模型类型
+     * modelKind: model/component
+     */
+    void batchUpdateModelKind(java.util.List<Long> ids, String modelKind);
+
+    /**
+     * 超级管理员批量生成模型图标（OpenModelica Icon）
+     */
+    java.util.Map<Long, String> batchGenerateModelIcons(java.util.List<Long> ids);
+
+    /**
+     * 获取模型图标物理文件路径
+     */
+    String getModelIconFilePath(Long modelId);
 }
 
 

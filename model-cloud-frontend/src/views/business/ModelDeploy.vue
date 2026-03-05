@@ -8,6 +8,7 @@
         </div>
         <div class="toolbar-right">
           <el-button :icon="Document" @click="handleOpenProjectDialog">我的项目</el-button>
+          <el-button :icon="FolderOpened" @click="handleOpenModelImportDialog">导入模型</el-button>
           <el-button type="primary" :icon="FolderOpened" @click="handleNewProject">新建项目</el-button>
           <el-button :icon="DocumentAdd" @click="handleSaveProject" :loading="saving">保存项目</el-button>
         </div>
@@ -44,7 +45,7 @@
             @dragstart.capture="handleDragStart($event, component)"
           >
             <el-image
-              :src="component.coverImage || defaultCover"
+              :src="resolveComponentCover(component)"
               class="component-icon"
               fit="cover"
               :preview-src-list="[]"
@@ -154,7 +155,7 @@
               :icon="CaretRight"
               :loading="simulating"
               @click="handleStartSimulation"
-              :disabled="nodes.length === 0"
+              :disabled="nodes.length === 0 && !importedModelCode"
             >
               {{ simulating ? '仿真中...' : '开始仿真' }}
             </el-button>
@@ -181,6 +182,11 @@
         </div>
       </template>
       <el-form :model="simulationParams" label-width="120px" size="small" inline>
+        <el-form-item label="当前仿真源">
+          <el-tag :type="importedModelCode ? 'warning' : 'success'">
+            {{ importedModelCode ? `导入模型：${importedModelName}` : '画布模型' }}
+          </el-tag>
+        </el-form-item>
         <el-form-item label="仿真时长 (s)">
           <el-input-number
             v-model="simulationParams.stopTime"
@@ -308,6 +314,36 @@
       </el-table>
     </el-dialog>
 
+    <el-dialog v-model="showModelImportDialog" title="导入模型源码仿真" width="70%">
+      <el-tabs v-model="modelImportTab">
+        <el-tab-pane label="公开模型" name="public">
+          <el-table :data="publicModels" style="width: 100%" max-height="420">
+            <el-table-column prop="name" label="模型名称" min-width="180" />
+            <el-table-column prop="description" label="描述" min-width="220" />
+            <el-table-column label="操作" width="120">
+              <template #default="{ row }">
+                <el-button size="small" type="primary" @click="handleImportModelCode(row)">导入</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+        <el-tab-pane label="我的模型" name="mine">
+          <el-table :data="myModelsForImport" style="width: 100%" max-height="420">
+            <el-table-column prop="name" label="模型名称" min-width="180" />
+            <el-table-column prop="description" label="描述" min-width="220" />
+            <el-table-column label="操作" width="120">
+              <template #default="{ row }">
+                <el-button size="small" type="primary" @click="handleImportModelCode(row)">导入</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+      </el-tabs>
+      <template #footer>
+        <el-button @click="showModelImportDialog = false">关闭</el-button>
+      </template>
+    </el-dialog>
+
     <el-dialog v-model="showSaveProjectDialog" title="保存项目" width="420px" :close-on-click-modal="false">
       <el-form :model="saveProjectForm" label-width="90px">
         <el-form-item label="项目名称" required>
@@ -353,6 +389,7 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { modelDeployApi, type Component, type ModelingProject } from '@/api/model-deploy'
+import { modelApi } from '@/api/model'
 import * as echarts from 'echarts'
 import dayjs from 'dayjs'
 
@@ -379,7 +416,13 @@ const codePreviewVisible = ref(false)
 const generatedCode = ref('')
 const showProjectDialog = ref(false)
 const showSaveProjectDialog = ref(false)
+const showModelImportDialog = ref(false)
+const modelImportTab = ref<'public' | 'mine'>('public')
 const projectList = ref<ModelingProject[]>([])
+const publicModels = ref<any[]>([])
+const myModelsForImport = ref<any[]>([])
+const importedModelCode = ref('')
+const importedModelName = ref('')
 const simulationLogs = ref<Array<{ time: string; type: string; message: string }>>([])
 const chartContainer = ref<HTMLElement>()
 const flowContainer = ref<HTMLElement>()
@@ -469,7 +512,7 @@ const loadComponents = async () => {
     if (res.code === 200) {
       components.value = res.data || []
       if (components.value.length === 0) {
-        ElMessage.info('暂无可用组件，请先上传Modelica模型')
+        ElMessage.info('暂无可用基础组件，请联系超级管理员维护组件库')
       }
     } else {
       ElMessage.warning('获取组件列表失败: ' + (res.message || '未知错误'))
@@ -564,6 +607,13 @@ const handleDrop = async (event: DragEvent) => {
     const baseInstanceName = normalizeModelicaIdentifier(componentData.name)
     const instanceName = generateUniqueInstanceName(baseInstanceName, nodes.value)
 
+    const componentType = resolveModelicaType(componentDetail.className || componentData.name, componentData.name)
+    const nodeCover = resolveComponentCover({
+      ...componentData,
+      className: componentDetail.className || componentData.className || componentType,
+      coverImage: componentDetail.coverImage || componentData.coverImage
+    })
+
     const newNode: Node = {
       id: nodeId,
       type: 'modelicaComponent',
@@ -572,8 +622,8 @@ const handleDrop = async (event: DragEvent) => {
         componentId: componentData.id,
         componentName: componentData.name,
         instanceName,
-        componentType: resolveModelicaType(componentDetail.className || componentData.name, componentData.name),
-        coverImage: componentDetail.coverImage || componentData.coverImage,
+        componentType,
+        coverImage: nodeCover,
         connectors: connectors,
         properties: finalProperties
       },
@@ -581,6 +631,11 @@ const handleDrop = async (event: DragEvent) => {
     }
 
     nodes.value = [...nodes.value, newNode]
+    if (importedModelCode.value) {
+      // 一旦开始画布建模，默认切回画布模型仿真源
+      importedModelCode.value = ''
+      importedModelName.value = ''
+    }
     await nextTick()
     try {
       setCenter(position.x, position.y, { zoom: 1.2, duration: 300 })
@@ -940,6 +995,22 @@ const resolveModelicaType = (candidate: string, displayName: string): string => 
   return 'Modelica.Electrical.Analog.Basic.Resistor'
 }
 
+const getOpenModelicaIconUrl = (_modelicaType: string): string => {
+  // 公开文档站当前未提供稳定可访问的类图标静态文件路径，先禁用远程拼接
+  // 避免产生大量404请求。后续改为后端本地渲染后再返回可访问URL。
+  return ''
+}
+
+const resolveComponentCover = (component: Partial<Component> & { componentType?: string }): string => {
+  if (component.coverImage) {
+    return component.coverImage
+  }
+  const classOrType = String(component.className || component.componentType || component.name || '')
+  const modelicaType = resolveModelicaType(classOrType, String(component.name || ''))
+  const autoIcon = getOpenModelicaIconUrl(modelicaType)
+  return autoIcon || defaultCover
+}
+
 // 复制代码
 const handleCopyCode = async () => {
   try {
@@ -955,10 +1026,64 @@ const handleNewProject = () => {
   currentProject.value = { name: '未命名项目' }
   saveProjectForm.name = ''
   saveProjectForm.description = ''
+  importedModelCode.value = ''
+  importedModelName.value = ''
   nodes.value = []
   edges.value = []
   selectedNode.value = null
   ElMessage.success('已创建新项目')
+}
+
+const loadPublicModelsForImport = async () => {
+  const res: any = await modelApi.getModelList({ pageNum: 1, pageSize: 200 })
+  if (res.code === 200) {
+    publicModels.value = res.data?.records || []
+  } else {
+    throw new Error(res.message || '获取公开模型失败')
+  }
+}
+
+const loadMyModelsForImport = async () => {
+  const res: any = await modelApi.getMyModels({ pageNum: 1, pageSize: 200 })
+  if (res.code === 200) {
+    myModelsForImport.value = res.data?.records || []
+  } else {
+    throw new Error(res.message || '获取我的模型失败')
+  }
+}
+
+const handleOpenModelImportDialog = async () => {
+  try {
+    await Promise.all([loadPublicModelsForImport(), loadMyModelsForImport()])
+    showModelImportDialog.value = true
+  } catch (error: any) {
+    ElMessage.error(error.message || '加载可导入模型失败')
+  }
+}
+
+const handleImportModelCode = async (model: any) => {
+  try {
+    const res: any = await modelApi.getModelSourceCode(model.id)
+    if (res.code !== 200) {
+      ElMessage.error(res.message || '获取模型源码失败')
+      return
+    }
+    importedModelCode.value = String(res.data?.content || '')
+    if (!importedModelCode.value) {
+      ElMessage.warning('模型源码为空，无法导入')
+      return
+    }
+    importedModelName.value = String(model.name || '未命名模型')
+    generatedCode.value = importedModelCode.value
+    currentProject.value = {
+      ...currentProject.value,
+      name: importedModelName.value
+    }
+    showModelImportDialog.value = false
+    ElMessage.success(`已导入模型「${importedModelName.value}」，可直接开始仿真`)
+  } catch (error: any) {
+    ElMessage.error('导入模型失败: ' + (error.message || '未知错误'))
+  }
 }
 
 // 保存项目
@@ -1065,6 +1190,8 @@ const handleLoadProject = async (project: ModelingProject) => {
       const projectData = JSON.parse(res.data.projectData)
       nodes.value = projectData.nodes || []
       edges.value = projectData.edges || []
+      importedModelCode.value = ''
+      importedModelName.value = ''
       currentProject.value = {
         id: project.id,
         name: project.name,
@@ -1114,7 +1241,7 @@ const handleOpenProjectDialog = async () => {
 
 // 开始仿真
 const handleStartSimulation = async () => {
-  if (nodes.value.length === 0) {
+  if (nodes.value.length === 0 && !importedModelCode.value) {
     ElMessage.warning('画布为空，无法仿真')
     return
   }
@@ -1130,7 +1257,7 @@ const handleStartSimulation = async () => {
     hasCachedResult.value = false
     addLog('info', '开始仿真...')
 
-    const modelCode = generateModelicaCode()
+    const modelCode = importedModelCode.value || generateModelicaCode()
     const res = await modelDeployApi.submitSimulation({
       modelCode,
       simulationParams: {
@@ -1413,38 +1540,52 @@ const renderChart = () => {
   if (!chartContainer.value) {
     return
   }
-  const selected = selectedResultVariables.value.filter((v) => !!resultSeriesData.value[v])
-  if (selected.length === 0) {
-    return
-  }
   if (!chartInstance) {
     chartInstance = echarts.init(chartContainer.value)
   }
-  chartInstance.setOption({
-    title: {
-      text: selected.length === 1 ? `变量: ${selected[0]}` : `变量数量: ${selected.length}`
+  const selected = selectedResultVariables.value.filter((v) => !!resultSeriesData.value[v])
+  if (selected.length === 0) {
+    chartInstance.setOption(
+      {
+        title: { text: '请选择仿真参数' },
+        tooltip: { trigger: 'axis' },
+        legend: { data: [] },
+        xAxis: { type: 'category', name: 'time', data: resultTimeData.value || [] },
+        yAxis: { type: 'value' },
+        series: []
+      },
+      { notMerge: true, lazyUpdate: true }
+    )
+    return
+  }
+  chartInstance.setOption(
+    {
+      title: {
+        text: selected.length === 1 ? `变量: ${selected[0]}` : `变量数量: ${selected.length}`
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'category',
+        name: 'time',
+        data: resultTimeData.value
+      },
+      yAxis: {
+        type: 'value'
+      },
+      legend: {
+        type: 'scroll'
+      },
+      series: selected.map((variable) => ({
+        name: variable,
+        type: 'line',
+        showSymbol: false,
+        data: resultSeriesData.value[variable]
+      }))
     },
-    tooltip: {
-      trigger: 'axis'
-    },
-    xAxis: {
-      type: 'category',
-      name: 'time',
-      data: resultTimeData.value
-    },
-    yAxis: {
-      type: 'value'
-    },
-    legend: {
-      type: 'scroll'
-    },
-    series: selected.map((variable) => ({
-      name: variable,
-      type: 'line',
-      showSymbol: false,
-      data: resultSeriesData.value[variable]
-    }))
-  })
+    { notMerge: true, lazyUpdate: true }
+  )
 }
 
 watch(selectedResultVariables, () => {

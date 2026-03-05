@@ -58,6 +58,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '模型管理', requiresAdmin: true }
       },
       {
+        path: 'model/component-manage',
+        name: 'ComponentManage',
+        component: () => import('@/views/business/ComponentManage.vue'),
+        meta: { title: '基础组件管理', requiresSuperAdmin: true }
+      },
+      {
         path: 'model/detail/:id',
         name: 'ModelDetail',
         component: () => import('@/views/business/ModelDetail.vue'),
@@ -126,7 +132,14 @@ router.beforeEach((to, from, next) => {
       })
     } else {
       // 检查是否需要管理员权限
-      if (to.meta.requiresAdmin) {
+      if (to.meta.requiresSuperAdmin) {
+        if (!userStore.isSuperAdmin) {
+          ElMessage.warning('无权限访问，需要超级管理员权限')
+          next('/dashboard/home')
+        } else {
+          next()
+        }
+      } else if (to.meta.requiresAdmin) {
         if (!userStore.isAdmin) {
           ElMessage.warning('无权限访问，需要管理员权限')
           next('/dashboard/home')

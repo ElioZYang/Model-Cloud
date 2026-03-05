@@ -10,6 +10,12 @@
       <el-form-item label="模型名称" prop="name">
         <el-input v-model="form.name" placeholder="请输入模型名称" />
       </el-form-item>
+      <el-form-item v-if="userStore.isSuperAdmin" label="上传类型" prop="modelKind">
+        <el-radio-group v-model="form.modelKind">
+          <el-radio label="model">模型</el-radio>
+          <el-radio label="component">基础组件</el-radio>
+        </el-radio-group>
+      </el-form-item>
       <el-form-item label="描述" prop="description">
         <el-input v-model="form.description" type="textarea" placeholder="请输入模型描述" :rows="3" />
       </el-form-item>
@@ -32,7 +38,7 @@
           <el-option v-for="label in modelLabelList" :key="label.id" :label="label.displayName" :value="label.name" />
         </el-select>
       </el-form-item>
-      <el-form-item label="是否公开" prop="isPublic">
+      <el-form-item v-if="form.modelKind !== 'component'" label="是否公开" prop="isPublic">
         <el-radio-group v-model="form.isPublic">
           <el-radio :label="0">不公开</el-radio>
           <el-radio :label="1">公开</el-radio>
@@ -55,7 +61,7 @@
           <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
         </el-upload>
         <div class="el-upload__tip" style="margin-top: 5px; color: #909399; font-size: 12px">
-          仅支持图片格式：PNG、JPG、JPEG、GIF、BMP、WEBP
+          仅支持图片格式：PNG、JPG、JPEG、GIF、BMP、WEBP、SVG
         </div>
       </el-form-item>
       <el-form-item label="模型文件" prop="modelFile">
@@ -131,6 +137,7 @@ const modelFileUploadRef = ref()
 
 const form = ref({
   name: '',
+  modelKind: 'model',
   description: '',
   license: '',
   format: '',
@@ -142,13 +149,14 @@ const form = ref({
 
 const rules = {
   name: [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
+  modelKind: [{ required: true, message: '请选择上传类型', trigger: 'change' }],
   description: [{ required: true, message: '请输入模型描述', trigger: 'blur' }],
   format: [{ required: true, message: '请选择模型格式', trigger: 'change' }],
   modelFile: [{ required: true, message: '请上传模型文件', trigger: 'change' }],
 }
 
 // 图片文件类型限制
-const imageAccept = 'image/png,image/jpeg,image/jpg,image/gif,image/bmp,image/webp'
+const imageAccept = 'image/png,image/jpeg,image/jpg,image/gif,image/bmp,image/webp,image/svg+xml'
 
 // 模型格式到文件扩展名的映射
 // 注意：格式名称需要与数据库中 bs_model_label 表的 name 字段完全匹配（区分大小写）
@@ -264,11 +272,11 @@ watch(
 // 封面图片上传前的验证
 const beforeCoverUpload = (file: File) => {
   const isImage = file.type.startsWith('image/')
-  const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/bmp', 'image/webp']
+  const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/bmp', 'image/webp', 'image/svg+xml']
   const isValidType = validTypes.includes(file.type.toLowerCase())
   
   if (!isImage || !isValidType) {
-    ElMessage.error('封面图片仅支持 PNG、JPG、JPEG、GIF、BMP、WEBP 格式')
+    ElMessage.error('封面图片仅支持 PNG、JPG、JPEG、GIF、BMP、WEBP、SVG 格式')
     return false
   }
   return true
@@ -378,6 +386,7 @@ const submitForm = async () => {
         const formData = new FormData()
         formData.append('name', form.value.name)
         formData.append('description', form.value.description)
+        formData.append('modelKind', form.value.modelKind)
         formData.append('isPublic', form.value.isPublic.toString())
         if (form.value.license) {
           formData.append('license', form.value.license)
@@ -415,6 +424,7 @@ const submitForm = async () => {
 const resetForm = () => {
   form.value = {
     name: '',
+    modelKind: 'model',
     description: '',
     license: '',
     format: '',

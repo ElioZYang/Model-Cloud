@@ -163,6 +163,7 @@ public class BsModelCollectServiceImpl implements BsModelCollectService {
         QueryWrapper modelQuery = QueryWrapper.create()
                 .where(BS_MODEL.ID.in(modelIds))
                 .and(BS_MODEL.IS_DEL.eq(0))
+                .and(BS_MODEL.ATTR_TYPE.isNull().or(BS_MODEL.ATTR_TYPE.ne("component")))
                 .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(cn.hutool.core.util.StrUtil.isNotBlank(keyword)))
                 .and(BS_MODEL.ATTR_LABEL_NAMES.like(tag).when(cn.hutool.core.util.StrUtil.isNotBlank(tag)))
                 .orderBy(BS_MODEL.CREATE_TIME.desc());
@@ -205,7 +206,8 @@ public class BsModelCollectServiceImpl implements BsModelCollectService {
         // 查询这些模型ID中，哪些模型未删除
         QueryWrapper modelQuery = QueryWrapper.create()
                 .where(BS_MODEL.ID.in(modelIds))
-                .and(BS_MODEL.IS_DEL.eq(0));
+                .and(BS_MODEL.IS_DEL.eq(0))
+                .and(BS_MODEL.ATTR_TYPE.isNull().or(BS_MODEL.ATTR_TYPE.ne("component")));
         
         return modelMapper.selectCountByQuery(modelQuery);
     }

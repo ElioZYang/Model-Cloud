@@ -116,5 +116,12 @@ model-cloud:
   simulation:
     base-url: http://localhost:8000/api/v1/simulation
 
+  # OpenModelica组件图标配置
+  icon:
+    # 前端访问地址前缀
+    base-url: /api/business/model/icon
+    # 图标生成文件落盘目录
+    storage-dir: ./runtime/modelica-icons
+
 
 

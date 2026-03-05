@@ -6,6 +6,11 @@ import com.modelcloud.modules.business.model.request.ModelUploadRequest;
 import com.modelcloud.modules.business.service.BsModelService;
 import com.mybatisflex.core.paginate.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -32,6 +37,7 @@ public class BsModelController {
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @RequestParam(value = "isPublic", defaultValue = "0") Integer isPublic,
+            @RequestParam(value = "modelKind", defaultValue = "model") String modelKind,
             @RequestParam(value = "license", required = false) String license,
             @RequestParam(value = "format", required = false) String format,
             @RequestParam(value = "tags", required = false) String[] tags,
@@ -42,6 +48,7 @@ public class BsModelController {
             request.setName(name);
             request.setDescription(description);
             request.setIsPublic(isPublic != null ? isPublic : 0);
+            request.setModelKind(modelKind);
             request.setLicense(license);
             request.setFormat(format);
             if (tags != null) {
@@ -95,6 +102,92 @@ public class BsModelController {
             @RequestParam(required = false) String keyword) {
         Page<BsModel> page = bsModelService.pagePendingModels(pageNum, pageSize, keyword);
         return Result.success(page);
+    }
+
+    /**
+     * 超级管理员分页查询模型（按类型）
+     */
+    @GetMapping("/admin/list")
+    public Result<Page<BsModel>> adminList(
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String tag,
+            @RequestParam(defaultValue = "all") String modelKind) {
+        Page<BsModel> page = bsModelService.pageAdminModels(pageNum, pageSize, keyword, tag, modelKind);
+        return Result.success(page);
+    }
+
+    /**
+     * 超级管理员批量更新模型类型
+     */
+    @PostMapping("/admin/model-kind")
+    public Result<?> batchUpdateModelKind(@RequestBody java.util.Map<String, Object> request) {
+        try {
+            Object idsObj = request.get("ids");
+            String modelKind = String.valueOf(request.get("modelKind"));
+            java.util.List<Long> ids = new java.util.ArrayList<>();
+            if (idsObj instanceof java.util.List<?> rawIds) {
+                for (Object item : rawIds) {
+                    if (item instanceof Number num) {
+                        ids.add(num.longValue());
+                    } else if (item != null) {
+                        ids.add(Long.parseLong(String.valueOf(item)));
+                    }
+                }
+            }
+            bsModelService.batchUpdateModelKind(ids, modelKind);
+            return Result.success("更新成功");
+        } catch (Exception e) {
+            log.error("批量更新模型类型失败", e);
+            return Result.error("更新失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 超级管理员批量生成组件图标（OpenModelica Icon）
+     */
+    @PostMapping("/admin/icons/generate")
+    public Result<java.util.Map<Long, String>> batchGenerateIcons(@RequestBody java.util.Map<String, Object> request) {
+        try {
+            Object idsObj = request.get("ids");
+            java.util.List<Long> ids = new java.util.ArrayList<>();
+            if (idsObj instanceof java.util.List<?> rawIds) {
+                for (Object item : rawIds) {
+                    if (item instanceof Number num) {
+                        ids.add(num.longValue());
+                    } else if (item != null) {
+                        ids.add(Long.parseLong(String.valueOf(item)));
+                    }
+                }
+            }
+            java.util.Map<Long, String> result = bsModelService.batchGenerateModelIcons(ids);
+            return Result.success(result);
+        } catch (Exception e) {
+            log.error("批量生成图标失败", e);
+            return Result.error("生成失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 访问模型图标文件
+     */
+    @GetMapping("/icon/{id}.svg")
+    public ResponseEntity<Resource> getModelIcon(@PathVariable Long id) {
+        try {
+            String path = bsModelService.getModelIconFilePath(id);
+            FileSystemResource resource = new FileSystemResource(path);
+            if (!resource.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CACHE_CONTROL, "public, max-age=3600")
+                    .contentType(MediaType.parseMediaType("image/svg+xml"))
+                    .body(resource);
+        } catch (Exception e) {
+            log.warn("获取图标失败 modelId={}, reason={}", id, e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**

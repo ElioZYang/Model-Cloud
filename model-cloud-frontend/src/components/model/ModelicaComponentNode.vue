@@ -46,6 +46,8 @@ import type { Connector } from '@/api/model-deploy'
 
 type NodeData = {
   componentName?: string
+  componentType?: string
+  className?: string
   connectors?: Connector[]
   coverImage?: string
 }
@@ -63,7 +65,13 @@ const connectorList = computed(() => {
 
 // 从节点数据中获取coverImage
 const coverImage = computed(() => {
-  return props.data?.coverImage || ''
+  const explicitCover = props.data?.coverImage || ''
+  if (explicitCover) {
+    return explicitCover
+  }
+  // 不再拼接OpenModelica文档站图标URL，避免404。
+  // 组件无封面时使用节点内置fallback图标。
+  return ''
 })
 
 // 从节点数据中获取label

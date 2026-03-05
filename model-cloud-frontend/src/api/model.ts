@@ -97,6 +97,27 @@ export const modelApi = {
   },
 
   /**
+   * 超级管理员模型分页（按类型）
+   */
+  getAdminModels(params: any) {
+    return request.get('/business/model/admin/list', { params })
+  },
+
+  /**
+   * 超级管理员批量更新模型类型
+   */
+  batchUpdateModelKind(ids: number[], modelKind: 'model' | 'component') {
+    return request.post('/business/model/admin/model-kind', { ids, modelKind })
+  },
+
+  /**
+   * 超级管理员批量生成组件图标
+   */
+  batchGenerateIcons(ids: number[]) {
+    return request.post('/business/model/admin/icons/generate', { ids })
+  },
+
+  /**
    * 更新模型公开状态
    */
   updateModelPublic(id: number, isPublic: number) {
