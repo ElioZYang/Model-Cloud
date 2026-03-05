@@ -25,6 +25,20 @@ export const modelApi = {
     // 不设置 Content-Type，让浏览器自动设置（包含 boundary）
     return request.post('/business/model/upload', data)
   },
+
+  /**
+   * 上传基础组件（仅超级管理员）
+   */
+  createComponent(data: any) {
+    return request.post('/business/model/component/upload', data)
+  },
+
+  /**
+   * 获取基础组件列表（超级管理员）
+   */
+  getComponentList(params: any) {
+    return request.get('/business/model/component/list', { params })
+  },
   
   /**
    * 更新模型

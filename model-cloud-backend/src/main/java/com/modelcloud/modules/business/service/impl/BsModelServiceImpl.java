@@ -5,10 +5,13 @@ import cn.hutool.core.util.StrUtil;
 import com.modelcloud.common.config.GiteaConfig;
 import com.modelcloud.common.exception.BusinessException;
 import com.modelcloud.common.tools.SecurityUtils;
+import com.modelcloud.modules.business.mapper.BsComponentMapper;
 import com.modelcloud.modules.business.mapper.BsModelMapper;
 import com.modelcloud.modules.business.mapper.BsModelCollectMapper;
+import com.modelcloud.modules.business.model.domain.BsComponent;
 import com.modelcloud.modules.business.model.domain.BsModel;
 import com.modelcloud.modules.business.model.domain.BsModelCollect;
+import com.modelcloud.modules.business.model.request.ComponentUploadRequest;
 import com.modelcloud.modules.business.model.request.ModelUploadRequest;
 import com.modelcloud.modules.business.service.BsModelService;
 import com.modelcloud.modules.business.service.GiteaService;
@@ -51,6 +54,7 @@ import static com.modelcloud.modules.business.model.domain.table.BsModelCollectT
 public class BsModelServiceImpl implements BsModelService {
 
     private final BsModelMapper bsModelMapper;
+    private final BsComponentMapper bsComponentMapper;
     private final BsModelCollectMapper bsModelCollectMapper;
     private final GiteaService giteaService;
     private final SysUserMapper sysUserMapper;
@@ -64,6 +68,7 @@ public class BsModelServiceImpl implements BsModelService {
 
     public BsModelServiceImpl(
             BsModelMapper bsModelMapper,
+            BsComponentMapper bsComponentMapper,
             BsModelCollectMapper bsModelCollectMapper, 
             GiteaService giteaService, 
             SysUserMapper sysUserMapper,
@@ -71,6 +76,7 @@ public class BsModelServiceImpl implements BsModelService {
             GiteaConfig giteaConfig,
             SiteStatService siteStatService) {
         this.bsModelMapper = bsModelMapper;
+        this.bsComponentMapper = bsComponentMapper;
         this.bsModelCollectMapper = bsModelCollectMapper;
         this.giteaService = giteaService;
         this.sysUserMapper = sysUserMapper;
@@ -193,34 +199,21 @@ public class BsModelServiceImpl implements BsModelService {
         // 使用存档下载链接作为 repoUrl，方便前端直接下载
         model.setRepoUrl(giteaService.getArchiveUrl(repoName));
         model.setCoverImage(coverImageUrl);
-        String modelKind = StrUtil.blankToDefault(request.getModelKind(), "model").trim().toLowerCase();
-        boolean isComponent = "component".equals(modelKind);
-        model.setAttrType(isComponent ? "component" : "model");
-
-        // 基础组件仅允许超级管理员维护，且不进入公开模型列表
-        if (isComponent) {
-            if (!SecurityUtils.isSuperAdmin()) {
-                throw new BusinessException("仅超级管理员可上传基础组件");
-            }
-            model.setIsPublic(0);
-            model.setStatus(20);
-        } else {
-            // 普通模型保持现有逻辑
-            // - 普通用户公开模型需要审核（10）
-            // - 管理员/超级管理员公开模型可直接通过（20）
-            // - 不公开模型直接通过（20）
-            Integer isPublic = request.getIsPublic() != null ? request.getIsPublic() : 0;
-            model.setIsPublic(isPublic);
-            boolean isAdmin = SecurityUtils.isAdmin();
-            if (isPublic == 1) {
-                if (isAdmin) {
-                    model.setStatus(20); // 管理员上传公开模型，直接审核通过
-                } else {
-                    model.setStatus(10); // 普通用户公开模型需要审核
-                }
+        // 普通模型保持现有逻辑
+        // - 普通用户公开模型需要审核（10）
+        // - 管理员/超级管理员公开模型可直接通过（20）
+        // - 不公开模型直接通过（20）
+        Integer isPublic = request.getIsPublic() != null ? request.getIsPublic() : 0;
+        model.setIsPublic(isPublic);
+        boolean isAdmin = SecurityUtils.isAdmin();
+        if (isPublic == 1) {
+            if (isAdmin) {
+                model.setStatus(20); // 管理员上传公开模型，直接审核通过
             } else {
-                model.setStatus(20); // 不公开模型直接通过
+                model.setStatus(10); // 普通用户公开模型需要审核
             }
+        } else {
+            model.setStatus(20); // 不公开模型直接通过
         }
         model.setIsDel(0); // 设置为未删除
         model.setCreateTime(createTime);
@@ -235,12 +228,79 @@ public class BsModelServiceImpl implements BsModelService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public BsComponent uploadComponent(ComponentUploadRequest request) {
+        SecurityUtils.requireSuperAdmin();
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            throw new BusinessException("用户未登录");
+        }
+        if (StrUtil.isBlank(request.getName())) {
+            throw new BusinessException("组件名称不能为空");
+        }
+        if (request.getSourceFile() == null || request.getSourceFile().isEmpty()) {
+            throw new BusinessException("请上传组件源码文件");
+        }
+        if (StrUtil.isBlank(request.getLocalPath())) {
+            throw new BusinessException("localPath不能为空");
+        }
+
+        String repoName = "models-admin";
+        giteaService.ensureRepository(repoName, "超级管理员组件仓库");
+
+        String componentRel = resolveComponentRelativePath(request.getLocalPath(), request.getName());
+        String indexPath = buildComponentIndexPath(componentRel);
+        String className = buildComponentClassName(componentRel, request.getName());
+        String sourceFileName = StrUtil.blankToDefault(request.getSourceFile().getOriginalFilename(), request.getName() + ".mo");
+        String sourcePath = "component-library/source/" + componentRel + "/" + sourceFileName;
+        giteaService.uploadFile(repoName, sourcePath, request.getSourceFile());
+
+        String coverImageUrl = null;
+        String iconPath = null;
+        if (request.getIconFile() != null && !request.getIconFile().isEmpty()) {
+            String ext = StrUtil.blankToDefault(StrUtil.subAfter(request.getIconFile().getOriginalFilename(), ".", true), "svg");
+            String iconName = "icon." + ext;
+            iconPath = "component-library/icons/" + componentRel + "/" + iconName;
+            giteaService.uploadFile(repoName, iconPath, request.getIconFile());
+            coverImageUrl = giteaService.getDownloadUrl(repoName, iconPath);
+        }
+
+        BsComponent component = new BsComponent();
+        component.setName(request.getName());
+        component.setDescription(StrUtil.blankToDefault(request.getDescription(), ""));
+        component.setClassName(className);
+        component.setIndexPath(indexPath);
+        component.setUserId(userId);
+        component.setRepoName(repoName);
+        component.setSourcePath(sourcePath);
+        component.setIconPath(iconPath);
+        component.setCoverImage(coverImageUrl);
+        component.setIsDel(0);
+        component.setCreateTime(LocalDateTime.now());
+        component.setUpdateTime(LocalDateTime.now());
+        bsComponentMapper.insert(component);
+        return component;
+    }
+
+    @Override
+    public Page<BsComponent> pageComponents(int pageNum, int pageSize, String keyword) {
+        SecurityUtils.requireSuperAdmin();
+        QueryWrapper queryWrapper = QueryWrapper.create()
+                .where("is_del = ?", 0)
+                .orderBy("create_time", false);
+        if (StrUtil.isNotBlank(keyword)) {
+            String likeKeyword = "%" + keyword + "%";
+            queryWrapper.and("(name like ? or description like ? or class_name like ?)", likeKeyword, likeKeyword, likeKeyword);
+        }
+        return bsComponentMapper.paginate(pageNum, pageSize, queryWrapper);
+    }
+
+    @Override
     public Page<BsModel> pageModels(int pageNum, int pageSize, String keyword, String tag) {
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .where(BS_MODEL.IS_DEL.eq(0)) // 只查询未删除的记录
                 .and(BS_MODEL.IS_PUBLIC.eq(1)) // 只显示公开的模型
                 .and(BS_MODEL.STATUS.eq(20)) // 只显示审核通过的模型
-                .and(BS_MODEL.ATTR_TYPE.isNull().or(BS_MODEL.ATTR_TYPE.ne("component"))) // 排除基础组件
                 .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(StrUtil.isNotBlank(keyword)))
                 .and(BS_MODEL.ATTR_LABEL_NAMES.like(tag).when(StrUtil.isNotBlank(tag)))
                 .orderBy(BS_MODEL.CREATE_TIME.desc());
@@ -281,8 +341,7 @@ public class BsModelServiceImpl implements BsModelService {
             QueryWrapper totalQuery = QueryWrapper.create()
                     .where(BS_MODEL.IS_DEL.eq(0))
                     .and(BS_MODEL.IS_PUBLIC.eq(1))
-                    .and(BS_MODEL.STATUS.eq(20))
-                    .and(BS_MODEL.ATTR_TYPE.isNull().or(BS_MODEL.ATTR_TYPE.ne("component")));
+                    .and(BS_MODEL.STATUS.eq(20));
             long totalCount = bsModelMapper.selectCountByQuery(totalQuery);
             stats.put("totalCount", totalCount);
             
@@ -290,8 +349,7 @@ public class BsModelServiceImpl implements BsModelService {
             if (userId != null) {
                 QueryWrapper myUploadQuery = QueryWrapper.create()
                         .where(BS_MODEL.IS_DEL.eq(0))
-                        .and(BS_MODEL.USER_ID.eq(userId))
-                        .and(BS_MODEL.ATTR_TYPE.isNull().or(BS_MODEL.ATTR_TYPE.ne("component")));
+                        .and(BS_MODEL.USER_ID.eq(userId));
                 long myUploadCount = bsModelMapper.selectCountByQuery(myUploadQuery);
                 stats.put("myUploadCount", myUploadCount);
             } else {
@@ -513,7 +571,6 @@ public class BsModelServiceImpl implements BsModelService {
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .where(BS_MODEL.IS_DEL.eq(0)) // 只查询未删除的记录
                 .and(BS_MODEL.USER_ID.eq(userId)) // 只查询当前用户的模型
-                .and(BS_MODEL.ATTR_TYPE.isNull().or(BS_MODEL.ATTR_TYPE.ne("component"))) // 我的模型列表排除基础组件
                 .and(BS_MODEL.IS_PUBLIC.eq(isPublic).when(isPublic != null)) // 根据公开状态过滤
                 .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(StrUtil.isNotBlank(keyword)))
                 .and(BS_MODEL.ATTR_LABEL_NAMES.like(tag).when(StrUtil.isNotBlank(tag)))
@@ -881,18 +938,11 @@ public class BsModelServiceImpl implements BsModelService {
     public Page<BsModel> pageAdminModels(int pageNum, int pageSize, String keyword, String tag, String modelKind) {
         SecurityUtils.requireSuperAdmin();
 
-        String normalizedKind = StrUtil.blankToDefault(modelKind, "all").trim().toLowerCase();
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .where(BS_MODEL.IS_DEL.eq(0))
                 .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(StrUtil.isNotBlank(keyword)))
                 .and(BS_MODEL.ATTR_LABEL_NAMES.like(tag).when(StrUtil.isNotBlank(tag)))
                 .orderBy(BS_MODEL.CREATE_TIME.desc());
-
-        if ("component".equals(normalizedKind)) {
-            queryWrapper.and(BS_MODEL.ATTR_TYPE.eq("component"));
-        } else if ("model".equals(normalizedKind)) {
-            queryWrapper.and(BS_MODEL.ATTR_TYPE.isNull().or(BS_MODEL.ATTR_TYPE.ne("component")));
-        }
 
         Page<BsModel> page = bsModelMapper.paginate(pageNum, pageSize, queryWrapper);
         if (page.getRecords() != null) {
@@ -907,31 +957,7 @@ public class BsModelServiceImpl implements BsModelService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void batchUpdateModelKind(List<Long> ids, String modelKind) {
-        SecurityUtils.requireSuperAdmin();
-        if (ids == null || ids.isEmpty()) {
-            throw new BusinessException("请选择至少一条记录");
-        }
-        String normalizedKind = StrUtil.blankToDefault(modelKind, "").trim().toLowerCase();
-        if (!"model".equals(normalizedKind) && !"component".equals(normalizedKind)) {
-            throw new BusinessException("modelKind仅支持 model 或 component");
-        }
-
-        for (Long id : ids) {
-            if (id == null) {
-                continue;
-            }
-            BsModel model = bsModelMapper.selectOneById(id);
-            if (model == null || model.getIsDel() == 1) {
-                continue;
-            }
-            model.setAttrType(normalizedKind);
-            if ("component".equals(normalizedKind)) {
-                model.setIsPublic(0);
-                model.setStatus(20);
-            }
-            model.setUpdateTime(LocalDateTime.now());
-            bsModelMapper.update(model);
-        }
+        throw new BusinessException("模型与组件已分表存储，不再支持批量修改modelKind");
     }
 
     @Override
@@ -1124,6 +1150,82 @@ public class BsModelServiceImpl implements BsModelService {
             }
         }
         return "";
+    }
+
+    private String resolveComponentRelativePath(String localPath, String componentName) {
+        String normalized = StrUtil.blankToDefault(localPath, "").replace("\\", "/");
+        if (StrUtil.isBlank(normalized)) {
+            return normalizeModelicaIdentifier(componentName);
+        }
+        int marker = normalized.indexOf("/Modelica/");
+        String rel = marker >= 0 ? normalized.substring(marker + "/Modelica/".length()) : normalized;
+        if (rel.endsWith(".mo")) {
+            rel = rel.substring(0, rel.length() - 3);
+        }
+        // 将最后一级文件名保留为目录名
+        rel = rel.replaceAll("^/+", "").replaceAll("/+", "/");
+        rel = rel.replaceAll("[^A-Za-z0-9_\\-/]", "_");
+        if (StrUtil.isBlank(rel)) {
+            return normalizeModelicaIdentifier(componentName);
+        }
+        return rel;
+    }
+
+    private String buildComponentIndexPath(String componentRelPath) {
+        String rel = StrUtil.blankToDefault(componentRelPath, "").replace("\\", "/").replaceAll("^/+", "");
+        if (StrUtil.isBlank(rel)) {
+            return "Modelica";
+        }
+        int slash = rel.lastIndexOf('/');
+        String pkgPath = slash > 0 ? rel.substring(0, slash) : "";
+        if (StrUtil.isBlank(pkgPath)) {
+            return "Modelica";
+        }
+        return "Modelica/" + pkgPath;
+    }
+
+    private String buildComponentClassName(String componentRelPath, String componentName) {
+        String rel = StrUtil.blankToDefault(componentRelPath, "").replace("\\", "/").replaceAll("^/+", "");
+        if (StrUtil.isBlank(rel)) {
+            return "Modelica." + normalizeModelicaIdentifier(componentName);
+        }
+        String className = rel.replace("/", ".");
+        if (className.startsWith("Modelica.")) {
+            return className;
+        }
+        return "Modelica." + className;
+    }
+
+    private String extractRepoRawPath(String rawUrl, String repoName) {
+        if (StrUtil.isBlank(rawUrl) || StrUtil.isBlank(repoName)) {
+            return null;
+        }
+        String baseMain = giteaConfig.getUrl() + "/" + giteaConfig.getUsername() + "/" + repoName + "/raw/branch/main/";
+        String baseMaster = giteaConfig.getUrl() + "/" + giteaConfig.getUsername() + "/" + repoName + "/raw/branch/master/";
+        if (rawUrl.startsWith(baseMain)) {
+            return decodeUrlPath(rawUrl.substring(baseMain.length()));
+        }
+        if (rawUrl.startsWith(baseMaster)) {
+            return decodeUrlPath(rawUrl.substring(baseMaster.length()));
+        }
+        return null;
+    }
+
+    private String decodeUrlPath(String value) {
+        try {
+            return java.net.URLDecoder.decode(StrUtil.blankToDefault(value, ""), java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return value;
+        }
+    }
+
+    private String normalizeModelicaIdentifier(String value) {
+        String raw = StrUtil.blankToDefault(value, "component").trim();
+        String cleaned = raw.replaceAll("[^A-Za-z0-9_\\-]", "_");
+        if (cleaned.isEmpty()) {
+            return "component";
+        }
+        return cleaned;
     }
 
     private List<String> resolveParentClassCandidates(String sourceCode, String resolvedClassName) {

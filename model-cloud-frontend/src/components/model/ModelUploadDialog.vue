@@ -10,12 +10,6 @@
       <el-form-item label="模型名称" prop="name">
         <el-input v-model="form.name" placeholder="请输入模型名称" />
       </el-form-item>
-      <el-form-item v-if="userStore.isSuperAdmin" label="上传类型" prop="modelKind">
-        <el-radio-group v-model="form.modelKind">
-          <el-radio label="model">模型</el-radio>
-          <el-radio label="component">基础组件</el-radio>
-        </el-radio-group>
-      </el-form-item>
       <el-form-item label="描述" prop="description">
         <el-input v-model="form.description" type="textarea" placeholder="请输入模型描述" :rows="3" />
       </el-form-item>
@@ -38,7 +32,7 @@
           <el-option v-for="label in modelLabelList" :key="label.id" :label="label.displayName" :value="label.name" />
         </el-select>
       </el-form-item>
-      <el-form-item v-if="form.modelKind !== 'component'" label="是否公开" prop="isPublic">
+      <el-form-item label="是否公开" prop="isPublic">
         <el-radio-group v-model="form.isPublic">
           <el-radio :label="0">不公开</el-radio>
           <el-radio :label="1">公开</el-radio>
@@ -137,7 +131,6 @@ const modelFileUploadRef = ref()
 
 const form = ref({
   name: '',
-  modelKind: 'model',
   description: '',
   license: '',
   format: '',
@@ -149,7 +142,6 @@ const form = ref({
 
 const rules = {
   name: [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
-  modelKind: [{ required: true, message: '请选择上传类型', trigger: 'change' }],
   description: [{ required: true, message: '请输入模型描述', trigger: 'blur' }],
   format: [{ required: true, message: '请选择模型格式', trigger: 'change' }],
   modelFile: [{ required: true, message: '请上传模型文件', trigger: 'change' }],
@@ -386,7 +378,6 @@ const submitForm = async () => {
         const formData = new FormData()
         formData.append('name', form.value.name)
         formData.append('description', form.value.description)
-        formData.append('modelKind', form.value.modelKind)
         formData.append('isPublic', form.value.isPublic.toString())
         if (form.value.license) {
           formData.append('license', form.value.license)
@@ -424,7 +415,6 @@ const submitForm = async () => {
 const resetForm = () => {
   form.value = {
     name: '',
-    modelKind: 'model',
     description: '',
     license: '',
     format: '',

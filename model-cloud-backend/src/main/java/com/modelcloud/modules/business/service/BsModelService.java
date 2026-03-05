@@ -1,6 +1,8 @@
 package com.modelcloud.modules.business.service;
 
+import com.modelcloud.modules.business.model.domain.BsComponent;
 import com.modelcloud.modules.business.model.domain.BsModel;
+import com.modelcloud.modules.business.model.request.ComponentUploadRequest;
 import com.modelcloud.modules.business.model.request.ModelUploadRequest;
 import com.mybatisflex.core.paginate.Page;
 
@@ -17,6 +19,16 @@ public interface BsModelService {
      * 上传模型
      */
     BsModel uploadModel(ModelUploadRequest request);
+
+    /**
+     * 上传基础组件（仅超级管理员）
+     */
+    BsComponent uploadComponent(ComponentUploadRequest request);
+
+    /**
+     * 超级管理员分页查询基础组件
+     */
+    com.mybatisflex.core.paginate.Page<BsComponent> pageComponents(int pageNum, int pageSize, String keyword);
 
     /**
      * 分页查询模型列表

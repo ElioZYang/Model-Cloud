@@ -1,7 +1,7 @@
 package com.modelcloud.modules.business.controller;
 
 import com.modelcloud.common.web.domain.response.Result;
-import com.modelcloud.modules.business.model.domain.BsModel;
+import com.modelcloud.modules.business.model.domain.BsComponent;
 import com.modelcloud.modules.business.model.domain.BsModelingProject;
 import com.modelcloud.modules.business.model.domain.BsSimulationTask;
 import com.modelcloud.modules.business.model.request.ModelingProjectRequest;
@@ -34,11 +34,11 @@ public class ModelDeployController {
      * 获取可用于建模的组件列表（公开的Modelica组件）
      */
     @GetMapping("/components")
-    public Result<List<BsModel>> getComponents(
+    public Result<List<BsComponent>> getComponents(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword) {
         try {
-            List<BsModel> components = modelDeployService.getComponents(category, keyword);
+            List<BsComponent> components = modelDeployService.getComponents(category, keyword);
             return Result.success(components);
         } catch (Exception e) {
             log.error("获取组件列表失败", e);

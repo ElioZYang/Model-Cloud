@@ -4,15 +4,14 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.modelcloud.common.exception.BusinessException;
 import com.modelcloud.common.tools.SecurityUtils;
-import com.modelcloud.modules.business.mapper.BsModelMapper;
+import com.modelcloud.modules.business.mapper.BsComponentMapper;
 import com.modelcloud.modules.business.mapper.BsModelingProjectMapper;
 import com.modelcloud.modules.business.mapper.BsSimulationTaskMapper;
-import com.modelcloud.modules.business.model.domain.BsModel;
+import com.modelcloud.modules.business.model.domain.BsComponent;
 import com.modelcloud.modules.business.model.domain.BsModelingProject;
 import com.modelcloud.modules.business.model.domain.BsSimulationTask;
 import com.modelcloud.modules.business.model.request.ModelingProjectRequest;
 import com.modelcloud.modules.business.model.request.SimulationRequest;
-import com.modelcloud.modules.business.service.BsModelService;
 import com.modelcloud.modules.business.service.GiteaService;
 import com.modelcloud.modules.business.service.ModelDeployService;
 import com.mybatisflex.core.paginate.Page;
@@ -35,11 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.modelcloud.modules.business.model.domain.table.BsModelTableDef.BS_MODEL;
-// TableDef会在编译时自动生成，如果编译报错，请先编译一次项目
-// import static com.modelcloud.modules.business.model.domain.table.BsModelingProjectTableDef.BS_MODELING_PROJECT;
-// import static com.modelcloud.modules.business.model.domain.table.BsSimulationTaskTableDef.BS_SIMULATION_TASK;
-
 /**
  * 模型部署服务实现类
  * 
@@ -49,11 +43,9 @@ import static com.modelcloud.modules.business.model.domain.table.BsModelTableDef
 @Service
 public class ModelDeployServiceImpl implements ModelDeployService {
     
-    private final BsModelMapper bsModelMapper;
+    private final BsComponentMapper bsComponentMapper;
     private final BsModelingProjectMapper projectMapper;
     private final BsSimulationTaskMapper taskMapper;
-    private final BsModelService bsModelService;
-    private final com.modelcloud.modules.sys.mapper.SysUserMapper sysUserMapper;
     private final GiteaService giteaService;
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -61,86 +53,69 @@ public class ModelDeployServiceImpl implements ModelDeployService {
     private String simulationBaseUrl;
     
     public ModelDeployServiceImpl(
-            BsModelMapper bsModelMapper,
+            BsComponentMapper bsComponentMapper,
             BsModelingProjectMapper projectMapper,
             BsSimulationTaskMapper taskMapper,
-            BsModelService bsModelService,
-            com.modelcloud.modules.sys.mapper.SysUserMapper sysUserMapper,
             GiteaService giteaService) {
-        this.bsModelMapper = bsModelMapper;
+        this.bsComponentMapper = bsComponentMapper;
         this.projectMapper = projectMapper;
         this.taskMapper = taskMapper;
-        this.bsModelService = bsModelService;
-        this.sysUserMapper = sysUserMapper;
         this.giteaService = giteaService;
     }
     
     @Override
-    public List<BsModel> getComponents(String category, String keyword) {
-        // 查询所有基础组件（component），由超级管理员维护后在部署页使用
+    public List<BsComponent> getComponents(String category, String keyword) {
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .where(BS_MODEL.IS_DEL.eq(0))
-                .and(BS_MODEL.STATUS.eq(20))
-                .and(BS_MODEL.ATTR_TYPE.eq("component"))
-                .and(BS_MODEL.NAME.like(keyword).or(BS_MODEL.DESCRIPTION.like(keyword)).when(StrUtil.isNotBlank(keyword)))
-                .orderBy(BS_MODEL.CREATE_TIME.desc());
-        
-        List<BsModel> models = bsModelMapper.selectListByQuery(queryWrapper);
-        
-        // 填充作者名称和默认封面
-        for (BsModel model : models) {
-            fillAuthorName(model);
-            fillDefaultCoverImage(model);
+                .where("is_del = ?", 0)
+                .orderBy("create_time", false);
+        if (StrUtil.isNotBlank(keyword)) {
+            String likeKeyword = "%" + keyword + "%";
+            queryWrapper.and("(name like ? or description like ?)", likeKeyword, likeKeyword);
         }
-        
-        return models;
-    }
-    
-    /**
-     * 填充作者名称
-     */
-    private void fillAuthorName(BsModel model) {
-        if (model.getUserId() != null) {
-            com.modelcloud.modules.sys.model.domain.SysUser user = sysUserMapper.selectOneById(model.getUserId());
-            if (user != null) {
-                model.setAuthorName(user.getNickname() != null ? user.getNickname() : user.getUsername());
-            }
+
+        List<BsComponent> components = bsComponentMapper.selectListByQuery(queryWrapper);
+        for (BsComponent component : components) {
+            fillDefaultCoverImage(component);
         }
+        return components;
     }
     
     /**
      * 填充默认封面图片
      */
-    private void fillDefaultCoverImage(BsModel model) {
-        if (model != null && StrUtil.isBlank(model.getCoverImage())) {
+    private void fillDefaultCoverImage(BsComponent component) {
+        if (component != null && StrUtil.isBlank(component.getCoverImage())) {
             String defaultCoverUrl = giteaService.getDefaultCoverImageUrl();
-            model.setCoverImage(defaultCoverUrl);
+            component.setCoverImage(defaultCoverUrl);
         }
     }
     
     @Override
     public Map<String, Object> getComponentDetail(Long componentId) {
-        BsModel model = bsModelMapper.selectOneById(componentId);
-        if (model == null || model.getIsDel() == 1) {
+        BsComponent component = bsComponentMapper.selectOneById(componentId);
+        if (component == null || component.getIsDel() == 1) {
             throw new BusinessException("组件不存在");
         }
-        
-        // 获取模型源码
+        fillDefaultCoverImage(component);
+
         Map<String, String> sourceCode = null;
         try {
-            sourceCode = bsModelService.getModelSourceCode(componentId);
+            String content = giteaService.getFileContent(component.getRepoName(), component.getSourcePath());
+            sourceCode = new HashMap<>();
+            sourceCode.put("content", content);
+            sourceCode.put("fileName", component.getSourcePath().substring(component.getSourcePath().lastIndexOf('/') + 1));
         } catch (Exception e) {
             log.warn("获取组件源码失败: {}", e.getMessage());
         }
-        
+
         Map<String, Object> result = new HashMap<>();
-        result.put("id", model.getId());
-        result.put("name", model.getName());
-        result.put("description", model.getDescription());
+        result.put("id", component.getId());
+        result.put("name", component.getName());
+        result.put("description", component.getDescription());
         result.put("sourceCode", sourceCode != null ? sourceCode.get("content") : null);
         result.put("fileName", sourceCode != null ? sourceCode.get("fileName") : null);
-        result.put("coverImage", model.getCoverImage());
-        result.put("className", model.getName());
+        result.put("coverImage", component.getCoverImage());
+        result.put("className", StrUtil.blankToDefault(component.getClassName(), component.getName()));
         
         // 解析.mo文件，提取参数和接口信息
         Map<String, Object> parameters = new HashMap<>();

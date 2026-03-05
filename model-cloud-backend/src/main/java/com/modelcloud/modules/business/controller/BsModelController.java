@@ -1,7 +1,9 @@
 package com.modelcloud.modules.business.controller;
 
 import com.modelcloud.common.web.domain.response.Result;
+import com.modelcloud.modules.business.model.domain.BsComponent;
 import com.modelcloud.modules.business.model.domain.BsModel;
+import com.modelcloud.modules.business.model.request.ComponentUploadRequest;
 import com.modelcloud.modules.business.model.request.ModelUploadRequest;
 import com.modelcloud.modules.business.service.BsModelService;
 import com.mybatisflex.core.paginate.Page;
@@ -37,7 +39,6 @@ public class BsModelController {
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @RequestParam(value = "isPublic", defaultValue = "0") Integer isPublic,
-            @RequestParam(value = "modelKind", defaultValue = "model") String modelKind,
             @RequestParam(value = "license", required = false) String license,
             @RequestParam(value = "format", required = false) String format,
             @RequestParam(value = "tags", required = false) String[] tags,
@@ -48,7 +49,6 @@ public class BsModelController {
             request.setName(name);
             request.setDescription(description);
             request.setIsPublic(isPublic != null ? isPublic : 0);
-            request.setModelKind(modelKind);
             request.setLicense(license);
             request.setFormat(format);
             if (tags != null) {
@@ -63,6 +63,43 @@ public class BsModelController {
             log.error("上传模型失败", e);
             return Result.error("上传模型失败: " + e.getMessage());
         }
+    }
+
+    /**
+     * 上传基础组件（仅超级管理员）
+     */
+    @PostMapping(value = "/component/upload", consumes = "multipart/form-data")
+    public Result<BsComponent> uploadComponent(
+            @RequestParam("name") String name,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam("localPath") String localPath,
+            @RequestParam("sourceFile") org.springframework.web.multipart.MultipartFile sourceFile,
+            @RequestParam(value = "iconFile", required = false) org.springframework.web.multipart.MultipartFile iconFile) {
+        try {
+            ComponentUploadRequest request = new ComponentUploadRequest();
+            request.setName(name);
+            request.setDescription(description);
+            request.setLocalPath(localPath);
+            request.setSourceFile(sourceFile);
+            request.setIconFile(iconFile);
+            BsComponent component = bsModelService.uploadComponent(request);
+            return Result.success(component);
+        } catch (Exception e) {
+            log.error("上传基础组件失败", e);
+            return Result.error("上传基础组件失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 超级管理员分页查询基础组件
+     */
+    @GetMapping("/component/list")
+    public Result<Page<BsComponent>> componentList(
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) String keyword) {
+        Page<BsComponent> page = bsModelService.pageComponents(pageNum, pageSize, keyword);
+        return Result.success(page);
     }
 
     /**

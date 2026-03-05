@@ -1,6 +1,6 @@
 package com.modelcloud.modules.business.service;
 
-import com.modelcloud.modules.business.model.domain.BsModel;
+import com.modelcloud.modules.business.model.domain.BsComponent;
 import com.modelcloud.modules.business.model.domain.BsModelingProject;
 import com.modelcloud.modules.business.model.domain.BsSimulationTask;
 import com.modelcloud.modules.business.model.request.ModelingProjectRequest;
@@ -23,7 +23,7 @@ public interface ModelDeployService {
      * @param keyword 关键词搜索（可选）
      * @return 组件列表
      */
-    List<BsModel> getComponents(String category, String keyword);
+    List<BsComponent> getComponents(String category, String keyword);
     
     /**
      * 获取组件详情（包括参数定义、端口定义等）
