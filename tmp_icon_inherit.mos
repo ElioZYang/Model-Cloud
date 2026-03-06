@@ -1,5 +1,0 @@
-﻿loadModel(Modelica);
-getInheritanceCount(Modelica.Electrical.Analog.Ideal.IdealSwitch);
-getNthInheritedClass(Modelica.Electrical.Analog.Ideal.IdealSwitch,1);
-getNthInheritedClass(Modelica.Electrical.Analog.Ideal.IdealSwitch,2);
-getIconAnnotation(Modelica.Electrical.Analog.Interfaces.OnePort);

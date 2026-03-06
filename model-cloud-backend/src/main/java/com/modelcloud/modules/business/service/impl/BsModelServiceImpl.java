@@ -68,9 +68,9 @@ public class BsModelServiceImpl implements BsModelService {
     private String iconBaseUrl;
     @Value("${model-cloud.icon.storage-dir:./runtime/modelica-icons}")
     private String iconStorageDir;
-    @Value("${model-cloud.component.source-dir:./model-cloud-backend/src/main/resources/static/component_source}")
+    @Value("${model-cloud.component.source-dir:./src/main/resources/static/component_source}")
     private String componentSourceDir;
-    @Value("${model-cloud.component.icon-dir:./model-cloud-backend/src/main/resources/static/component_icon}")
+    @Value("${model-cloud.component.icon-dir:./src/main/resources/static/component_icon}")
     private String componentIconDir;
     @Value("${model-cloud.component.icon-url-prefix:/api/component_icon}")
     private String componentIconUrlPrefix;

@@ -52,6 +52,8 @@ public class SecurityConfig {
                     "/auth/register",
                     "/auth/captcha",
                     "/public/**",
+                    "/component_icon/**",
+                    "/api/component_icon/**",
                     "/business/label/list",
                     "/business/label/category/list",
                     "/business/model/list",

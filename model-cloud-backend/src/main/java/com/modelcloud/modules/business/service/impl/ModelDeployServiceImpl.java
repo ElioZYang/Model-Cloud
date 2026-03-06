@@ -14,7 +14,6 @@ import com.modelcloud.modules.business.model.domain.BsSimulationTask;
 import com.modelcloud.modules.business.model.request.ModelingProjectRequest;
 import com.modelcloud.modules.business.model.request.SimulationRequest;
 import com.modelcloud.modules.business.repository.BsComponentParseMetaRepository;
-import com.modelcloud.modules.business.service.GiteaService;
 import com.modelcloud.modules.business.service.ModelDeployService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
@@ -30,14 +29,16 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -53,29 +54,28 @@ public class ModelDeployServiceImpl implements ModelDeployService {
     private final BsComponentParseMetaRepository bsComponentParseMetaRepository;
     private final BsModelingProjectMapper projectMapper;
     private final BsSimulationTaskMapper taskMapper;
-    private final GiteaService giteaService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${model-cloud.simulation.base-url:http://localhost:8000/api/v1/simulation}")
     private String simulationBaseUrl;
-    @Value("${model-cloud.component.icon-dir:./model-cloud-backend/src/main/resources/static/component_icon}")
+    @Value("${model-cloud.component.icon-dir:./src/main/resources/static/component_icon}")
     private String componentIconDir;
-    @Value("${model-cloud.component.source-dir:./model-cloud-backend/src/main/resources/static/component_source}")
+    @Value("${model-cloud.component.source-dir:./src/main/resources/static/component_source}")
     private String componentSourceDir;
     @Value("${model-cloud.component.icon-url-prefix:/api/component_icon}")
     private String componentIconUrlPrefix;
+
+    private volatile Set<String> electricalIconFileNames = null;
     
     public ModelDeployServiceImpl(
             BsComponentMapper bsComponentMapper,
             BsComponentParseMetaRepository bsComponentParseMetaRepository,
             BsModelingProjectMapper projectMapper,
-            BsSimulationTaskMapper taskMapper,
-            GiteaService giteaService) {
+            BsSimulationTaskMapper taskMapper) {
         this.bsComponentMapper = bsComponentMapper;
         this.bsComponentParseMetaRepository = bsComponentParseMetaRepository;
         this.projectMapper = projectMapper;
         this.taskMapper = taskMapper;
-        this.giteaService = giteaService;
     }
     
     @Override
@@ -107,9 +107,7 @@ public class ModelDeployServiceImpl implements ModelDeployService {
             component.setCoverImage(iconUrl);
             return;
         }
-        if (StrUtil.isBlank(component.getCoverImage())) {
-            component.setCoverImage(giteaService.getDefaultCoverImageUrl());
-        }
+        component.setCoverImage("");
     }
     
     @Override
@@ -247,46 +245,92 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         if (component == null) {
             return null;
         }
-        Path iconBaseDir = Path.of(componentIconDir);
-
-        // 1) 优先使用数据库中的 iconPath（若存在且文件可读）
-        if (StrUtil.isNotBlank(component.getIconPath())) {
-            String normalized = normalizeRelativePath(component.getIconPath());
-            if (iconExists(iconBaseDir.resolve(normalized))) {
-                return buildStaticIconUrl(normalized);
-            }
+        Set<String> fileNames = getElectricalIconFileNames();
+        if (fileNames.isEmpty()) {
+            return null;
         }
 
-        // 2) 兼容你当前目录：component_icon/Electrical/<完整类名>.svg
-        String className = StrUtil.blankToDefault(component.getClassName(), "");
-        if (StrUtil.isNotBlank(className)) {
-            String classIconFile = className + ".svg";
-            String electricalClassPath = "Electrical/" + classIconFile;
-            if (iconExists(iconBaseDir.resolve(electricalClassPath))) {
-                return buildStaticIconUrl(electricalClassPath);
-            }
-            if (iconExists(iconBaseDir.resolve(classIconFile))) {
-                return buildStaticIconUrl(classIconFile);
-            }
-        }
+        // 按多种 key 依次尝试匹配，适配你当前图标命名策略
+        List<String> candidates = new ArrayList<>();
 
-        // 3) 按组件名兜底（极端情况下）
-        String name = StrUtil.blankToDefault(component.getName(), "");
+        String name = StrUtil.blankToDefault(component.getName(), "").trim();
         if (StrUtil.isNotBlank(name)) {
-            String byName = "Electrical/" + name + ".svg";
-            if (iconExists(iconBaseDir.resolve(byName))) {
-                return buildStaticIconUrl(byName);
+            candidates.add(name + ".svg");
+        }
+
+        String sourcePath = StrUtil.blankToDefault(component.getSourcePath(), "").replace("\\", "/");
+        if (StrUtil.isNotBlank(sourcePath) && sourcePath.endsWith(".mo")) {
+            int slash = sourcePath.lastIndexOf('/');
+            String stem = slash >= 0 ? sourcePath.substring(slash + 1, sourcePath.length() - 3) : sourcePath.substring(0, sourcePath.length() - 3);
+            if (StrUtil.isNotBlank(stem)) {
+                candidates.add(stem + ".svg");
+            }
+        }
+
+        String className = normalizeClassNameForIcon(component);
+        if (StrUtil.isNotBlank(className)) {
+            candidates.add(className + ".svg");
+            int dot = className.lastIndexOf('.');
+            if (dot > 0 && dot < className.length() - 1) {
+                candidates.add(className.substring(dot + 1) + ".svg");
+            }
+        }
+
+        for (String raw : candidates) {
+            if (StrUtil.isBlank(raw)) {
+                continue;
+            }
+            String file = raw.trim();
+            if (fileNames.contains(file)) {
+                return buildStaticIconUrl("Electrical/" + file);
             }
         }
         return null;
     }
 
-    private boolean iconExists(Path path) {
-        try {
-            return path != null && Files.exists(path) && Files.isRegularFile(path);
-        } catch (Exception e) {
-            return false;
+    private Set<String> getElectricalIconFileNames() {
+        Set<String> cache = electricalIconFileNames;
+        if (cache != null) {
+            return cache;
         }
+        synchronized (this) {
+            if (electricalIconFileNames != null) {
+                return electricalIconFileNames;
+            }
+            Set<String> loaded = new HashSet<>();
+            Path electricalDir = Path.of(componentIconDir).resolve("Electrical").normalize();
+            try {
+                if (Files.exists(electricalDir) && Files.isDirectory(electricalDir)) {
+                    try (var stream = Files.list(electricalDir)) {
+                        stream.filter(Files::isRegularFile).forEach(path -> {
+                            String fileName = path.getFileName().toString();
+                            if (fileName.toLowerCase().endsWith(".svg")) {
+                                loaded.add(fileName);
+                            }
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("加载组件图标目录索引失败: {}", e.getMessage());
+            }
+            electricalIconFileNames = loaded;
+            return loaded;
+        }
+    }
+
+    private String normalizeClassNameForIcon(BsComponent component) {
+        String className = StrUtil.blankToDefault(component.getClassName(), "").trim();
+        if (StrUtil.isBlank(className)) {
+            return "";
+        }
+        if (className.startsWith("Modelica.Electrical.")) {
+            return className;
+        }
+        if (className.startsWith("Electrical.")) {
+            return "Modelica." + className;
+        }
+        // 兜底：如果不是完整前缀，仍按原值尝试，避免误改历史数据
+        return className;
     }
 
     private String normalizeRelativePath(String value) {
