@@ -12,6 +12,7 @@ export interface Component {
   id: number
   name: string
   className?: string
+  indexPath?: string
   description?: string
   coverImage?: string
   sourceCode?: string

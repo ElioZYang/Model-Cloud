@@ -123,5 +123,11 @@ model-cloud:
     # 图标生成文件落盘目录
     storage-dir: ./runtime/modelica-icons
 
+  # 基础组件静态资源目录（源码与图标）
+  component:
+    source-dir: ./model-cloud-backend/src/main/resources/static/component_source
+    icon-dir: ./model-cloud-backend/src/main/resources/static/component_icon
+    icon-url-prefix: /api/component_icon
+
 
 

@@ -9,10 +9,12 @@ import com.modelcloud.modules.business.mapper.BsComponentMapper;
 import com.modelcloud.modules.business.mapper.BsModelMapper;
 import com.modelcloud.modules.business.mapper.BsModelCollectMapper;
 import com.modelcloud.modules.business.model.domain.BsComponent;
+import com.modelcloud.modules.business.model.domain.BsComponentParseMeta;
 import com.modelcloud.modules.business.model.domain.BsModel;
 import com.modelcloud.modules.business.model.domain.BsModelCollect;
 import com.modelcloud.modules.business.model.request.ComponentUploadRequest;
 import com.modelcloud.modules.business.model.request.ModelUploadRequest;
+import com.modelcloud.modules.business.repository.BsComponentParseMetaRepository;
 import com.modelcloud.modules.business.service.BsModelService;
 import com.modelcloud.modules.business.service.GiteaService;
 import com.modelcloud.modules.sys.mapper.SysUserMapper;
@@ -61,10 +63,17 @@ public class BsModelServiceImpl implements BsModelService {
     private final com.modelcloud.modules.business.service.BsModelCollectService collectService;
     private final GiteaConfig giteaConfig;
     private final SiteStatService siteStatService;
+    private final BsComponentParseMetaRepository bsComponentParseMetaRepository;
     @Value("${model-cloud.icon.base-url:/api/business/model/icon}")
     private String iconBaseUrl;
     @Value("${model-cloud.icon.storage-dir:./runtime/modelica-icons}")
     private String iconStorageDir;
+    @Value("${model-cloud.component.source-dir:./model-cloud-backend/src/main/resources/static/component_source}")
+    private String componentSourceDir;
+    @Value("${model-cloud.component.icon-dir:./model-cloud-backend/src/main/resources/static/component_icon}")
+    private String componentIconDir;
+    @Value("${model-cloud.component.icon-url-prefix:/api/component_icon}")
+    private String componentIconUrlPrefix;
 
     public BsModelServiceImpl(
             BsModelMapper bsModelMapper,
@@ -74,7 +83,8 @@ public class BsModelServiceImpl implements BsModelService {
             SysUserMapper sysUserMapper,
             com.modelcloud.modules.business.service.BsModelCollectService collectService,
             GiteaConfig giteaConfig,
-            SiteStatService siteStatService) {
+            SiteStatService siteStatService,
+            BsComponentParseMetaRepository bsComponentParseMetaRepository) {
         this.bsModelMapper = bsModelMapper;
         this.bsComponentMapper = bsComponentMapper;
         this.bsModelCollectMapper = bsModelCollectMapper;
@@ -83,6 +93,7 @@ public class BsModelServiceImpl implements BsModelService {
         this.collectService = collectService;
         this.giteaConfig = giteaConfig;
         this.siteStatService = siteStatService;
+        this.bsComponentParseMetaRepository = bsComponentParseMetaRepository;
     }
 
     @Override
@@ -245,24 +256,21 @@ public class BsModelServiceImpl implements BsModelService {
             throw new BusinessException("localPath不能为空");
         }
 
-        String repoName = "models-admin";
-        giteaService.ensureRepository(repoName, "超级管理员组件仓库");
-
         String componentRel = resolveComponentRelativePath(request.getLocalPath(), request.getName());
         String indexPath = buildComponentIndexPath(componentRel);
         String className = buildComponentClassName(componentRel, request.getName());
         String sourceFileName = StrUtil.blankToDefault(request.getSourceFile().getOriginalFilename(), request.getName() + ".mo");
-        String sourcePath = "component-library/source/" + componentRel + "/" + sourceFileName;
-        giteaService.uploadFile(repoName, sourcePath, request.getSourceFile());
+        String sourcePath = componentRel + "/" + sourceFileName;
+        saveMultipartToLocal(request.getSourceFile(), Path.of(componentSourceDir), sourcePath);
 
         String coverImageUrl = null;
         String iconPath = null;
         if (request.getIconFile() != null && !request.getIconFile().isEmpty()) {
             String ext = StrUtil.blankToDefault(StrUtil.subAfter(request.getIconFile().getOriginalFilename(), ".", true), "svg");
-            String iconName = "icon." + ext;
-            iconPath = "component-library/icons/" + componentRel + "/" + iconName;
-            giteaService.uploadFile(repoName, iconPath, request.getIconFile());
-            coverImageUrl = giteaService.getDownloadUrl(repoName, iconPath);
+            String iconName = "icon." + ext.toLowerCase();
+            iconPath = componentRel + "/" + iconName;
+            saveMultipartToLocal(request.getIconFile(), Path.of(componentIconDir), iconPath);
+            coverImageUrl = buildStaticIconUrl(iconPath);
         }
 
         BsComponent component = new BsComponent();
@@ -271,7 +279,7 @@ public class BsModelServiceImpl implements BsModelService {
         component.setClassName(className);
         component.setIndexPath(indexPath);
         component.setUserId(userId);
-        component.setRepoName(repoName);
+        component.setRepoName(null);
         component.setSourcePath(sourcePath);
         component.setIconPath(iconPath);
         component.setCoverImage(coverImageUrl);
@@ -279,7 +287,85 @@ public class BsModelServiceImpl implements BsModelService {
         component.setCreateTime(LocalDateTime.now());
         component.setUpdateTime(LocalDateTime.now());
         bsComponentMapper.insert(component);
+
+        // 上传后同步写入Mongo解析元数据，部署页详情优先从Mongo读取
+        try {
+            String sourceContent = new String(request.getSourceFile().getBytes(), StandardCharsets.UTF_8);
+            persistComponentParseMeta(component, sourceContent);
+        } catch (Exception e) {
+            log.warn("写入组件解析元数据失败 componentId={}, reason={}", component.getId(), e.getMessage());
+        }
         return component;
+    }
+
+    private void persistComponentParseMeta(BsComponent component, String sourceContent) {
+        if (component == null || component.getId() == null || StrUtil.isBlank(sourceContent)) {
+            return;
+        }
+        com.modelcloud.modules.business.utils.ModelicaParser.ModelicaComponentInfo info =
+                com.modelcloud.modules.business.utils.ModelicaParser.parseModel(sourceContent);
+        BsComponentParseMeta meta = bsComponentParseMetaRepository.findByComponentId(component.getId())
+                .orElseGet(BsComponentParseMeta::new);
+        meta.setComponentId(component.getId());
+        meta.setName(component.getName());
+        meta.setDescription(component.getDescription());
+        meta.setClassName(StrUtil.blankToDefault(info.getClassName(), component.getClassName()));
+        meta.setSourcePath(component.getSourcePath());
+        meta.setIconPath(component.getIconPath());
+        meta.setIndexPath(component.getIndexPath());
+        if (meta.getCreateTime() == null) {
+            meta.setCreateTime(LocalDateTime.now());
+        }
+        meta.setUpdateTime(LocalDateTime.now());
+
+        List<BsComponentParseMeta.ParamMeta> params = new ArrayList<>();
+        for (com.modelcloud.modules.business.utils.ModelicaParser.ParameterInfo p : info.getParameters()) {
+            BsComponentParseMeta.ParamMeta item = new BsComponentParseMeta.ParamMeta();
+            item.setName(p.getName());
+            item.setType(p.getType());
+            item.setDefaultValue(p.getDefaultValue());
+            params.add(item);
+        }
+        meta.setParameters(params);
+
+        List<BsComponentParseMeta.ConnectorMeta> inputs = new ArrayList<>();
+        List<BsComponentParseMeta.ConnectorMeta> outputs = new ArrayList<>();
+        List<BsComponentParseMeta.ConnectorMeta> others = new ArrayList<>();
+        for (com.modelcloud.modules.business.utils.ModelicaParser.ConnectorInfo c : info.getConnectors()) {
+            BsComponentParseMeta.ConnectorMeta item = new BsComponentParseMeta.ConnectorMeta();
+            item.setName(c.getName());
+            item.setType(c.getType());
+            String t = StrUtil.blankToDefault(c.getType(), "").toLowerCase();
+            if (t.contains("input") || t.endsWith("realinput") || t.endsWith("booleaninput")) {
+                inputs.add(item);
+            } else if (t.contains("output") || t.endsWith("realoutput") || t.endsWith("booleanoutput")) {
+                outputs.add(item);
+            } else {
+                others.add(item);
+            }
+        }
+        meta.setInputConnectors(inputs);
+        meta.setOutputConnectors(outputs);
+        meta.setConnectors(others);
+
+        bsComponentParseMetaRepository.save(meta);
+    }
+
+    private void saveMultipartToLocal(org.springframework.web.multipart.MultipartFile file, Path baseDir, String relativePath) {
+        try {
+            String normalized = String.valueOf(relativePath).replace("\\", "/").replaceAll("^/+", "");
+            Path target = baseDir.resolve(normalized).normalize();
+            Files.createDirectories(target.getParent());
+            file.transferTo(target.toFile());
+        } catch (Exception e) {
+            throw new BusinessException("保存组件文件失败: " + e.getMessage());
+        }
+    }
+
+    private String buildStaticIconUrl(String relativePath) {
+        String normalizedPrefix = StrUtil.blankToDefault(componentIconUrlPrefix, "/api/component_icon").replaceAll("/+$", "");
+        String normalizedPath = String.valueOf(relativePath).replace("\\", "/").replaceAll("^/+", "");
+        return normalizedPrefix + "/" + normalizedPath;
     }
 
     @Override

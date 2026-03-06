@@ -8,10 +8,12 @@ import com.modelcloud.modules.business.mapper.BsComponentMapper;
 import com.modelcloud.modules.business.mapper.BsModelingProjectMapper;
 import com.modelcloud.modules.business.mapper.BsSimulationTaskMapper;
 import com.modelcloud.modules.business.model.domain.BsComponent;
+import com.modelcloud.modules.business.model.domain.BsComponentParseMeta;
 import com.modelcloud.modules.business.model.domain.BsModelingProject;
 import com.modelcloud.modules.business.model.domain.BsSimulationTask;
 import com.modelcloud.modules.business.model.request.ModelingProjectRequest;
 import com.modelcloud.modules.business.model.request.SimulationRequest;
+import com.modelcloud.modules.business.repository.BsComponentParseMetaRepository;
 import com.modelcloud.modules.business.service.GiteaService;
 import com.modelcloud.modules.business.service.ModelDeployService;
 import com.mybatisflex.core.paginate.Page;
@@ -27,6 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +50,7 @@ import java.util.UUID;
 public class ModelDeployServiceImpl implements ModelDeployService {
     
     private final BsComponentMapper bsComponentMapper;
+    private final BsComponentParseMetaRepository bsComponentParseMetaRepository;
     private final BsModelingProjectMapper projectMapper;
     private final BsSimulationTaskMapper taskMapper;
     private final GiteaService giteaService;
@@ -51,13 +58,21 @@ public class ModelDeployServiceImpl implements ModelDeployService {
 
     @Value("${model-cloud.simulation.base-url:http://localhost:8000/api/v1/simulation}")
     private String simulationBaseUrl;
+    @Value("${model-cloud.component.icon-dir:./model-cloud-backend/src/main/resources/static/component_icon}")
+    private String componentIconDir;
+    @Value("${model-cloud.component.source-dir:./model-cloud-backend/src/main/resources/static/component_source}")
+    private String componentSourceDir;
+    @Value("${model-cloud.component.icon-url-prefix:/api/component_icon}")
+    private String componentIconUrlPrefix;
     
     public ModelDeployServiceImpl(
             BsComponentMapper bsComponentMapper,
+            BsComponentParseMetaRepository bsComponentParseMetaRepository,
             BsModelingProjectMapper projectMapper,
             BsSimulationTaskMapper taskMapper,
             GiteaService giteaService) {
         this.bsComponentMapper = bsComponentMapper;
+        this.bsComponentParseMetaRepository = bsComponentParseMetaRepository;
         this.projectMapper = projectMapper;
         this.taskMapper = taskMapper;
         this.giteaService = giteaService;
@@ -84,9 +99,16 @@ public class ModelDeployServiceImpl implements ModelDeployService {
      * 填充默认封面图片
      */
     private void fillDefaultCoverImage(BsComponent component) {
-        if (component != null && StrUtil.isBlank(component.getCoverImage())) {
-            String defaultCoverUrl = giteaService.getDefaultCoverImageUrl();
-            component.setCoverImage(defaultCoverUrl);
+        if (component == null) {
+            return;
+        }
+        String iconUrl = resolveComponentIconUrl(component);
+        if (StrUtil.isNotBlank(iconUrl)) {
+            component.setCoverImage(iconUrl);
+            return;
+        }
+        if (StrUtil.isBlank(component.getCoverImage())) {
+            component.setCoverImage(giteaService.getDefaultCoverImageUrl());
         }
     }
     
@@ -100,10 +122,11 @@ public class ModelDeployServiceImpl implements ModelDeployService {
 
         Map<String, String> sourceCode = null;
         try {
-            String content = giteaService.getFileContent(component.getRepoName(), component.getSourcePath());
+            Path sourceFile = Path.of(componentSourceDir).resolve(String.valueOf(component.getSourcePath()).replace("\\", "/")).normalize();
+            String content = Files.readString(sourceFile);
             sourceCode = new HashMap<>();
             sourceCode.put("content", content);
-            sourceCode.put("fileName", component.getSourcePath().substring(component.getSourcePath().lastIndexOf('/') + 1));
+            sourceCode.put("fileName", sourceFile.getFileName().toString());
         } catch (Exception e) {
             log.warn("获取组件源码失败: {}", e.getMessage());
         }
@@ -117,11 +140,48 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         result.put("coverImage", component.getCoverImage());
         result.put("className", StrUtil.blankToDefault(component.getClassName(), component.getName()));
         
-        // 解析.mo文件，提取参数和接口信息
+        // 优先读取Mongo中的组件解析元数据，避免每次实时解析源码
+        BsComponentParseMeta parseMeta = null;
+        try {
+            parseMeta = bsComponentParseMetaRepository.findByComponentId(component.getId()).orElse(null);
+        } catch (Exception e) {
+            log.warn("读取Mongo组件解析元数据失败 componentId={}, reason={}", component.getId(), e.getMessage());
+        }
+
         Map<String, Object> parameters = new HashMap<>();
         Map<String, Object> connectors = new HashMap<>();
-        
-        if (sourceCode != null && sourceCode.get("content") != null) {
+
+        if (parseMeta != null) {
+            if (StrUtil.isNotBlank(parseMeta.getClassName())) {
+                result.put("className", parseMeta.getClassName());
+            }
+            for (BsComponentParseMeta.ParamMeta p : parseMeta.getParameters()) {
+                String defaultValue = StrUtil.blankToDefault(p.getDefaultValue(), "0");
+                parameters.put(p.getName(), defaultValue);
+            }
+            List<Map<String, String>> connectorList = new ArrayList<>();
+            for (BsComponentParseMeta.ConnectorMeta c : parseMeta.getInputConnectors()) {
+                Map<String, String> connectorMap = new HashMap<>();
+                connectorMap.put("name", c.getName());
+                connectorMap.put("type", c.getType());
+                connectorList.add(connectorMap);
+            }
+            for (BsComponentParseMeta.ConnectorMeta c : parseMeta.getOutputConnectors()) {
+                Map<String, String> connectorMap = new HashMap<>();
+                connectorMap.put("name", c.getName());
+                connectorMap.put("type", c.getType());
+                connectorList.add(connectorMap);
+            }
+            for (BsComponentParseMeta.ConnectorMeta c : parseMeta.getConnectors()) {
+                Map<String, String> connectorMap = new HashMap<>();
+                connectorMap.put("name", c.getName());
+                connectorMap.put("type", c.getType());
+                connectorList.add(connectorMap);
+            }
+            connectors.put("list", connectorList);
+            connectors.put("input", parseMeta.getInputConnectors().stream().map(BsComponentParseMeta.ConnectorMeta::getName).toList());
+            connectors.put("output", parseMeta.getOutputConnectors().stream().map(BsComponentParseMeta.ConnectorMeta::getName).toList());
+        } else if (sourceCode != null && sourceCode.get("content") != null) {
             try {
                 com.modelcloud.modules.business.utils.ModelicaParser.ModelicaComponentInfo info = 
                     com.modelcloud.modules.business.utils.ModelicaParser.parseModel(sourceCode.get("content"));
@@ -181,6 +241,75 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         n.put("type", "Modelica.Electrical.Analog.Interfaces.NegativePin");
         connectors.add(n);
         return connectors;
+    }
+
+    private String resolveComponentIconUrl(BsComponent component) {
+        if (component == null) {
+            return null;
+        }
+        Path iconBaseDir = Path.of(componentIconDir);
+
+        // 1) 优先使用数据库中的 iconPath（若存在且文件可读）
+        if (StrUtil.isNotBlank(component.getIconPath())) {
+            String normalized = normalizeRelativePath(component.getIconPath());
+            if (iconExists(iconBaseDir.resolve(normalized))) {
+                return buildStaticIconUrl(normalized);
+            }
+        }
+
+        // 2) 兼容你当前目录：component_icon/Electrical/<完整类名>.svg
+        String className = StrUtil.blankToDefault(component.getClassName(), "");
+        if (StrUtil.isNotBlank(className)) {
+            String classIconFile = className + ".svg";
+            String electricalClassPath = "Electrical/" + classIconFile;
+            if (iconExists(iconBaseDir.resolve(electricalClassPath))) {
+                return buildStaticIconUrl(electricalClassPath);
+            }
+            if (iconExists(iconBaseDir.resolve(classIconFile))) {
+                return buildStaticIconUrl(classIconFile);
+            }
+        }
+
+        // 3) 按组件名兜底（极端情况下）
+        String name = StrUtil.blankToDefault(component.getName(), "");
+        if (StrUtil.isNotBlank(name)) {
+            String byName = "Electrical/" + name + ".svg";
+            if (iconExists(iconBaseDir.resolve(byName))) {
+                return buildStaticIconUrl(byName);
+            }
+        }
+        return null;
+    }
+
+    private boolean iconExists(Path path) {
+        try {
+            return path != null && Files.exists(path) && Files.isRegularFile(path);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private String normalizeRelativePath(String value) {
+        return String.valueOf(value).replace("\\", "/").replaceAll("^/+", "");
+    }
+
+    private String buildStaticIconUrl(String relativePath) {
+        String prefix = StrUtil.blankToDefault(componentIconUrlPrefix, "/api/component_icon").replaceAll("/+$", "");
+        String normalized = normalizeRelativePath(relativePath);
+        String encodedPath = encodePath(normalized);
+        return prefix + "/" + encodedPath;
+    }
+
+    private String encodePath(String path) {
+        String[] segments = String.valueOf(path).split("/");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < segments.length; i++) {
+            if (i > 0) {
+                sb.append('/');
+            }
+            sb.append(URLEncoder.encode(segments[i], StandardCharsets.UTF_8));
+        }
+        return sb.toString();
     }
     
     @Override

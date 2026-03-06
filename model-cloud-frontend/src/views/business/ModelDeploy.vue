@@ -37,30 +37,37 @@
           </div>
         </template>
         <div class="component-list">
-          <div
-            v-for="component in filteredComponents"
-            :key="component.id"
-            class="component-item"
-            draggable="true"
-            @dragstart.capture="handleDragStart($event, component)"
+          <el-tree
+            v-if="componentTreeData.length > 0"
+            class="component-tree"
+            :data="componentTreeData"
+            node-key="key"
+            :expand-on-click-node="false"
+            :default-expand-all="false"
+            :props="{ label: 'label', children: 'children' }"
           >
-            <el-image
-              :src="resolveComponentCover(component)"
-              class="component-icon"
-              fit="cover"
-              :preview-src-list="[]"
-              :initial-index="0"
-            >
-              <template #error>
-                <el-icon class="component-icon-fallback"><Box /></el-icon>
-              </template>
-            </el-image>
-            <div class="component-info">
-              <div class="component-name">{{ component.name }}</div>
-              <div class="component-desc">{{ component.description || '无描述' }}</div>
-            </div>
-          </div>
-          <el-empty v-if="filteredComponents.length === 0" description="暂无组件" :image-size="80" />
+            <template #default="{ data }">
+              <div v-if="data.type === 'component'" class="component-item tree-component-item" draggable="true" @dragstart.capture="handleDragStart($event, data.component)">
+                <el-image
+                  :src="resolveComponentCover(data.component)"
+                  class="component-icon"
+                  lazy
+                  fit="cover"
+                  :preview-src-list="[]"
+                  :initial-index="0"
+                >
+                  <template #error>
+                    <el-icon class="component-icon-fallback"><Box /></el-icon>
+                  </template>
+                </el-image>
+                <div class="component-info">
+                  <div class="component-name">{{ data.component.name }}</div>
+                </div>
+              </div>
+              <div v-else class="component-folder">{{ data.label }}</div>
+            </template>
+          </el-tree>
+          <el-empty v-else description="暂无组件" :image-size="80" />
         </div>
       </el-card>
 
@@ -326,6 +333,17 @@
               </template>
             </el-table-column>
           </el-table>
+          <div class="dialog-pagination">
+            <el-pagination
+              v-model:current-page="publicModelQuery.pageNum"
+              v-model:page-size="publicModelQuery.pageSize"
+              :total="publicModelTotal"
+              :page-sizes="[20, 50, 100]"
+              layout="total, sizes, prev, pager, next"
+              @size-change="loadPublicModelsForImport"
+              @current-change="loadPublicModelsForImport"
+            />
+          </div>
         </el-tab-pane>
         <el-tab-pane label="我的模型" name="mine">
           <el-table :data="myModelsForImport" style="width: 100%" max-height="420">
@@ -337,6 +355,17 @@
               </template>
             </el-table-column>
           </el-table>
+          <div class="dialog-pagination">
+            <el-pagination
+              v-model:current-page="myModelQuery.pageNum"
+              v-model:page-size="myModelQuery.pageSize"
+              :total="myModelTotal"
+              :page-sizes="[20, 50, 100]"
+              layout="total, sizes, prev, pager, next"
+              @size-change="loadMyModelsForImport"
+              @current-change="loadMyModelsForImport"
+            />
+          </div>
         </el-tab-pane>
       </el-tabs>
       <template #footer>
@@ -421,6 +450,10 @@ const modelImportTab = ref<'public' | 'mine'>('public')
 const projectList = ref<ModelingProject[]>([])
 const publicModels = ref<any[]>([])
 const myModelsForImport = ref<any[]>([])
+const publicModelTotal = ref(0)
+const myModelTotal = ref(0)
+const publicModelQuery = reactive({ pageNum: 1, pageSize: 20 })
+const myModelQuery = reactive({ pageNum: 1, pageSize: 20 })
 const importedModelCode = ref('')
 const importedModelName = ref('')
 const simulationLogs = ref<Array<{ time: string; type: string; message: string }>>([])
@@ -435,6 +468,7 @@ const expandedResultGroups = ref<string[]>([])
 const resultSeriesData = ref<Record<string, number[]>>({})
 const resultTimeData = ref<number[]>([])
 const hasCachedResult = ref(false)
+const componentDetailCache = ref<Record<number, any>>({})
 let chartInstance: echarts.ECharts | null = null
 
 // 仿真参数
@@ -458,6 +492,14 @@ const saveProjectForm = reactive({
   description: ''
 })
 
+type ComponentTreeNode = {
+  key: string
+  label: string
+  type: 'folder' | 'component'
+  component?: Component
+  children?: ComponentTreeNode[]
+}
+
 // 计算属性：过滤后的组件列表
 const filteredComponents = computed(() => {
   if (!componentSearchKeyword.value) {
@@ -467,8 +509,79 @@ const filteredComponents = computed(() => {
   return components.value.filter(
     (c) =>
       c.name.toLowerCase().includes(keyword) ||
-      (c.description && c.description.toLowerCase().includes(keyword))
+      (c.description && c.description.toLowerCase().includes(keyword)) ||
+      (c.className && c.className.toLowerCase().includes(keyword)) ||
+      (c.indexPath && c.indexPath.toLowerCase().includes(keyword))
   )
+})
+
+const componentTreeData = computed<ComponentTreeNode[]>(() => {
+  const root: ComponentTreeNode[] = []
+  const folderMap = new Map<string, ComponentTreeNode>()
+
+  const getFolderSegments = (component: Component): string[] => {
+    if (component.indexPath) {
+      const segs = component.indexPath
+        .split('/')
+        .map((s) => s.trim())
+        .filter(Boolean)
+      return segs[0] === 'Modelica' ? segs.slice(1) : segs
+    }
+    if (component.className) {
+      const parts = component.className
+        .split('.')
+        .map((s) => s.trim())
+        .filter(Boolean)
+      const noPrefix = parts[0] === 'Modelica' ? parts.slice(1) : parts
+      return noPrefix.length > 1 ? noPrefix.slice(0, -1) : ['Electrical']
+    }
+    return ['Electrical']
+  }
+
+  const sortTree = (nodes: ComponentTreeNode[]) => {
+    nodes.sort((a, b) => {
+      if (a.type !== b.type) {
+        return a.type === 'folder' ? -1 : 1
+      }
+      return a.label.localeCompare(b.label)
+    })
+    nodes.forEach((node) => {
+      if (node.children && node.children.length > 0) {
+        sortTree(node.children)
+      }
+    })
+  }
+
+  filteredComponents.value.forEach((component) => {
+    const folders = getFolderSegments(component)
+    let parentChildren = root
+    let folderPath = ''
+    folders.forEach((folderName) => {
+      folderPath = folderPath ? `${folderPath}/${folderName}` : folderName
+      let folderNode = folderMap.get(folderPath)
+      if (!folderNode) {
+        folderNode = {
+          key: `folder:${folderPath}`,
+          label: folderName,
+          type: 'folder',
+          children: []
+        }
+        folderMap.set(folderPath, folderNode)
+        parentChildren.push(folderNode)
+      }
+      parentChildren = folderNode.children || []
+    })
+
+    parentChildren.push({
+      key: `component:${component.id}`,
+      label: component.name,
+      type: 'component',
+      component
+    })
+  })
+
+  sortTree(root)
+  return root
 })
 
 const resultVariableGroups = computed(() => {
@@ -530,6 +643,21 @@ const handleComponentSearch = () => {
   // computed会自动响应componentSearchKeyword的变化
 }
 
+const getComponentDetailCached = async (componentId: number) => {
+  if (!componentId) {
+    return null
+  }
+  if (componentDetailCache.value[componentId]) {
+    return componentDetailCache.value[componentId]
+  }
+  const detailRes = await modelDeployApi.getComponentDetail(componentId)
+  if (detailRes.code === 200 && detailRes.data) {
+    componentDetailCache.value[componentId] = detailRes.data
+    return detailRes.data
+  }
+  return null
+}
+
 // 拖拽开始
 const handleDragStart = (event: DragEvent, component: Component) => {
   if (event.dataTransfer) {
@@ -583,9 +711,9 @@ const handleDrop = async (event: DragEvent) => {
       }
     }
     try {
-      const detailRes = await modelDeployApi.getComponentDetail(componentData.id)
-      if (detailRes.code === 200 && detailRes.data) {
-        componentDetail = detailRes.data
+      const detailData = await getComponentDetailCached(componentData.id)
+      if (detailData) {
+        componentDetail = detailData
       } else {
         ElMessage.warning('组件详情加载失败，已使用默认引脚')
       }
@@ -674,9 +802,9 @@ const loadNodeProperties = async (node: Node) => {
 
     const componentId = node.data?.componentId
     if (componentId) {
-      const res = await modelDeployApi.getComponentDetail(componentId)
-      if (res.code === 200) {
-        const normalized = normalizeComponentParameters(res.data?.parameters || {})
+      const detailData = await getComponentDetailCached(Number(componentId))
+      if (detailData) {
+        const normalized = normalizeComponentParameters(detailData?.parameters || {})
         const fallback = getDefaultPropertiesByType(
           String(node.data?.componentType || ''),
           String(node.data?.componentName || '')
@@ -1035,18 +1163,26 @@ const handleNewProject = () => {
 }
 
 const loadPublicModelsForImport = async () => {
-  const res: any = await modelApi.getModelList({ pageNum: 1, pageSize: 200 })
+  const res: any = await modelApi.getModelList({
+    pageNum: publicModelQuery.pageNum,
+    pageSize: publicModelQuery.pageSize
+  })
   if (res.code === 200) {
     publicModels.value = res.data?.records || []
+    publicModelTotal.value = Number(res.data?.totalRow || 0)
   } else {
     throw new Error(res.message || '获取公开模型失败')
   }
 }
 
 const loadMyModelsForImport = async () => {
-  const res: any = await modelApi.getMyModels({ pageNum: 1, pageSize: 200 })
+  const res: any = await modelApi.getMyModels({
+    pageNum: myModelQuery.pageNum,
+    pageSize: myModelQuery.pageSize
+  })
   if (res.code === 200) {
     myModelsForImport.value = res.data?.records || []
+    myModelTotal.value = Number(res.data?.totalRow || 0)
   } else {
     throw new Error(res.message || '获取我的模型失败')
   }
@@ -1054,6 +1190,8 @@ const loadMyModelsForImport = async () => {
 
 const handleOpenModelImportDialog = async () => {
   try {
+    publicModelQuery.pageNum = 1
+    myModelQuery.pageNum = 1
     await Promise.all([loadPublicModelsForImport(), loadMyModelsForImport()])
     showModelImportDialog.value = true
   } catch (error: any) {
@@ -1738,18 +1876,40 @@ const handleDownloadResultCsv = () => {
 .component-list {
   flex: 1;
   overflow-y: auto;
-  padding: 10px 0;
+  padding: 6px 0;
+}
+
+.component-tree {
+  background: transparent;
+}
+
+.component-tree :deep(.el-tree-node__content) {
+  height: auto;
+  padding: 2px 0;
+}
+
+.component-folder {
+  font-size: 13px;
+  color: #606266;
+  font-weight: 600;
+  padding: 2px 0;
 }
 
 .component-item {
   display: flex;
   align-items: center;
-  padding: 10px;
-  margin-bottom: 8px;
+  padding: 6px 8px;
+  margin-bottom: 4px;
   border: 1px solid #e4e7ed;
   border-radius: 4px;
   cursor: move;
   transition: all 0.3s;
+}
+
+.tree-component-item {
+  width: 100%;
+  margin-bottom: 0;
+  margin-left: -18px;
 }
 
 .component-item:hover {
@@ -1758,21 +1918,21 @@ const handleDownloadResultCsv = () => {
 }
 
 .component-icon {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
-  margin-right: 10px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  margin-right: 8px;
   border-radius: 4px;
   object-fit: cover;
   border: 1px solid #e4e7ed;
 }
 
 .component-icon-fallback {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
-  margin-right: 10px;
-  font-size: 24px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  margin-right: 8px;
+  font-size: 18px;
   color: #409eff;
   display: flex;
   align-items: center;
@@ -1784,13 +1944,9 @@ const handleDownloadResultCsv = () => {
 }
 
 .component-name {
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.component-desc {
-  font-size: 12px;
-  color: #909399;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.3;
 }
 
 .property-content {
@@ -1834,6 +1990,12 @@ const handleDownloadResultCsv = () => {
   background: #1e1e1e;
   padding: 10px;
   border-radius: 4px;
+}
+
+.dialog-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
 }
 
 .log-item {
