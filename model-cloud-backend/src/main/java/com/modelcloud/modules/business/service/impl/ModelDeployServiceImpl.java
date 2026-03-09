@@ -4,11 +4,10 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.modelcloud.common.exception.BusinessException;
 import com.modelcloud.common.tools.SecurityUtils;
-import com.modelcloud.modules.business.mapper.BsComponentMapper;
 import com.modelcloud.modules.business.mapper.BsModelingProjectMapper;
 import com.modelcloud.modules.business.mapper.BsSimulationTaskMapper;
-import com.modelcloud.modules.business.model.domain.BsComponent;
 import com.modelcloud.modules.business.model.domain.BsComponentParseMeta;
+import com.modelcloud.modules.business.model.dto.ComponentVO;
 import com.modelcloud.modules.business.model.domain.BsModelingProject;
 import com.modelcloud.modules.business.model.domain.BsSimulationTask;
 import com.modelcloud.modules.business.model.request.ModelingProjectRequest;
@@ -40,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * 模型部署服务实现类
@@ -50,7 +50,6 @@ import java.util.UUID;
 @Service
 public class ModelDeployServiceImpl implements ModelDeployService {
     
-    private final BsComponentMapper bsComponentMapper;
     private final BsComponentParseMetaRepository bsComponentParseMetaRepository;
     private final BsModelingProjectMapper projectMapper;
     private final BsSimulationTaskMapper taskMapper;
@@ -68,94 +67,178 @@ public class ModelDeployServiceImpl implements ModelDeployService {
     private volatile Set<String> electricalIconFileNames = null;
     
     public ModelDeployServiceImpl(
-            BsComponentMapper bsComponentMapper,
             BsComponentParseMetaRepository bsComponentParseMetaRepository,
             BsModelingProjectMapper projectMapper,
             BsSimulationTaskMapper taskMapper) {
-        this.bsComponentMapper = bsComponentMapper;
         this.bsComponentParseMetaRepository = bsComponentParseMetaRepository;
         this.projectMapper = projectMapper;
         this.taskMapper = taskMapper;
     }
     
-    @Override
-    public List<BsComponent> getComponents(String category, String keyword) {
-        QueryWrapper queryWrapper = QueryWrapper.create()
-                .where("is_del = ?", 0)
-                .orderBy("create_time", false);
-        if (StrUtil.isNotBlank(keyword)) {
-            String likeKeyword = "%" + keyword + "%";
-            queryWrapper.and("(name like ? or description like ?)", likeKeyword, likeKeyword);
-        }
+    private static final Set<String> EXCLUDE_PATH_PARTS = Set.of(
+            "Interfaces", "BaseClasses", "Internal", "Types", "Icons", "Examples", "UsersGuide");
+    private static final String TEST_SCOPE_PREFIX = "Electrical/Analog/Basic/";
 
-        List<BsComponent> components = bsComponentMapper.selectListByQuery(queryWrapper);
-        for (BsComponent component : components) {
-            fillDefaultCoverImage(component);
-        }
-        return components;
-    }
-    
-    /**
-     * 填充默认封面图片
-     */
-    private void fillDefaultCoverImage(BsComponent component) {
-        if (component == null) {
-            return;
-        }
-        String iconUrl = resolveComponentIconUrl(component);
-        if (StrUtil.isNotBlank(iconUrl)) {
-            component.setCoverImage(iconUrl);
-            return;
-        }
-        component.setCoverImage("");
-    }
-    
     @Override
-    public Map<String, Object> getComponentDetail(Long componentId) {
-        BsComponent component = bsComponentMapper.selectOneById(componentId);
-        if (component == null || component.getIsDel() == 1) {
-            throw new BusinessException("组件不存在");
+    public List<ComponentVO> getComponents(String category, String keyword) {
+        List<ComponentVO> list = new ArrayList<>();
+        Path sourceRoot = Path.of(componentSourceDir).normalize();
+        Path electricalDir = sourceRoot.resolve("Electrical");
+        if (!Files.exists(electricalDir) || !Files.isDirectory(electricalDir)) {
+            return list;
         }
-        fillDefaultCoverImage(component);
-
-        Map<String, String> sourceCode = null;
-        try {
-            Path sourceFile = Path.of(componentSourceDir).resolve(String.valueOf(component.getSourcePath()).replace("\\", "/")).normalize();
-            String content = Files.readString(sourceFile);
-            sourceCode = new HashMap<>();
-            sourceCode.put("content", content);
-            sourceCode.put("fileName", sourceFile.getFileName().toString());
+        try (Stream<Path> stream = Files.walk(electricalDir)) {
+            stream.filter(Files::isRegularFile)
+                    .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".mo"))
+                    .filter(p -> !"package.mo".equalsIgnoreCase(p.getFileName().toString()))
+                    .filter(p -> {
+                        String rel = sourceRoot.relativize(p).toString().replace("\\", "/");
+                        if (!rel.startsWith(TEST_SCOPE_PREFIX)) {
+                            return false;
+                        }
+                        for (String exc : EXCLUDE_PATH_PARTS) {
+                            if (rel.contains("/" + exc + "/") || rel.startsWith(exc + "/")) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    })
+                    .forEach(moPath -> {
+                        try {
+                            ComponentVO vo = buildComponentVO(moPath, sourceRoot);
+                            if (vo != null && matchesFilter(vo, category, keyword)) {
+                                list.add(vo);
+                            }
+                        } catch (Exception e) {
+                            log.debug("跳过组件 {}: {}", moPath, e.getMessage());
+                        }
+                    });
         } catch (Exception e) {
-            log.warn("获取组件源码失败: {}", e.getMessage());
+            log.error("扫描组件目录失败", e);
+            throw new BusinessException("扫描组件目录失败: " + e.getMessage());
         }
+        list.sort((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(
+                StrUtil.blankToDefault(a.getClassName(), ""),
+                StrUtil.blankToDefault(b.getClassName(), "")));
+        return list;
+    }
+
+    private ComponentVO buildComponentVO(Path moPath, Path sourceRoot) throws Exception {
+        String rel = sourceRoot.relativize(moPath).toString().replace("\\", "/");
+        String className = "Modelica." + rel.replace("/", ".").replace(".mo", "");
+        String name = moPath.getFileName().toString().replace(".mo", "");
+        String indexPath = "Modelica/" + rel.substring(0, rel.lastIndexOf('/')).replace(".", "/");
+
+        ComponentVO vo = new ComponentVO();
+        vo.setId(className);
+        vo.setName(name);
+        vo.setClassName(className);
+        vo.setSourcePath(rel);
+        vo.setIndexPath(indexPath);
+
+        String desc = extractDescriptionFromMo(moPath);
+        vo.setDescription(StrUtil.blankToDefault(desc, ""));
+
+        String iconUrl = resolveComponentIconUrl(className, name, rel);
+        vo.setCoverImage(StrUtil.blankToDefault(iconUrl, ""));
+        return vo;
+    }
+
+    private String extractDescriptionFromMo(Path moPath) {
+        try {
+            String content = Files.readString(moPath);
+            java.util.regex.Pattern p = java.util.regex.Pattern.compile(
+                    "(?:model|block|class)\\s+\\w+\\s+\"([^\"]+)\"", java.util.regex.Pattern.CASE_INSENSITIVE);
+            java.util.regex.Matcher m = p.matcher(content);
+            return m.find() ? m.group(1).trim() : "";
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private boolean matchesFilter(ComponentVO vo, String category, String keyword) {
+        if (StrUtil.isNotBlank(category) && !StrUtil.blankToDefault(vo.getIndexPath(), "").contains(category)) {
+            return false;
+        }
+        if (StrUtil.isNotBlank(keyword)) {
+            String kw = keyword.toLowerCase();
+            return StrUtil.blankToDefault(vo.getName(), "").toLowerCase().contains(kw)
+                    || StrUtil.blankToDefault(vo.getClassName(), "").toLowerCase().contains(kw)
+                    || StrUtil.blankToDefault(vo.getDescription(), "").toLowerCase().contains(kw);
+        }
+        return true;
+    }
+
+    private String resolveComponentIconUrl(String className, String name, String sourcePath) {
+        Set<String> fileNames = getElectricalIconFileNames();
+        if (fileNames.isEmpty()) return null;
+        List<String> candidates = List.of(name + ".svg", className + ".svg",
+                (className.contains(".") ? className.substring(className.lastIndexOf('.') + 1) : "") + ".svg");
+        for (String c : candidates) {
+            if (StrUtil.isNotBlank(c) && fileNames.contains(c)) {
+                return buildStaticIconUrl("Electrical/" + c);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getComponentDetailByClassName(String className) {
+        if (StrUtil.isBlank(className)) {
+            throw new BusinessException("className 不能为空");
+        }
+        Path sourceRoot = Path.of(componentSourceDir).normalize();
+        String rel = className.replace("Modelica.Electrical.", "Electrical/")
+                .replace("Modelica.", "")
+                .replace(".", "/") + ".mo";
+        Path sourceFile = sourceRoot.resolve(rel).normalize();
+        if (!Files.exists(sourceFile)) {
+            throw new BusinessException("组件不存在: " + className);
+        }
+
+        String content;
+        try {
+            content = Files.readString(sourceFile);
+        } catch (Exception e) {
+            throw new BusinessException("读取组件源码失败: " + e.getMessage());
+        }
+
+        String name = sourceFile.getFileName().toString().replace(".mo", "");
+        String iconUrl = resolveComponentIconUrl(className, name, rel);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("id", component.getId());
-        result.put("name", component.getName());
-        result.put("description", component.getDescription());
-        result.put("sourceCode", sourceCode != null ? sourceCode.get("content") : null);
-        result.put("fileName", sourceCode != null ? sourceCode.get("fileName") : null);
-        result.put("coverImage", component.getCoverImage());
-        result.put("className", StrUtil.blankToDefault(component.getClassName(), component.getName()));
-        
-        // 优先读取Mongo中的组件解析元数据，避免每次实时解析源码
+        result.put("id", className);
+        result.put("name", name);
+        result.put("className", className);
+        result.put("sourceCode", content);
+        result.put("fileName", sourceFile.getFileName().toString());
+        result.put("coverImage", StrUtil.blankToDefault(iconUrl, ""));
+
+        String desc = extractDescriptionFromMo(sourceFile);
+        result.put("description", StrUtil.blankToDefault(desc, ""));
+
         BsComponentParseMeta parseMeta = null;
         try {
-            parseMeta = bsComponentParseMetaRepository.findByComponentId(component.getId()).orElse(null);
+            parseMeta = bsComponentParseMetaRepository.findById(className).orElse(null);
         } catch (Exception e) {
-            log.warn("读取Mongo组件解析元数据失败 componentId={}, reason={}", component.getId(), e.getMessage());
+            log.warn("读取Mongo组件解析元数据失败 className={}, reason={}", className, e.getMessage());
         }
 
         Map<String, Object> parameters = new HashMap<>();
+        List<Map<String, Object>> parameterDetails = new ArrayList<>();
         Map<String, Object> connectors = new HashMap<>();
 
-        if (parseMeta != null) {
-            if (StrUtil.isNotBlank(parseMeta.getClassName())) {
-                result.put("className", parseMeta.getClassName());
-            }
+        if (parseMeta != null && parseMeta.getParameters() != null) {
             for (BsComponentParseMeta.ParamMeta p : parseMeta.getParameters()) {
                 String defaultValue = StrUtil.blankToDefault(p.getDefaultValue(), "0");
                 parameters.put(p.getName(), defaultValue);
+                Map<String, Object> pd = new HashMap<>();
+                pd.put("name", p.getName());
+                pd.put("type", p.getType());
+                pd.put("defaultValue", defaultValue);
+                pd.put("unit", p.getUnit());
+                pd.put("description", StrUtil.blankToDefault(p.getDescription(), ""));
+                parameterDetails.add(pd);
             }
             List<Map<String, String>> connectorList = new ArrayList<>();
             for (BsComponentParseMeta.ConnectorMeta c : parseMeta.getInputConnectors()) {
@@ -179,46 +262,44 @@ public class ModelDeployServiceImpl implements ModelDeployService {
             connectors.put("list", connectorList);
             connectors.put("input", parseMeta.getInputConnectors().stream().map(BsComponentParseMeta.ConnectorMeta::getName).toList());
             connectors.put("output", parseMeta.getOutputConnectors().stream().map(BsComponentParseMeta.ConnectorMeta::getName).toList());
-        } else if (sourceCode != null && sourceCode.get("content") != null) {
+        } else if (StrUtil.isNotBlank(content)) {
             try {
-                com.modelcloud.modules.business.utils.ModelicaParser.ModelicaComponentInfo info = 
-                    com.modelcloud.modules.business.utils.ModelicaParser.parseModel(sourceCode.get("content"));
+                var info = com.modelcloud.modules.business.utils.ModelicaParser.parseModel(content);
                 if (StrUtil.isNotBlank(info.getClassName())) {
                     result.put("className", info.getClassName());
                 }
                 
-                // 转换参数
-                for (com.modelcloud.modules.business.utils.ModelicaParser.ParameterInfo param : info.getParameters()) {
-                    String defaultValue = param.getDefaultValue();
-                    if (StrUtil.isBlank(defaultValue)) {
-                        defaultValue = "0";
-                    }
+                for (var param : info.getParameters()) {
+                    String defaultValue = StrUtil.blankToDefault(param.getDefaultValue(), "0");
                     parameters.put(param.getName(), defaultValue);
+                    Map<String, Object> pd = new HashMap<>();
+                    pd.put("name", param.getName());
+                    pd.put("type", param.getType());
+                    pd.put("defaultValue", defaultValue);
+                    pd.put("unit", "");
+                    pd.put("description", "");
+                    parameterDetails.add(pd);
                 }
-                
-                // 转换接口
                 List<Map<String, String>> connectorList = new ArrayList<>();
-                for (com.modelcloud.modules.business.utils.ModelicaParser.ConnectorInfo connector : info.getConnectors()) {
+                for (var connector : info.getConnectors()) {
                     Map<String, String> connectorMap = new HashMap<>();
                     connectorMap.put("name", connector.getName());
                     connectorMap.put("type", connector.getType());
                     connectorList.add(connectorMap);
                 }
                 connectors.put("list", connectorList);
-                connectors.put("input", new ArrayList<>()); // 简化处理，后续可细化
-                connectors.put("output", new ArrayList<>()); // 简化处理，后续可细化
-                
+                connectors.put("input", new ArrayList<>());
+                connectors.put("output", new ArrayList<>());
             } catch (Exception e) {
                 log.warn("解析Modelica代码失败: {}", e.getMessage());
-                // 如果解析失败，使用默认接口
                 connectors.put("list", createDefaultConnectors());
             }
         } else {
-            // 如果没有源码，使用默认接口
             connectors.put("list", createDefaultConnectors());
         }
         
         result.put("parameters", parameters);
+        result.put("parameterDetails", parameterDetails);
         result.put("ports", connectors);
         result.put("connectors", connectors); // 兼容前端可能使用的字段名
         
@@ -239,53 +320,6 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         n.put("type", "Modelica.Electrical.Analog.Interfaces.NegativePin");
         connectors.add(n);
         return connectors;
-    }
-
-    private String resolveComponentIconUrl(BsComponent component) {
-        if (component == null) {
-            return null;
-        }
-        Set<String> fileNames = getElectricalIconFileNames();
-        if (fileNames.isEmpty()) {
-            return null;
-        }
-
-        // 按多种 key 依次尝试匹配，适配你当前图标命名策略
-        List<String> candidates = new ArrayList<>();
-
-        String name = StrUtil.blankToDefault(component.getName(), "").trim();
-        if (StrUtil.isNotBlank(name)) {
-            candidates.add(name + ".svg");
-        }
-
-        String sourcePath = StrUtil.blankToDefault(component.getSourcePath(), "").replace("\\", "/");
-        if (StrUtil.isNotBlank(sourcePath) && sourcePath.endsWith(".mo")) {
-            int slash = sourcePath.lastIndexOf('/');
-            String stem = slash >= 0 ? sourcePath.substring(slash + 1, sourcePath.length() - 3) : sourcePath.substring(0, sourcePath.length() - 3);
-            if (StrUtil.isNotBlank(stem)) {
-                candidates.add(stem + ".svg");
-            }
-        }
-
-        String className = normalizeClassNameForIcon(component);
-        if (StrUtil.isNotBlank(className)) {
-            candidates.add(className + ".svg");
-            int dot = className.lastIndexOf('.');
-            if (dot > 0 && dot < className.length() - 1) {
-                candidates.add(className.substring(dot + 1) + ".svg");
-            }
-        }
-
-        for (String raw : candidates) {
-            if (StrUtil.isBlank(raw)) {
-                continue;
-            }
-            String file = raw.trim();
-            if (fileNames.contains(file)) {
-                return buildStaticIconUrl("Electrical/" + file);
-            }
-        }
-        return null;
     }
 
     private Set<String> getElectricalIconFileNames() {
@@ -316,21 +350,6 @@ public class ModelDeployServiceImpl implements ModelDeployService {
             electricalIconFileNames = loaded;
             return loaded;
         }
-    }
-
-    private String normalizeClassNameForIcon(BsComponent component) {
-        String className = StrUtil.blankToDefault(component.getClassName(), "").trim();
-        if (StrUtil.isBlank(className)) {
-            return "";
-        }
-        if (className.startsWith("Modelica.Electrical.")) {
-            return className;
-        }
-        if (className.startsWith("Electrical.")) {
-            return "Modelica." + className;
-        }
-        // 兜底：如果不是完整前缀，仍按原值尝试，避免误改历史数据
-        return className;
     }
 
     private String normalizeRelativePath(String value) {

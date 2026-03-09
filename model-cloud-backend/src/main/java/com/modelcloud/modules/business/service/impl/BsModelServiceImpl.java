@@ -304,12 +304,15 @@ public class BsModelServiceImpl implements BsModelService {
         }
         com.modelcloud.modules.business.utils.ModelicaParser.ModelicaComponentInfo info =
                 com.modelcloud.modules.business.utils.ModelicaParser.parseModel(sourceContent);
-        BsComponentParseMeta meta = bsComponentParseMetaRepository.findByComponentId(component.getId())
+        String className = StrUtil.blankToDefault(info.getClassName(), component.getClassName());
+        if (StrUtil.isBlank(className)) {
+            className = component.getName();
+        }
+        BsComponentParseMeta meta = bsComponentParseMetaRepository.findById(className)
                 .orElseGet(BsComponentParseMeta::new);
-        meta.setComponentId(component.getId());
+        meta.setId(className);
         meta.setName(component.getName());
         meta.setDescription(component.getDescription());
-        meta.setClassName(StrUtil.blankToDefault(info.getClassName(), component.getClassName()));
         meta.setSourcePath(component.getSourcePath());
         meta.setIconPath(component.getIconPath());
         meta.setIndexPath(component.getIndexPath());

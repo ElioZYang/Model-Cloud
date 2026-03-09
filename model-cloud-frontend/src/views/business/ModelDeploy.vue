@@ -122,17 +122,21 @@
             <el-form-item label="组件类型">
               <el-input v-model="selectedNode.data.componentType" disabled />
             </el-form-item>
+            <el-form-item label="组件描述" v-if="selectedNodeDescription">
+              <el-input :model-value="selectedNodeDescription" type="textarea" :rows="3" disabled />
+            </el-form-item>
             <div v-if="selectedNodeProperties && Object.keys(selectedNodeProperties).length > 0">
               <el-divider>组件参数</el-divider>
               <el-form-item
                 v-for="(value, key) in selectedNodeProperties"
                 :key="key"
-                :label="key"
+                :label="formatParameterLabel(key)"
               >
                 <el-input-number
                   v-if="typeof value === 'number'"
                   v-model="selectedNodeProperties[key]"
                   :precision="3"
+                  :controls="false"
                   @change="handlePropertyChange"
                 />
                 <el-input
@@ -140,6 +144,7 @@
                   v-model="selectedNodeProperties[key]"
                   @change="handlePropertyChange"
                 />
+                <div v-if="getParameterHint(key)" class="param-hint">{{ getParameterHint(key) }}</div>
               </el-form-item>
             </div>
             <el-form-item>
@@ -417,7 +422,7 @@ import {
   Close
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { modelDeployApi, type Component, type ModelingProject } from '@/api/model-deploy'
+import { modelDeployApi, type Component, type ModelingProject, type ParameterDetail } from '@/api/model-deploy'
 import { modelApi } from '@/api/model'
 import * as echarts from 'echarts'
 import dayjs from 'dayjs'
@@ -436,6 +441,8 @@ const componentSearchKeyword = ref('')
 const defaultCover = 'https://via.placeholder.com/300x200?text=No+Image'
 const selectedNode = ref<Node | null>(null)
 const selectedNodeProperties = ref<Record<string, any>>({})
+const selectedNodeDescription = ref('')
+const selectedNodeParamDetails = ref<ParameterDetail[]>([])
 const selectedNodeInstanceName = ref('')
 const saving = ref(false)
 const simulating = ref(false)
@@ -468,8 +475,24 @@ const expandedResultGroups = ref<string[]>([])
 const resultSeriesData = ref<Record<string, number[]>>({})
 const resultTimeData = ref<number[]>([])
 const hasCachedResult = ref(false)
-const componentDetailCache = ref<Record<number, any>>({})
+const componentDetailCache = ref<Record<string, any>>({})
 let chartInstance: echarts.ECharts | null = null
+
+const formatParameterLabel = (name: string) => {
+  const detail = selectedNodeParamDetails.value.find((item) => item.name === name)
+  if (!detail) return name
+  const unit = detail.unit ? ` [${detail.unit}]` : ''
+  return `${name}${unit}`
+}
+
+const getParameterHint = (name: string) => {
+  const detail = selectedNodeParamDetails.value.find((item) => item.name === name)
+  if (!detail) return ''
+  const typeText = detail.type ? `类型: ${detail.type}` : ''
+  const descText = detail.description ? detail.description : ''
+  if (typeText && descText) return `${typeText} | ${descText}`
+  return typeText || descText
+}
 
 // 仿真参数
 const simulationParams = reactive({
@@ -643,16 +666,16 @@ const handleComponentSearch = () => {
   // computed会自动响应componentSearchKeyword的变化
 }
 
-const getComponentDetailCached = async (componentId: number) => {
-  if (!componentId) {
+const getComponentDetailCached = async (className: string) => {
+  if (!className) {
     return null
   }
-  if (componentDetailCache.value[componentId]) {
-    return componentDetailCache.value[componentId]
+  if (componentDetailCache.value[className]) {
+    return componentDetailCache.value[className]
   }
-  const detailRes = await modelDeployApi.getComponentDetail(componentId)
+  const detailRes = await modelDeployApi.getComponentDetailByClassName(className)
   if (detailRes.code === 200 && detailRes.data) {
-    componentDetailCache.value[componentId] = detailRes.data
+    componentDetailCache.value[className] = detailRes.data
     return detailRes.data
   }
   return null
@@ -711,7 +734,7 @@ const handleDrop = async (event: DragEvent) => {
       }
     }
     try {
-      const detailData = await getComponentDetailCached(componentData.id)
+      const detailData = await getComponentDetailCached(componentData.id || componentData.className || '')
       if (detailData) {
         componentDetail = detailData
       } else {
@@ -753,7 +776,9 @@ const handleDrop = async (event: DragEvent) => {
         componentType,
         coverImage: nodeCover,
         connectors: connectors,
-        properties: finalProperties
+        properties: finalProperties,
+        description: String(componentDetail.description || ''),
+        parameterDetails: Array.isArray(componentDetail.parameterDetails) ? componentDetail.parameterDetails : []
       },
       label: instanceName
     }
@@ -794,6 +819,10 @@ const loadNodeProperties = async (node: Node) => {
     selectedNodeInstanceName.value = String(
       node.data?.instanceName || node.label || node.id
     )
+    selectedNodeDescription.value = String(node.data?.description || '')
+    selectedNodeParamDetails.value = Array.isArray(node.data?.parameterDetails)
+      ? [...node.data.parameterDetails]
+      : []
     const localProperties = (node.data?.properties || {}) as Record<string, any>
     if (Object.keys(localProperties).length > 0) {
       selectedNodeProperties.value = { ...localProperties }
@@ -801,8 +830,9 @@ const loadNodeProperties = async (node: Node) => {
     }
 
     const componentId = node.data?.componentId
-    if (componentId) {
-      const detailData = await getComponentDetailCached(Number(componentId))
+    const className = node.data?.componentType || (typeof componentId === 'string' ? componentId : null)
+    if (className) {
+      const detailData = await getComponentDetailCached(className)
       if (detailData) {
         const normalized = normalizeComponentParameters(detailData?.parameters || {})
         const fallback = getDefaultPropertiesByType(
@@ -815,6 +845,10 @@ const loadNodeProperties = async (node: Node) => {
           node.data = {}
         }
         node.data.properties = { ...merged }
+        node.data.description = String(detailData?.description || '')
+        node.data.parameterDetails = Array.isArray(detailData?.parameterDetails) ? detailData.parameterDetails : []
+        selectedNodeDescription.value = String(detailData?.description || '')
+        selectedNodeParamDetails.value = Array.isArray(detailData?.parameterDetails) ? [...detailData.parameterDetails] : []
         return
       }
     }
@@ -828,6 +862,10 @@ const loadNodeProperties = async (node: Node) => {
       node.data = {}
     }
     node.data.properties = { ...fallback }
+    selectedNodeDescription.value = String(node.data?.description || '')
+    selectedNodeParamDetails.value = Array.isArray(node.data?.parameterDetails)
+      ? [...node.data.parameterDetails]
+      : []
   } catch (error) {
     console.error('加载组件属性失败:', error)
     const fallback = getDefaultPropertiesByType(
@@ -835,6 +873,8 @@ const loadNodeProperties = async (node: Node) => {
       String(node.data?.componentName || '')
     )
     selectedNodeProperties.value = { ...fallback }
+    selectedNodeDescription.value = ''
+    selectedNodeParamDetails.value = []
   }
 }
 
@@ -1951,6 +1991,13 @@ const handleDownloadResultCsv = () => {
 
 .property-content {
   padding: 10px 0;
+}
+
+.param-hint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #909399;
+  line-height: 1.4;
 }
 
 .simulation-panel {

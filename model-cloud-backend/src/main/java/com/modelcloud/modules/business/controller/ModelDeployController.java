@@ -1,8 +1,8 @@
 package com.modelcloud.modules.business.controller;
 
 import com.modelcloud.common.web.domain.response.Result;
-import com.modelcloud.modules.business.model.domain.BsComponent;
 import com.modelcloud.modules.business.model.domain.BsModelingProject;
+import com.modelcloud.modules.business.model.dto.ComponentVO;
 import com.modelcloud.modules.business.model.domain.BsSimulationTask;
 import com.modelcloud.modules.business.model.request.ModelingProjectRequest;
 import com.modelcloud.modules.business.model.request.SimulationRequest;
@@ -31,28 +31,29 @@ public class ModelDeployController {
     }
     
     /**
-     * 获取可用于建模的组件列表（公开的Modelica组件）
+     * 获取可用于建模的组件列表（从静态目录扫描，bs_component 已弃用）
      */
     @GetMapping("/components")
-    public Result<List<BsComponent>> getComponents(
+    public Result<List<ComponentVO>> getComponents(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword) {
         try {
-            List<BsComponent> components = modelDeployService.getComponents(category, keyword);
+            List<ComponentVO> components = modelDeployService.getComponents(category, keyword);
             return Result.success(components);
         } catch (Exception e) {
             log.error("获取组件列表失败", e);
             return Result.error("获取组件列表失败: " + e.getMessage());
         }
     }
-    
+
     /**
-     * 获取组件详情（包括参数定义、端口定义等）
+     * 获取组件详情（按 className，包括参数、端口等）
      */
-    @GetMapping("/components/{componentId}")
-    public Result<Map<String, Object>> getComponentDetail(@PathVariable Long componentId) {
+    @GetMapping("/components/by-class")
+    public Result<Map<String, Object>> getComponentDetailByClassName(
+            @RequestParam String className) {
         try {
-            Map<String, Object> detail = modelDeployService.getComponentDetail(componentId);
+            Map<String, Object> detail = modelDeployService.getComponentDetailByClassName(className);
             return Result.success(detail);
         } catch (Exception e) {
             log.error("获取组件详情失败", e);

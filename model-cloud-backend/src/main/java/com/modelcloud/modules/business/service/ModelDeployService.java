@@ -1,8 +1,8 @@
 package com.modelcloud.modules.business.service;
 
-import com.modelcloud.modules.business.model.domain.BsComponent;
 import com.modelcloud.modules.business.model.domain.BsModelingProject;
 import com.modelcloud.modules.business.model.domain.BsSimulationTask;
+import com.modelcloud.modules.business.model.dto.ComponentVO;
 import com.modelcloud.modules.business.model.request.ModelingProjectRequest;
 import com.modelcloud.modules.business.model.request.SimulationRequest;
 
@@ -11,27 +11,28 @@ import java.util.Map;
 
 /**
  * 模型部署服务接口
- * 
+ * 组件来源：静态目录 component_source（bs_component 已弃用）
+ *
  * @author model-cloud
  */
 public interface ModelDeployService {
-    
+
     /**
-     * 获取可用于建模的组件列表（公开的Modelica组件）
-     * 
+     * 获取可用于建模的组件列表（从静态目录扫描）
+     *
      * @param category 组件类别（可选）
-     * @param keyword 关键词搜索（可选）
-     * @return 组件列表
+     * @param keyword  关键词搜索（可选）
+     * @return 组件列表，id 为 className
      */
-    List<BsComponent> getComponents(String category, String keyword);
-    
+    List<ComponentVO> getComponents(String category, String keyword);
+
     /**
-     * 获取组件详情（包括参数定义、端口定义等）
-     * 
-     * @param componentId 组件ID（模型ID）
+     * 获取组件详情（按 className，包括参数、端口等）
+     *
+     * @param className 完整类名，如 Modelica.Electrical.Analog.Basic.Resistor
      * @return 组件详情
      */
-    Map<String, Object> getComponentDetail(Long componentId);
+    Map<String, Object> getComponentDetailByClassName(String className);
     
     /**
      * 保存建模项目

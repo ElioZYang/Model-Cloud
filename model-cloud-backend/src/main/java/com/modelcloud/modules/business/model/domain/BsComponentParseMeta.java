@@ -2,7 +2,6 @@ package com.modelcloud.modules.business.model.domain;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
@@ -20,12 +19,6 @@ public class BsComponentParseMeta implements Serializable {
 
     @Id
     private String id;
-
-    @Indexed(unique = true)
-    private Long componentId;
-
-    @Indexed
-    private String className;
 
     private String name;
     private String description;
@@ -62,6 +55,8 @@ public class BsComponentParseMeta implements Serializable {
         private String name;
         private String type;
         private String defaultValue;
+        private String unit;
+        private String description;
     }
 
     @Data

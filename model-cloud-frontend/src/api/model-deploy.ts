@@ -8,8 +8,17 @@ export interface Connector {
   type: string
 }
 
+export interface ParameterDetail {
+  name: string
+  type?: string
+  defaultValue?: string
+  unit?: string
+  description?: string
+}
+
 export interface Component {
-  id: number
+  /** 组件标识，使用 className（bs_component 已弃用，组件来自静态目录） */
+  id: string
   name: string
   className?: string
   indexPath?: string
@@ -18,6 +27,7 @@ export interface Component {
   sourceCode?: string
   fileName?: string
   parameters?: Record<string, any>
+  parameterDetails?: ParameterDetail[]
   ports?: {
     input: string[]
     output: string[]
@@ -101,10 +111,12 @@ export const modelDeployApi = {
   },
 
   /**
-   * 获取组件详情
+   * 获取组件详情（按 className）
    */
-  getComponentDetail(componentId: number) {
-    return request.get<Component>('/business/model-deploy/components/' + componentId)
+  getComponentDetailByClassName(className: string) {
+    return request.get<Component>('/business/model-deploy/components/by-class', {
+      params: { className }
+    })
   },
 
   /**
