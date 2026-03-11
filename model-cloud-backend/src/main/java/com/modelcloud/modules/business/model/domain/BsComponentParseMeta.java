@@ -25,6 +25,14 @@ public class BsComponentParseMeta implements Serializable {
     private String sourcePath;
     private String iconPath;
     private String indexPath;
+    private String restriction;
+    private String nodeType;
+    private Boolean partial;
+    private Boolean leaf;
+    private Boolean draggable;
+    private Boolean connectable;
+    private String parentClassName;
+    private Integer childrenCount;
 
     /**
      * 参数（parameter）

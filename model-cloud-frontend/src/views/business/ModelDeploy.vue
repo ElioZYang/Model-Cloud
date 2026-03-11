@@ -1,5 +1,10 @@
 <template>
-  <div class="model-deploy-container" v-loading="loading">
+  <div
+    class="model-deploy-container"
+    v-loading="loading"
+    :element-loading-text="loadingText"
+    element-loading-background="rgba(255, 255, 255, 0.65)"
+  >
     <!-- 顶部工具栏 -->
     <el-card class="toolbar-card">
       <div class="toolbar">
@@ -7,6 +12,15 @@
           <h2>Modelica在线建模与仿真</h2>
         </div>
         <div class="toolbar-right">
+          <el-button
+            type="primary"
+            :icon="CaretRight"
+            :loading="simulating"
+            :disabled="nodes.length === 0 && !importedModelCode"
+            @click="handleOpenSimulationDialog"
+          >
+            {{ simulating ? '仿真中...' : '仿真' }}
+          </el-button>
           <el-button :icon="Document" @click="handleOpenProjectDialog">我的项目</el-button>
           <el-button :icon="FolderOpened" @click="handleOpenModelImportDialog">导入模型</el-button>
           <el-button type="primary" :icon="FolderOpened" @click="handleNewProject">新建项目</el-button>
@@ -22,20 +36,17 @@
         <template #header>
           <div class="panel-header">
             <span>组件库</span>
-            <el-input
-              v-model="componentSearchKeyword"
-              placeholder="搜索组件"
-              size="small"
-              clearable
-              style="width: 150px"
-              @input="handleComponentSearch"
-            >
-              <template #prefix>
-                <el-icon><Search /></el-icon>
-              </template>
-            </el-input>
+            <el-tag size="small" type="info">共 {{ components.length }} 个</el-tag>
           </div>
         </template>
+        <div class="component-search">
+          <el-input
+            v-model="componentKeyword"
+            clearable
+            placeholder="搜索组件名/类名/描述"
+            :prefix-icon="Search"
+          />
+        </div>
         <div class="component-list">
           <el-tree
             v-if="componentTreeData.length > 0"
@@ -47,7 +58,13 @@
             :props="{ label: 'label', children: 'children' }"
           >
             <template #default="{ data }">
-              <div v-if="data.type === 'component'" class="component-item tree-component-item" draggable="true" @dragstart.capture="handleDragStart($event, data.component)">
+              <div
+                v-if="data.type === 'component'"
+                class="component-item tree-component-item"
+                :class="{ 'component-item-disabled': !data.component?.draggable }"
+                :draggable="Boolean(data.component?.draggable)"
+                @dragstart.capture="handleComponentItemDragStart($event, data.component)"
+              >
                 <el-image
                   :src="resolveComponentCover(data.component)"
                   class="component-icon"
@@ -122,6 +139,9 @@
             <el-form-item label="组件类型">
               <el-input v-model="selectedNode.data.componentType" disabled />
             </el-form-item>
+            <el-form-item label="元数据来源" v-if="selectedNodeMetaSource">
+              <el-tag size="small" type="info">{{ selectedNodeMetaSource }}</el-tag>
+            </el-form-item>
             <el-form-item label="组件描述" v-if="selectedNodeDescription">
               <el-input :model-value="selectedNodeDescription" type="textarea" :rows="3" disabled />
             </el-form-item>
@@ -156,44 +176,8 @@
       </el-card>
     </div>
 
-    <!-- 底部：仿真控制面板 -->
-    <el-card class="simulation-panel" shadow="never">
-      <template #header>
-        <div class="panel-header">
-          <span>仿真控制</span>
-          <div>
-            <el-button
-              type="primary"
-              :icon="CaretRight"
-              :loading="simulating"
-              @click="handleStartSimulation"
-              :disabled="nodes.length === 0 && !importedModelCode"
-            >
-              {{ simulating ? '仿真中...' : '开始仿真' }}
-            </el-button>
-            <el-button
-              type="warning"
-              :icon="VideoPause"
-              :disabled="!simulating"
-              @click="handlePauseSimulation"
-            >
-              暂停
-            </el-button>
-            <el-button
-              type="danger"
-              :icon="Close"
-              :disabled="!simulating"
-              @click="handleStopSimulation"
-            >
-              停止
-            </el-button>
-            <el-button :icon="View" :disabled="!hasCachedResult" @click="handleOpenLatestResult">
-              查看仿真结果
-            </el-button>
-          </div>
-        </div>
-      </template>
-      <el-form :model="simulationParams" label-width="120px" size="small" inline>
+    <el-dialog v-model="simulationDialogVisible" title="仿真设置" width="540px" :close-on-click-modal="false">
+      <el-form :model="simulationParams" label-width="120px" size="default">
         <el-form-item label="当前仿真源">
           <el-tag :type="importedModelCode ? 'warning' : 'success'">
             {{ importedModelCode ? `导入模型：${importedModelName}` : '画布模型' }}
@@ -218,7 +202,7 @@
           />
         </el-form-item>
         <el-form-item label="求解器">
-          <el-select v-model="simulationParams.solver" style="width: 150px">
+          <el-select v-model="simulationParams.solver" style="width: 180px">
             <el-option label="DASSL" value="dassl" />
             <el-option label="Euler" value="euler" />
             <el-option label="Runge-Kutta" value="rk4" />
@@ -226,7 +210,28 @@
           </el-select>
         </el-form-item>
       </el-form>
-    </el-card>
+      <template #footer>
+        <el-button @click="simulationDialogVisible = false">取消</el-button>
+        <el-button :icon="View" :disabled="!hasCachedResult" @click="handleOpenLatestResult">查看结果</el-button>
+        <el-button
+          v-if="simulating"
+          type="danger"
+          :icon="Close"
+          @click="handleStopSimulation"
+        >
+          停止
+        </el-button>
+        <el-button
+          type="primary"
+          :icon="CaretRight"
+          :loading="simulating"
+          :disabled="nodes.length === 0 && !importedModelCode"
+          @click="handleStartSimulation"
+        >
+          {{ simulating ? '仿真中...' : '开始仿真' }}
+        </el-button>
+      </template>
+    </el-dialog>
 
     <!-- 仿真结果对话框 -->
     <el-dialog
@@ -302,11 +307,11 @@
         v-model="generatedCode"
         type="textarea"
         :rows="20"
-        readonly
         style="font-family: 'Courier New', monospace"
       />
       <template #footer>
         <el-button @click="codePreviewVisible = false">关闭</el-button>
+        <el-button type="warning" @click="handleApplyCodeToCanvas">同步到画布</el-button>
         <el-button type="primary" @click="handleCopyCode">复制代码</el-button>
       </template>
     </el-dialog>
@@ -410,7 +415,6 @@ import '@vue-flow/core/dist/theme-default.css'
 import type { Node, Edge, Connection } from '@vue-flow/core'
 import ModelicaComponentNode from '@/components/model/ModelicaComponentNode.vue'
 import {
-  Search,
   Document,
   FolderOpened,
   DocumentAdd,
@@ -418,8 +422,8 @@ import {
   View,
   Box,
   CaretRight,
-  VideoPause,
-  Close
+  Close,
+  Search
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { modelDeployApi, type Component, type ModelingProject, type ParameterDetail } from '@/api/model-deploy'
@@ -437,16 +441,18 @@ const nodeTypes = {
 
 // 数据
 const components = ref<Component[]>([])
-const componentSearchKeyword = ref('')
+const componentKeyword = ref('')
 const defaultCover = 'https://via.placeholder.com/300x200?text=No+Image'
 const selectedNode = ref<Node | null>(null)
 const selectedNodeProperties = ref<Record<string, any>>({})
 const selectedNodeDescription = ref('')
 const selectedNodeParamDetails = ref<ParameterDetail[]>([])
+const selectedNodeMetaSource = ref('')
 const selectedNodeInstanceName = ref('')
 const saving = ref(false)
 const simulating = ref(false)
 const resultDialogVisible = ref(false)
+const simulationDialogVisible = ref(false)
 const resultTab = ref('chart')
 const codePreviewVisible = ref(false)
 const generatedCode = ref('')
@@ -467,6 +473,7 @@ const simulationLogs = ref<Array<{ time: string; type: string; message: string }
 const chartContainer = ref<HTMLElement>()
 const flowContainer = ref<HTMLElement>()
 const loading = ref(false)
+const loadingText = ref('加载中...')
 const simulationTaskId = ref<number | null>(null)
 const pollingTimer = ref<number | null>(null)
 const availableVariables = ref<string[]>([])
@@ -523,33 +530,18 @@ type ComponentTreeNode = {
   children?: ComponentTreeNode[]
 }
 
-// 计算属性：过滤后的组件列表
-const filteredComponents = computed(() => {
-  if (!componentSearchKeyword.value) {
-    return components.value
-  }
-  const keyword = componentSearchKeyword.value.toLowerCase()
-  return components.value.filter(
-    (c) =>
-      c.name.toLowerCase().includes(keyword) ||
-      (c.description && c.description.toLowerCase().includes(keyword)) ||
-      (c.className && c.className.toLowerCase().includes(keyword)) ||
-      (c.indexPath && c.indexPath.toLowerCase().includes(keyword))
-  )
-})
-
 const componentTreeData = computed<ComponentTreeNode[]>(() => {
-  const root: ComponentTreeNode[] = []
+  const fixedModules = ['Electrical', 'Mechanics', 'Blocks', 'Math']
+  const root: ComponentTreeNode[] = fixedModules.map((module) => ({
+    key: `folder:${module}`,
+    label: module,
+    type: 'folder',
+    children: []
+  }))
   const folderMap = new Map<string, ComponentTreeNode>()
+  root.forEach((n) => folderMap.set(n.label, n))
 
   const getFolderSegments = (component: Component): string[] => {
-    if (component.indexPath) {
-      const segs = component.indexPath
-        .split('/')
-        .map((s) => s.trim())
-        .filter(Boolean)
-      return segs[0] === 'Modelica' ? segs.slice(1) : segs
-    }
     if (component.className) {
       const parts = component.className
         .split('.')
@@ -575,7 +567,17 @@ const componentTreeData = computed<ComponentTreeNode[]>(() => {
     })
   }
 
-  filteredComponents.value.forEach((component) => {
+  const keyword = String(componentKeyword.value || '').trim().toLowerCase()
+  const filteredComponents = keyword
+    ? components.value.filter((component) => {
+        const name = String(component.name || '').toLowerCase()
+        const className = String(component.className || component.id || '').toLowerCase()
+        const desc = String(component.description || '').toLowerCase()
+        return name.includes(keyword) || className.includes(keyword) || desc.includes(keyword)
+      })
+    : components.value
+
+  filteredComponents.forEach((component) => {
     const folders = getFolderSegments(component)
     let parentChildren = root
     let folderPath = ''
@@ -595,6 +597,9 @@ const componentTreeData = computed<ComponentTreeNode[]>(() => {
       parentChildren = folderNode.children || []
     })
 
+    if (component.draggable === false && (component.childrenCount || 0) > 0) {
+      return
+    }
     parentChildren.push({
       key: `component:${component.id}`,
       label: component.name,
@@ -661,11 +666,6 @@ const loadComponents = async () => {
   }
 }
 
-// 组件搜索（不需要，computed会自动更新）
-const handleComponentSearch = () => {
-  // computed会自动响应componentSearchKeyword的变化
-}
-
 const getComponentDetailCached = async (className: string) => {
   if (!className) {
     return null
@@ -683,6 +683,10 @@ const getComponentDetailCached = async (className: string) => {
 
 // 拖拽开始
 const handleDragStart = (event: DragEvent, component: Component) => {
+  if (!component?.draggable) {
+    event.preventDefault()
+    return
+  }
   if (event.dataTransfer) {
     const payload = JSON.stringify(component)
     event.dataTransfer.setData('application/json', payload)
@@ -691,12 +695,22 @@ const handleDragStart = (event: DragEvent, component: Component) => {
   }
 }
 
+const handleComponentItemDragStart = (event: DragEvent, component?: Component) => {
+  if (!component || component.draggable === false) {
+    event.preventDefault()
+    return
+  }
+  handleDragStart(event, component)
+}
+
 // 拖拽放置
 const handleDrop = async (event: DragEvent) => {
   event.preventDefault()
   event.stopPropagation()
   if (!event.dataTransfer) return
 
+  loadingText.value = '正在加载组件元数据...'
+  loading.value = true
   try {
     const rawData =
       event.dataTransfer.getData('application/json') ||
@@ -721,30 +735,42 @@ const handleDrop = async (event: DragEvent) => {
       }
     }
 
-    // 加载组件详情（包括connectors），失败时使用兜底数据，保证可拖拽建模
-    let componentDetail: any = {
-      className: componentData.className || componentData.name,
-      coverImage: componentData.coverImage,
-      parameters: componentData.parameters || {},
-      connectors: {
-        list: [
-          { name: 'p', type: 'Modelica.Electrical.Analog.Interfaces.PositivePin' },
-          { name: 'n', type: 'Modelica.Electrical.Analog.Interfaces.NegativePin' }
-        ]
-      }
-    }
+    // 加载组件详情（必须从后端元数据返回端口）
+    let componentDetail: any = null
     try {
       const detailData = await getComponentDetailCached(componentData.id || componentData.className || '')
       if (detailData) {
         componentDetail = detailData
+        try {
+          const debugData = await modelDeployApi.getComponentDebugByClassName(
+            String(detailData.className || componentData.className || componentData.id || '')
+          )
+          console.info('[ModelDeploy] backend debug endpoint', debugData)
+        } catch (debugErr) {
+          console.warn('[ModelDeploy] backend debug endpoint failed', debugErr)
+        }
       } else {
-        ElMessage.warning('组件详情加载失败，已使用默认引脚')
+        ElMessage.warning('组件详情加载失败，无法确定端口信息')
+        return
       }
     } catch {
-      ElMessage.warning('组件详情加载异常，已使用默认引脚')
+      ElMessage.warning('组件详情加载异常，无法确定端口信息')
+      return
     }
 
     const connectors = componentDetail.connectors?.list || componentDetail.ports?.list || []
+    if (!Array.isArray(connectors) || connectors.length === 0) {
+      ElMessage.warning('组件缺少端口元数据，已阻止添加到画布')
+      return
+    }
+    const connectorNames = connectors.map((c: any) => String(c?.name || '')).filter(Boolean)
+    const metaSource = String(componentDetail?._metaSource || 'unknown')
+    console.info('[ModelDeploy] component detail debug', {
+      className: componentDetail.className || componentData.className || componentData.id,
+      metaSource,
+      connectorNames,
+      connectorCount: connectorNames.length
+    })
 
     // 创建节点
     const nodeId = `node_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
@@ -778,7 +804,8 @@ const handleDrop = async (event: DragEvent) => {
         connectors: connectors,
         properties: finalProperties,
         description: String(componentDetail.description || ''),
-        parameterDetails: Array.isArray(componentDetail.parameterDetails) ? componentDetail.parameterDetails : []
+        parameterDetails: Array.isArray(componentDetail.parameterDetails) ? componentDetail.parameterDetails : [],
+        metaSource
       },
       label: instanceName
     }
@@ -796,10 +823,13 @@ const handleDrop = async (event: DragEvent) => {
     } catch {
       // ignore viewport errors
     }
-    ElMessage.success(`已添加组件: ${componentData.name}`)
+    ElMessage.success(`已添加组件: ${componentData.name}（${metaSource}，端口:${connectorNames.join(', ')}）`)
   } catch (error: any) {
     console.error('添加组件失败:', error)
     ElMessage.error('添加组件失败: ' + (error.message || '未知错误'))
+  } finally {
+    loading.value = false
+    loadingText.value = '加载中...'
   }
 }
 
@@ -823,6 +853,7 @@ const loadNodeProperties = async (node: Node) => {
     selectedNodeParamDetails.value = Array.isArray(node.data?.parameterDetails)
       ? [...node.data.parameterDetails]
       : []
+    selectedNodeMetaSource.value = String(node.data?.metaSource || '')
     const localProperties = (node.data?.properties || {}) as Record<string, any>
     if (Object.keys(localProperties).length > 0) {
       selectedNodeProperties.value = { ...localProperties }
@@ -847,8 +878,10 @@ const loadNodeProperties = async (node: Node) => {
         node.data.properties = { ...merged }
         node.data.description = String(detailData?.description || '')
         node.data.parameterDetails = Array.isArray(detailData?.parameterDetails) ? detailData.parameterDetails : []
+        node.data.metaSource = String(detailData?._metaSource || '')
         selectedNodeDescription.value = String(detailData?.description || '')
         selectedNodeParamDetails.value = Array.isArray(detailData?.parameterDetails) ? [...detailData.parameterDetails] : []
+        selectedNodeMetaSource.value = String(detailData?._metaSource || '')
         return
       }
     }
@@ -866,6 +899,7 @@ const loadNodeProperties = async (node: Node) => {
     selectedNodeParamDetails.value = Array.isArray(node.data?.parameterDetails)
       ? [...node.data.parameterDetails]
       : []
+    selectedNodeMetaSource.value = String(node.data?.metaSource || '')
   } catch (error) {
     console.error('加载组件属性失败:', error)
     const fallback = getDefaultPropertiesByType(
@@ -875,6 +909,7 @@ const loadNodeProperties = async (node: Node) => {
     selectedNodeProperties.value = { ...fallback }
     selectedNodeDescription.value = ''
     selectedNodeParamDetails.value = []
+    selectedNodeMetaSource.value = ''
   }
 }
 
@@ -958,10 +993,24 @@ const generateModelicaCode = (): string => {
     }
     const nodeId = nodeNameMap[node.id]
     const properties = node.data?.properties || {}
+    const parameterDetails = Array.isArray(node.data?.parameterDetails)
+      ? (node.data?.parameterDetails as Array<{ name?: string }>)
+      : []
+    const allowedParameterNames =
+      parameterDetails.length > 0
+        ? new Set(
+            parameterDetails
+              .map((item) => String(item?.name || '').trim())
+              .filter((name) => !!name)
+          )
+        : null
     const paramItems: string[] = []
     Object.entries(properties).forEach(([key, value]) => {
       const safeName = normalizeModelicaIdentifier(key)
       if (!safeName) {
+        return
+      }
+      if (allowedParameterNames && !allowedParameterNames.has(key)) {
         return
       }
       if (typeof value === 'number' && Number.isFinite(value)) {
@@ -1122,10 +1171,20 @@ const normalizeComponentParameters = (rawParams: Record<string, any>): Record<st
 }
 
 const getDefaultPropertiesByType = (componentType: string, componentName: string): Record<string, any> => {
-  const t = `${componentType} ${componentName}`.toLowerCase()
-  if (t.includes('constantvoltage') || t.includes('sinevoltage') || t.includes('电源') || t.includes('voltage')) {
+  const normalizedType = String(componentType || '').trim().toLowerCase()
+  const nameText = String(componentName || '').trim().toLowerCase()
+  const t = `${normalizedType} ${nameText}`
+
+  if (normalizedType === 'modelica.electrical.analog.sources.constantvoltage') {
     return { V: 12 }
   }
+  if (normalizedType === 'modelica.electrical.analog.sources.sinevoltage') {
+    return { V: 12, freqHz: 50 }
+  }
+  if (normalizedType === 'modelica.electrical.analog.sources.constantcurrent') {
+    return { I: 1 }
+  }
+
   if (t.includes('resistor') || t.includes('电阻')) {
     return { R: 10 }
   }
@@ -1189,6 +1248,139 @@ const handleCopyCode = async () => {
   }
 }
 
+type ParsedDeclaration = {
+  componentType: string
+  instanceName: string
+  properties: Record<string, any>
+}
+
+const parseModelicaDeclarations = (code: string): ParsedDeclaration[] => {
+  const declarations: ParsedDeclaration[] = []
+  const block = (code || '').split(/\bequation\b/i)[0] || ''
+  const regex = /^\s*([A-Za-z_][A-Za-z0-9_.]*)\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:\(([^;]*)\))?\s*;/gm
+  let m: RegExpExecArray | null
+  while ((m = regex.exec(block)) !== null) {
+    const type = String(m[1] || '').trim()
+    const name = String(m[2] || '').trim()
+    if (!type || !name) continue
+    const paramsRaw = String(m[3] || '').trim()
+    const props: Record<string, any> = {}
+    if (paramsRaw) {
+      paramsRaw.split(',').forEach((item) => {
+        const [k, v] = item.split('=').map((s) => String(s || '').trim())
+        if (!k || !v) return
+        if (/^(true|false)$/i.test(v)) {
+          props[k] = v.toLowerCase() === 'true'
+          return
+        }
+        const n = Number(v)
+        props[k] = Number.isNaN(n) ? v : n
+      })
+    }
+    declarations.push({ componentType: type, instanceName: name, properties: props })
+  }
+  return declarations
+}
+
+const parseModelicaConnects = (code: string): Array<{ source: string; sourcePort: string; target: string; targetPort: string }> => {
+  const result: Array<{ source: string; sourcePort: string; target: string; targetPort: string }> = []
+  const regex = /connect\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\.([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\.([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*;/g
+  let m: RegExpExecArray | null
+  while ((m = regex.exec(code || '')) !== null) {
+    result.push({
+      source: String(m[1]),
+      sourcePort: String(m[2]),
+      target: String(m[3]),
+      targetPort: String(m[4])
+    })
+  }
+  return result
+}
+
+const handleApplyCodeToCanvas = async () => {
+  const code = String(generatedCode.value || '').trim()
+  await applyModelicaCodeToCanvas(code, '手动编辑模型')
+}
+
+const applyModelicaCodeToCanvas = async (code: string, sourceName: string) => {
+  if (!code) {
+    ElMessage.warning('代码为空，无法同步到画布')
+    return
+  }
+  const declarations = parseModelicaDeclarations(code)
+  if (declarations.length === 0) {
+    ElMessage.warning('未解析到组件声明，请检查代码格式')
+    return
+  }
+
+  loading.value = true
+  try {
+    const newNodes: Node[] = []
+    const instanceToNodeId: Record<string, string> = {}
+    for (let i = 0; i < declarations.length; i += 1) {
+      const d = declarations[i]
+      const className = d.componentType
+      const detail = await getComponentDetailCached(className)
+      const connectors = (detail?.connectors?.list || detail?.ports?.list || []) as Array<{ name: string; type?: string }>
+      const nodeId = `node_${Date.now()}_${i}_${Math.random().toString(36).slice(2, 7)}`
+      instanceToNodeId[d.instanceName] = nodeId
+      const col = i % 6
+      const row = Math.floor(i / 6)
+      newNodes.push({
+        id: nodeId,
+        type: 'modelicaComponent',
+        position: { x: 60 + col * 220, y: 40 + row * 140 },
+        data: {
+          componentId: className,
+          componentName: className.split('.').pop() || className,
+          instanceName: d.instanceName,
+          componentType: className,
+          coverImage: resolveComponentCover({
+            className,
+            name: className.split('.').pop() || className,
+            coverImage: detail?.coverImage
+          }),
+          connectors,
+          properties: { ...(detail?.parameters || {}), ...d.properties },
+          description: String(detail?.description || ''),
+          parameterDetails: Array.isArray(detail?.parameterDetails) ? detail.parameterDetails : [],
+          metaSource: String(detail?._metaSource || '')
+        },
+        label: d.instanceName
+      })
+    }
+
+    const links = parseModelicaConnects(code)
+    const newEdges: Edge[] = links
+      .map((l, idx) => {
+        const s = instanceToNodeId[l.source]
+        const t = instanceToNodeId[l.target]
+        if (!s || !t) return null
+        return {
+          id: `edge_code_${idx}_${Date.now()}`,
+          source: s,
+          target: t,
+          sourceHandle: l.sourcePort,
+          targetHandle: l.targetPort,
+          type: 'smoothstep'
+        } as Edge
+      })
+      .filter((e): e is Edge => Boolean(e))
+
+    nodes.value = newNodes
+    edges.value = newEdges
+    selectedNode.value = null
+    importedModelCode.value = code
+    importedModelName.value = sourceName
+    codePreviewVisible.value = false
+    ElMessage.success(`已从代码同步到画布：组件${newNodes.length}个，连接${newEdges.length}条`)
+  } catch (error: any) {
+    ElMessage.error('代码同步到画布失败: ' + (error?.message || '未知错误'))
+  } finally {
+    loading.value = false
+  }
+}
+
 // 新建项目
 const handleNewProject = () => {
   currentProject.value = { name: '未命名项目' }
@@ -1241,6 +1433,8 @@ const handleOpenModelImportDialog = async () => {
 
 const handleImportModelCode = async (model: any) => {
   try {
+    loadingText.value = '正在导入模型源码...'
+    loading.value = true
     const res: any = await modelApi.getModelSourceCode(model.id)
     if (res.code !== 200) {
       ElMessage.error(res.message || '获取模型源码失败')
@@ -1257,10 +1451,14 @@ const handleImportModelCode = async (model: any) => {
       ...currentProject.value,
       name: importedModelName.value
     }
+    await applyModelicaCodeToCanvas(importedModelCode.value, importedModelName.value)
     showModelImportDialog.value = false
-    ElMessage.success(`已导入模型「${importedModelName.value}」，可直接开始仿真`)
+    ElMessage.success(`已导入模型「${importedModelName.value}」，并同步到画布`)
   } catch (error: any) {
     ElMessage.error('导入模型失败: ' + (error.message || '未知错误'))
+  } finally {
+    loading.value = false
+    loadingText.value = '加载中...'
   }
 }
 
@@ -1417,6 +1615,14 @@ const handleOpenProjectDialog = async () => {
   showProjectDialog.value = true
 }
 
+const handleOpenSimulationDialog = () => {
+  if (nodes.value.length === 0 && !importedModelCode.value) {
+    ElMessage.warning('画布为空，无法仿真')
+    return
+  }
+  simulationDialogVisible.value = true
+}
+
 // 开始仿真
 const handleStartSimulation = async () => {
   if (nodes.value.length === 0 && !importedModelCode.value) {
@@ -1458,12 +1664,6 @@ const handleStartSimulation = async () => {
   } finally {
     simulating.value = false
   }
-}
-
-// 暂停仿真
-const handlePauseSimulation = () => {
-  addLog('warning', '仿真已暂停')
-  ElMessage.info('仿真已暂停')
 }
 
 // 停止仿真
@@ -1520,13 +1720,30 @@ const pickConnectorName = (
 }
 
 const isCompatibleConnectorType = (sourceType: string, targetType: string): boolean => {
-  if (sourceType === targetType) return true
-  if (sourceType.includes('Pin') && targetType.includes('Pin')) return true
-  if (sourceType.includes('Flange') && targetType.includes('Flange')) return true
-  if (sourceType.includes('RealInput') && targetType.includes('RealOutput')) return true
-  if (sourceType.includes('RealOutput') && targetType.includes('RealInput')) return true
-  if (sourceType.includes('BooleanInput') && targetType.includes('BooleanOutput')) return true
-  if (sourceType.includes('BooleanOutput') && targetType.includes('BooleanInput')) return true
+  const s = String(sourceType || '').toLowerCase()
+  const t = String(targetType || '').toLowerCase()
+  if (!s || !t) return false
+  if (s === t) return true
+
+  if (s.includes('pin') && t.includes('pin')) return true
+  if (s.includes('realinput') && t.includes('realoutput')) return true
+  if (s.includes('realoutput') && t.includes('realinput')) return true
+  if (s.includes('booleaninput') && t.includes('booleanoutput')) return true
+  if (s.includes('booleanoutput') && t.includes('booleaninput')) return true
+
+  const bothRotational = s.includes('mechanics.rotational.interfaces') && t.includes('mechanics.rotational.interfaces')
+  const bothTranslational = s.includes('mechanics.translational.interfaces') && t.includes('mechanics.translational.interfaces')
+  const supportFlangePair = (s.includes('support') && t.includes('flange')) || (s.includes('flange') && t.includes('support'))
+  if ((bothRotational || bothTranslational) && supportFlangePair) return true
+
+  if (s.includes('flange') && t.includes('flange')) {
+    // 机械 Flange 只有在同一力学域（转动/平动）才允许直接连接
+    const sRot = s.includes('mechanics.rotational.interfaces')
+    const tRot = t.includes('mechanics.rotational.interfaces')
+    const sTra = s.includes('mechanics.translational.interfaces')
+    const tTra = t.includes('mechanics.translational.interfaces')
+    if ((sRot && tRot) || (sTra && tTra)) return true
+  }
   return false
 }
 
@@ -1919,6 +2136,10 @@ const handleDownloadResultCsv = () => {
   padding: 6px 0;
 }
 
+.component-search {
+  margin-bottom: 8px;
+}
+
 .component-tree {
   background: transparent;
 }
@@ -1955,6 +2176,16 @@ const handleDownloadResultCsv = () => {
 .component-item:hover {
   border-color: #409eff;
   background-color: #f5f7fa;
+}
+
+.component-item-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.component-item-disabled:hover {
+  border-color: #e4e7ed;
+  background-color: transparent;
 }
 
 .component-icon {

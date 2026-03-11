@@ -30,7 +30,7 @@
         </el-menu-item>
         <el-menu-item index="/dashboard/model/deploy">
           <el-icon><Operation /></el-icon>
-          <span>模型部署</span>
+          <span>在线建模</span>
         </el-menu-item>
         <el-menu-item v-if="userStore.isAdmin" index="/dashboard/model/manage">
           <el-icon><Setting /></el-icon>

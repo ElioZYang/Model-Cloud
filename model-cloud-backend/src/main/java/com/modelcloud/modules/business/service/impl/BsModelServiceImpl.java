@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.modelcloud.modules.business.model.domain.table.BsModelTableDef.BS_MODEL;
@@ -54,6 +55,8 @@ import static com.modelcloud.modules.business.model.domain.table.BsModelCollectT
 @Slf4j
 @Service
 public class BsModelServiceImpl implements BsModelService {
+    private static final Pattern MODELICA_CLASS_NAME_PATTERN =
+            Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$");
 
     private final BsModelMapper bsModelMapper;
     private final BsComponentMapper bsComponentMapper;
@@ -259,14 +262,22 @@ public class BsModelServiceImpl implements BsModelService {
         String componentRel = resolveComponentRelativePath(request.getLocalPath(), request.getName());
         String indexPath = buildComponentIndexPath(componentRel);
         String className = buildComponentClassName(componentRel, request.getName());
-        String sourceFileName = StrUtil.blankToDefault(request.getSourceFile().getOriginalFilename(), request.getName() + ".mo");
+        String sourceFileName = sanitizeFileName(
+                request.getSourceFile().getOriginalFilename(),
+                request.getName() + ".mo");
         String sourcePath = componentRel + "/" + sourceFileName;
         saveMultipartToLocal(request.getSourceFile(), Path.of(componentSourceDir), sourcePath);
 
         String coverImageUrl = null;
         String iconPath = null;
         if (request.getIconFile() != null && !request.getIconFile().isEmpty()) {
-            String ext = StrUtil.blankToDefault(StrUtil.subAfter(request.getIconFile().getOriginalFilename(), ".", true), "svg");
+            String ext = StrUtil.blankToDefault(
+                    StrUtil.subAfter(request.getIconFile().getOriginalFilename(), ".", true), "svg")
+                    .replaceAll("[^A-Za-z0-9]", "")
+                    .toLowerCase();
+            if (StrUtil.isBlank(ext)) {
+                ext = "svg";
+            }
             String iconName = "icon." + ext.toLowerCase();
             iconPath = componentRel + "/" + iconName;
             saveMultipartToLocal(request.getIconFile(), Path.of(componentIconDir), iconPath);
@@ -357,12 +368,31 @@ public class BsModelServiceImpl implements BsModelService {
     private void saveMultipartToLocal(org.springframework.web.multipart.MultipartFile file, Path baseDir, String relativePath) {
         try {
             String normalized = String.valueOf(relativePath).replace("\\", "/").replaceAll("^/+", "");
-            Path target = baseDir.resolve(normalized).normalize();
-            Files.createDirectories(target.getParent());
+            Path normalizedBaseDir = baseDir.toAbsolutePath().normalize();
+            Path target = normalizedBaseDir.resolve(normalized).normalize();
+            if (!target.startsWith(normalizedBaseDir)) {
+                throw new BusinessException("非法文件路径");
+            }
+            Path parent = target.getParent();
+            if (parent == null) {
+                throw new BusinessException("非法文件路径");
+            }
+            Files.createDirectories(parent);
             file.transferTo(target.toFile());
         } catch (Exception e) {
             throw new BusinessException("保存组件文件失败: " + e.getMessage());
         }
+    }
+
+    private String sanitizeFileName(String originalFileName, String fallbackName) {
+        String normalized = StrUtil.blankToDefault(originalFileName, "").replace("\\", "/");
+        int slash = normalized.lastIndexOf('/');
+        String baseName = slash >= 0 ? normalized.substring(slash + 1) : normalized;
+        baseName = baseName.replaceAll("\\.\\.+", ".").replaceAll("[^A-Za-z0-9._-]", "_");
+        if (StrUtil.isBlank(baseName)) {
+            baseName = StrUtil.blankToDefault(fallbackName, "component.mo");
+        }
+        return baseName;
     }
 
     private String buildStaticIconUrl(String relativePath) {
@@ -1141,6 +1171,10 @@ public class BsModelServiceImpl implements BsModelService {
     private String readIconAnnotationByOmc(String sourceCode, String className) {
         Path tempDir = null;
         try {
+            String normalizedClassName = StrUtil.blankToDefault(className, "").trim();
+            if (!MODELICA_CLASS_NAME_PATTERN.matcher(normalizedClassName).matches()) {
+                throw new BusinessException("非法类名");
+            }
             tempDir = Files.createTempDirectory("modelcloud-icon-");
             Path mo = tempDir.resolve("IconModel.mo");
             Path mos = tempDir.resolve("icon.mos");
@@ -1149,7 +1183,7 @@ public class BsModelServiceImpl implements BsModelService {
             String script = "cd(\"" + tempDir.toAbsolutePath().toString().replace("\\", "/") + "\");\n"
                     + "loadModel(Modelica);\n"
                     + "loadFile(\"IconModel.mo\");\n"
-                    + "getIconAnnotation(" + className + ");\n";
+                    + "getIconAnnotation(" + normalizedClassName + ");\n";
             Files.writeString(mos, script, StandardCharsets.UTF_8);
 
             ProcessBuilder pb = new ProcessBuilder("omc", mos.toAbsolutePath().toString());
@@ -1168,7 +1202,7 @@ public class BsModelServiceImpl implements BsModelService {
             }
             String annotation = extractAnnotationExpression(out.toString());
             if (StrUtil.isBlank(annotation)) {
-                log.warn("Icon注解提取失败 className={}, omcOutput={}", className, out);
+                log.warn("Icon注解提取失败 className={}, omcOutput={}", normalizedClassName, out);
             }
             return annotation;
         } catch (Exception e) {

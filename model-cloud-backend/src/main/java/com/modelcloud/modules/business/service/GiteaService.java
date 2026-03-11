@@ -128,7 +128,6 @@ public class GiteaService {
             
             String apiUrl = giteaConfig.getUrl() + "/api/v1/repos/" + giteaConfig.getUsername() + "/" + repoName + "/contents/" + encodedPath;
             log.info("Uploading file to Gitea: {}", apiUrl);
-            log.debug("Using Gitea token: {}...{}", token.length() > 8 ? token.substring(0, 8) : token, token.length() > 4 ? token.substring(token.length() - 4) : "");
             log.debug("Gitea username: {}", giteaConfig.getUsername());
             
             // 首先尝试使用 main 分支
@@ -142,8 +141,7 @@ public class GiteaService {
                     .body(JSONUtil.toJsonStr(body))
                     .timeout(60000);
             
-            log.debug("Request headers: Authorization=token {}..., Content-Type=application/json", 
-                    token.length() > 8 ? token.substring(0, 8) : token);
+            log.debug("Request headers prepared for upload, Content-Type=application/json");
             
             HttpResponse response = request.execute();
             

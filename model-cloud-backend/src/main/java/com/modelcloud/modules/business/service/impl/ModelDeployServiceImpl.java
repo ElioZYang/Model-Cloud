@@ -7,11 +7,13 @@ import com.modelcloud.common.tools.SecurityUtils;
 import com.modelcloud.modules.business.mapper.BsModelingProjectMapper;
 import com.modelcloud.modules.business.mapper.BsSimulationTaskMapper;
 import com.modelcloud.modules.business.model.domain.BsComponentParseMeta;
+import com.modelcloud.modules.business.model.domain.BsComponentParseMetaOmc;
 import com.modelcloud.modules.business.model.dto.ComponentVO;
 import com.modelcloud.modules.business.model.domain.BsModelingProject;
 import com.modelcloud.modules.business.model.domain.BsSimulationTask;
 import com.modelcloud.modules.business.model.request.ModelingProjectRequest;
 import com.modelcloud.modules.business.model.request.SimulationRequest;
+import com.modelcloud.modules.business.repository.BsComponentParseMetaOmcRepository;
 import com.modelcloud.modules.business.repository.BsComponentParseMetaRepository;
 import com.modelcloud.modules.business.service.ModelDeployService;
 import com.mybatisflex.core.paginate.Page;
@@ -49,7 +51,9 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 public class ModelDeployServiceImpl implements ModelDeployService {
+    private static final Set<String> SUPPORTED_MODULES = Set.of("Electrical", "Mechanics", "Blocks", "Math");
     
+    private final BsComponentParseMetaOmcRepository bsComponentParseMetaOmcRepository;
     private final BsComponentParseMetaRepository bsComponentParseMetaRepository;
     private final BsModelingProjectMapper projectMapper;
     private final BsSimulationTaskMapper taskMapper;
@@ -64,12 +68,14 @@ public class ModelDeployServiceImpl implements ModelDeployService {
     @Value("${model-cloud.component.icon-url-prefix:/api/component_icon}")
     private String componentIconUrlPrefix;
 
-    private volatile Set<String> electricalIconFileNames = null;
+    private volatile Map<String, Set<String>> moduleIconFileNames = null;
     
     public ModelDeployServiceImpl(
+            BsComponentParseMetaOmcRepository bsComponentParseMetaOmcRepository,
             BsComponentParseMetaRepository bsComponentParseMetaRepository,
             BsModelingProjectMapper projectMapper,
             BsSimulationTaskMapper taskMapper) {
+        this.bsComponentParseMetaOmcRepository = bsComponentParseMetaOmcRepository;
         this.bsComponentParseMetaRepository = bsComponentParseMetaRepository;
         this.projectMapper = projectMapper;
         this.taskMapper = taskMapper;
@@ -77,50 +83,166 @@ public class ModelDeployServiceImpl implements ModelDeployService {
     
     private static final Set<String> EXCLUDE_PATH_PARTS = Set.of(
             "Interfaces", "BaseClasses", "Internal", "Types", "Icons", "Examples", "UsersGuide");
-    private static final String TEST_SCOPE_PREFIX = "Electrical/Analog/Basic/";
 
     @Override
     public List<ComponentVO> getComponents(String category, String keyword) {
-        List<ComponentVO> list = new ArrayList<>();
-        Path sourceRoot = Path.of(componentSourceDir).normalize();
-        Path electricalDir = sourceRoot.resolve("Electrical");
-        if (!Files.exists(electricalDir) || !Files.isDirectory(electricalDir)) {
+        List<ComponentVO> list = loadComponentsFromMongo(category, keyword);
+        if (!list.isEmpty()) {
+            list.sort((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(
+                    StrUtil.blankToDefault(a.getClassName(), ""),
+                    StrUtil.blankToDefault(b.getClassName(), "")));
             return list;
         }
-        try (Stream<Path> stream = Files.walk(electricalDir)) {
-            stream.filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".mo"))
-                    .filter(p -> !"package.mo".equalsIgnoreCase(p.getFileName().toString()))
-                    .filter(p -> {
-                        String rel = sourceRoot.relativize(p).toString().replace("\\", "/");
-                        if (!rel.startsWith(TEST_SCOPE_PREFIX)) {
-                            return false;
-                        }
-                        for (String exc : EXCLUDE_PATH_PARTS) {
-                            if (rel.contains("/" + exc + "/") || rel.startsWith(exc + "/")) {
-                                return false;
+
+        List<ComponentVO> scannedList = new ArrayList<>();
+        Path sourceRoot = Path.of(componentSourceDir).normalize();
+        for (String module : SUPPORTED_MODULES) {
+            Path moduleDir = sourceRoot.resolve(module);
+            if (!Files.exists(moduleDir) || !Files.isDirectory(moduleDir)) {
+                continue;
+            }
+            try (Stream<Path> stream = Files.walk(moduleDir)) {
+                stream.filter(Files::isRegularFile)
+                        .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".mo"))
+                        .filter(p -> !"package.mo".equalsIgnoreCase(p.getFileName().toString()))
+                        .filter(p -> {
+                            String rel = sourceRoot.relativize(p).toString().replace("\\", "/");
+                            for (String exc : EXCLUDE_PATH_PARTS) {
+                                if (rel.contains("/" + exc + "/") || rel.startsWith(exc + "/")) {
+                                    return false;
+                                }
                             }
-                        }
-                        return true;
-                    })
-                    .forEach(moPath -> {
-                        try {
-                            ComponentVO vo = buildComponentVO(moPath, sourceRoot);
-                            if (vo != null && matchesFilter(vo, category, keyword)) {
-                                list.add(vo);
+                            return true;
+                        })
+                        .forEach(moPath -> {
+                            try {
+                                ComponentVO vo = buildComponentVO(moPath, sourceRoot);
+                                if (vo != null && matchesFilter(vo, category, keyword)) {
+                                    scannedList.add(vo);
+                                }
+                            } catch (Exception e) {
+                                log.debug("跳过组件 {}: {}", moPath, e.getMessage());
                             }
-                        } catch (Exception e) {
-                            log.debug("跳过组件 {}: {}", moPath, e.getMessage());
-                        }
-                    });
-        } catch (Exception e) {
-            log.error("扫描组件目录失败", e);
-            throw new BusinessException("扫描组件目录失败: " + e.getMessage());
+                        });
+            } catch (Exception e) {
+                log.error("扫描组件目录失败 module={}", module, e);
+                throw new BusinessException("扫描组件目录失败: " + e.getMessage());
+            }
         }
-        list.sort((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(
+        scannedList.sort((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(
                 StrUtil.blankToDefault(a.getClassName(), ""),
                 StrUtil.blankToDefault(b.getClassName(), "")));
-        return list;
+        return scannedList;
+    }
+
+    @Override
+    public Map<String, Object> getComponentsPaged(String category, String keyword, String module, int pageNum, int pageSize) {
+        int safePageNum = Math.max(pageNum, 1);
+        int safePageSize = Math.max(Math.min(pageSize, 500), 1);
+        List<ComponentVO> all = getComponents(category, keyword);
+        List<ComponentVO> filtered = all;
+        if (StrUtil.isNotBlank(module)) {
+            String modulePrefix = "Modelica." + module.trim() + ".";
+            filtered = all.stream()
+                    .filter(c -> StrUtil.blankToDefault(c.getClassName(), "").startsWith(modulePrefix))
+                    .toList();
+        }
+        int total = filtered.size();
+        int from = Math.min((safePageNum - 1) * safePageSize, total);
+        int to = Math.min(from + safePageSize, total);
+        List<ComponentVO> records = filtered.subList(from, to);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", records);
+        result.put("total", total);
+        result.put("pageNum", safePageNum);
+        result.put("pageSize", safePageSize);
+        result.put("modules", SUPPORTED_MODULES);
+        return result;
+    }
+
+    private List<ComponentVO> loadComponentsFromMongo(String category, String keyword) {
+        Map<String, ComponentVO> map = new HashMap<>();
+        try {
+            for (BsComponentParseMetaOmc doc : bsComponentParseMetaOmcRepository.findAll()) {
+                if (doc == null || StrUtil.isBlank(doc.getId())) {
+                    continue;
+                }
+                if (!isSupportedClassName(doc.getId())) {
+                    continue;
+                }
+                ComponentVO vo = toComponentVOFromMeta(
+                        doc.getId(), doc.getName(), doc.getDescription(), doc.getSourcePath(), doc.getIndexPath(), doc.getIconPath(),
+                        doc.getRestriction(), doc.getNodeType(), doc.getPartial(), doc.getLeaf(), doc.getDraggable(),
+                        doc.getConnectable(), doc.getParentClassName(), doc.getChildrenCount());
+                if (vo != null && matchesFilter(vo, category, keyword)) {
+                    map.put(vo.getId(), vo);
+                }
+            }
+            if (map.isEmpty()) {
+                for (BsComponentParseMeta doc : bsComponentParseMetaRepository.findAll()) {
+                    if (doc == null || StrUtil.isBlank(doc.getId())) {
+                        continue;
+                    }
+                    if (!isSupportedClassName(doc.getId())) {
+                        continue;
+                    }
+                    ComponentVO vo = toComponentVOFromMeta(
+                            doc.getId(), doc.getName(), doc.getDescription(), doc.getSourcePath(), doc.getIndexPath(), doc.getIconPath(),
+                            doc.getRestriction(), doc.getNodeType(), doc.getPartial(), doc.getLeaf(), doc.getDraggable(),
+                            doc.getConnectable(), doc.getParentClassName(), doc.getChildrenCount());
+                    if (vo != null && matchesFilter(vo, category, keyword)) {
+                        map.put(vo.getId(), vo);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("从Mongo加载组件列表失败，回退文件扫描: {}", e.getMessage());
+            return List.of();
+        }
+        return new ArrayList<>(map.values());
+    }
+
+    private boolean isSupportedClassName(String className) {
+        if (StrUtil.isBlank(className) || !className.startsWith("Modelica.")) {
+            return false;
+        }
+        String[] parts = className.split("\\.");
+        return parts.length >= 2 && SUPPORTED_MODULES.contains(parts[1]);
+    }
+
+    private ComponentVO toComponentVOFromMeta(
+            String id, String name, String description, String sourcePath, String indexPath, String iconPath,
+            String restriction, String nodeType, Boolean partial, Boolean leaf, Boolean draggable,
+            Boolean connectable, String parentClassName, Integer childrenCount) {
+        if (StrUtil.isBlank(id)) {
+            return null;
+        }
+        String resolvedName = StrUtil.blankToDefault(name, id.substring(id.lastIndexOf('.') + 1));
+        String resolvedIndexPath = StrUtil.blankToDefault(indexPath, "Modelica/" + id.replace("Modelica.", "").replace(".", "/"));
+        String iconUrl = null;
+        if (StrUtil.isNotBlank(iconPath)) {
+            iconUrl = buildStaticIconUrl(iconPath);
+        } else {
+            iconUrl = resolveComponentIconUrl(id, resolvedName, StrUtil.blankToDefault(sourcePath, ""));
+        }
+        ComponentVO vo = new ComponentVO();
+        vo.setId(id);
+        vo.setName(resolvedName);
+        vo.setClassName(id);
+        vo.setDescription(StrUtil.blankToDefault(description, ""));
+        vo.setSourcePath(StrUtil.blankToDefault(sourcePath, ""));
+        vo.setIndexPath(resolvedIndexPath);
+        vo.setCoverImage(StrUtil.blankToDefault(iconUrl, ""));
+        vo.setRestriction(StrUtil.blankToDefault(restriction, ""));
+        vo.setNodeType(StrUtil.blankToDefault(nodeType, "component"));
+        vo.setPartial(Boolean.TRUE.equals(partial));
+        vo.setLeaf(leaf == null || Boolean.TRUE.equals(leaf));
+        vo.setDraggable(draggable == null || Boolean.TRUE.equals(draggable));
+        vo.setConnectable(connectable == null || Boolean.TRUE.equals(connectable));
+        vo.setParentClassName(StrUtil.blankToDefault(parentClassName, ""));
+        vo.setChildrenCount(childrenCount == null ? 0 : childrenCount);
+        return vo;
     }
 
     private ComponentVO buildComponentVO(Path moPath, Path sourceRoot) throws Exception {
@@ -135,6 +257,14 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         vo.setClassName(className);
         vo.setSourcePath(rel);
         vo.setIndexPath(indexPath);
+        vo.setRestriction("model");
+        vo.setNodeType("component");
+        vo.setPartial(false);
+        vo.setLeaf(true);
+        vo.setDraggable(true);
+        vo.setConnectable(true);
+        vo.setParentClassName(className.contains(".") ? className.substring(0, className.lastIndexOf('.')) : "");
+        vo.setChildrenCount(0);
 
         String desc = extractDescriptionFromMo(moPath);
         vo.setDescription(StrUtil.blankToDefault(desc, ""));
@@ -170,13 +300,14 @@ public class ModelDeployServiceImpl implements ModelDeployService {
     }
 
     private String resolveComponentIconUrl(String className, String name, String sourcePath) {
-        Set<String> fileNames = getElectricalIconFileNames();
+        String module = extractModuleFromClassName(className);
+        Set<String> fileNames = getModuleIconFileNames(module);
         if (fileNames.isEmpty()) return null;
         List<String> candidates = List.of(name + ".svg", className + ".svg",
                 (className.contains(".") ? className.substring(className.lastIndexOf('.') + 1) : "") + ".svg");
         for (String c : candidates) {
             if (StrUtil.isNotBlank(c) && fileNames.contains(c)) {
-                return buildStaticIconUrl("Electrical/" + c);
+                return buildStaticIconUrl(module + "/" + c);
             }
         }
         return null;
@@ -187,16 +318,41 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         if (StrUtil.isBlank(className)) {
             throw new BusinessException("className 不能为空");
         }
+        BsComponentParseMetaOmc omcMeta = omcMetaByClassName(className);
+        BsComponentParseMeta parseMeta = null;
         Path sourceRoot = Path.of(componentSourceDir).normalize();
-        String rel = className.replace("Modelica.Electrical.", "Electrical/")
-                .replace("Modelica.", "")
-                .replace(".", "/") + ".mo";
+        String rel = className.replace("Modelica.", "").replace(".", "/") + ".mo";
         Path sourceFile = sourceRoot.resolve(rel).normalize();
+        String content = null;
+        if (!Files.exists(sourceFile)) {
+            String sourcePathFromMeta = null;
+            if (omcMeta == null) {
+                try {
+                    omcMeta = bsComponentParseMetaOmcRepository.findById(className).orElse(null);
+                } catch (Exception ignored) {
+                    // ignore
+                }
+            }
+            if (parseMeta == null) {
+                try {
+                    parseMeta = bsComponentParseMetaRepository.findById(className).orElse(null);
+                } catch (Exception ignored) {
+                    // ignore
+                }
+            }
+            if (omcMeta != null && StrUtil.isNotBlank(omcMeta.getSourcePath())) {
+                sourcePathFromMeta = omcMeta.getSourcePath();
+            } else if (parseMeta != null && StrUtil.isNotBlank(parseMeta.getSourcePath())) {
+                sourcePathFromMeta = parseMeta.getSourcePath();
+            }
+            if (StrUtil.isNotBlank(sourcePathFromMeta)) {
+                sourceFile = sourceRoot.resolve(normalizeRelativePath(sourcePathFromMeta)).normalize();
+            }
+        }
         if (!Files.exists(sourceFile)) {
             throw new BusinessException("组件不存在: " + className);
         }
 
-        String content;
         try {
             content = Files.readString(sourceFile);
         } catch (Exception e) {
@@ -216,10 +372,10 @@ public class ModelDeployServiceImpl implements ModelDeployService {
 
         String desc = extractDescriptionFromMo(sourceFile);
         result.put("description", StrUtil.blankToDefault(desc, ""));
-
-        BsComponentParseMeta parseMeta = null;
         try {
-            parseMeta = bsComponentParseMetaRepository.findById(className).orElse(null);
+            if (omcMeta == null) {
+                parseMeta = bsComponentParseMetaRepository.findById(className).orElse(null);
+            }
         } catch (Exception e) {
             log.warn("读取Mongo组件解析元数据失败 className={}, reason={}", className, e.getMessage());
         }
@@ -227,8 +383,45 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         Map<String, Object> parameters = new HashMap<>();
         List<Map<String, Object>> parameterDetails = new ArrayList<>();
         Map<String, Object> connectors = new HashMap<>();
+        String metaSource = "source_parse";
 
-        if (parseMeta != null && parseMeta.getParameters() != null) {
+        if (omcMeta != null && omcMeta.getParameters() != null) {
+            metaSource = "omc_mongo";
+            for (BsComponentParseMetaOmc.ParamMeta p : omcMeta.getParameters()) {
+                String defaultValue = StrUtil.blankToDefault(p.getDefaultValue(), "0");
+                parameters.put(p.getName(), defaultValue);
+                Map<String, Object> pd = new HashMap<>();
+                pd.put("name", p.getName());
+                pd.put("type", p.getType());
+                pd.put("defaultValue", defaultValue);
+                pd.put("unit", p.getUnit());
+                pd.put("description", StrUtil.blankToDefault(p.getDescription(), ""));
+                parameterDetails.add(pd);
+            }
+            List<Map<String, String>> connectorList = new ArrayList<>();
+            for (BsComponentParseMetaOmc.ConnectorMeta c : omcMeta.getInputConnectors()) {
+                Map<String, String> connectorMap = new HashMap<>();
+                connectorMap.put("name", c.getName());
+                connectorMap.put("type", c.getType());
+                connectorList.add(connectorMap);
+            }
+            for (BsComponentParseMetaOmc.ConnectorMeta c : omcMeta.getOutputConnectors()) {
+                Map<String, String> connectorMap = new HashMap<>();
+                connectorMap.put("name", c.getName());
+                connectorMap.put("type", c.getType());
+                connectorList.add(connectorMap);
+            }
+            for (BsComponentParseMetaOmc.ConnectorMeta c : omcMeta.getConnectors()) {
+                Map<String, String> connectorMap = new HashMap<>();
+                connectorMap.put("name", c.getName());
+                connectorMap.put("type", c.getType());
+                connectorList.add(connectorMap);
+            }
+            connectors.put("list", connectorList);
+            connectors.put("input", omcMeta.getInputConnectors().stream().map(BsComponentParseMetaOmc.ConnectorMeta::getName).toList());
+            connectors.put("output", omcMeta.getOutputConnectors().stream().map(BsComponentParseMetaOmc.ConnectorMeta::getName).toList());
+        } else if (parseMeta != null && parseMeta.getParameters() != null) {
+            metaSource = "legacy_mongo";
             for (BsComponentParseMeta.ParamMeta p : parseMeta.getParameters()) {
                 String defaultValue = StrUtil.blankToDefault(p.getDefaultValue(), "0");
                 parameters.put(p.getName(), defaultValue);
@@ -302,8 +495,67 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         result.put("parameterDetails", parameterDetails);
         result.put("ports", connectors);
         result.put("connectors", connectors); // 兼容前端可能使用的字段名
+        result.put("_metaSource", metaSource);
+        Object connectorListObj = connectors.get("list");
+        if (connectorListObj instanceof List<?> list) {
+            List<String> names = new ArrayList<>();
+            for (Object obj : list) {
+                if (obj instanceof Map<?, ?> m) {
+                    Object n = m.get("name");
+                    if (n != null) names.add(String.valueOf(n));
+                }
+            }
+            result.put("_connectorNames", names);
+        }
         
         return result;
+    }
+
+    private BsComponentParseMetaOmc omcMetaByClassName(String className) {
+        try {
+            return bsComponentParseMetaOmcRepository.findById(className).orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public Map<String, Object> getComponentMetaDebugByClassName(String className) {
+        Map<String, Object> debug = new HashMap<>();
+        debug.put("className", className);
+        BsComponentParseMetaOmc omc = null;
+        BsComponentParseMeta legacy = null;
+        try {
+            omc = bsComponentParseMetaOmcRepository.findById(className).orElse(null);
+            legacy = bsComponentParseMetaRepository.findById(className).orElse(null);
+            debug.put("existsInOmcCollection", omc != null);
+            debug.put("existsInLegacyCollection", legacy != null);
+            if (omc != null) {
+                List<BsComponentParseMetaOmc.ConnectorMeta> omcConnectors =
+                        omc.getConnectors() == null ? List.of() : omc.getConnectors();
+                List<BsComponentParseMetaOmc.ParamMeta> omcParams =
+                        omc.getParameters() == null ? List.of() : omc.getParameters();
+                debug.put("omcConnectorNames", omcConnectors.stream().map(BsComponentParseMetaOmc.ConnectorMeta::getName).toList());
+                debug.put("omcParameterCount", omcParams.size());
+            }
+            if (legacy != null) {
+                List<BsComponentParseMeta.ConnectorMeta> legacyConnectors =
+                        legacy.getConnectors() == null ? List.of() : legacy.getConnectors();
+                List<BsComponentParseMeta.ParamMeta> legacyParams =
+                        legacy.getParameters() == null ? List.of() : legacy.getParameters();
+                debug.put("legacyConnectorNames", legacyConnectors.stream().map(BsComponentParseMeta.ConnectorMeta::getName).toList());
+                debug.put("legacyParameterCount", legacyParams.size());
+            }
+        } catch (Exception e) {
+            debug.put("mongoError", e.getMessage());
+            debug.put("existsInOmcCollection", false);
+            debug.put("existsInLegacyCollection", false);
+        }
+        Map<String, Object> detail = getComponentDetailByClassName(className);
+        debug.put("detailMetaSource", detail.get("_metaSource"));
+        debug.put("detailConnectorNames", detail.get("_connectorNames"));
+        debug.put("detailParameters", detail.get("parameters"));
+        return debug;
     }
     
     /**
@@ -322,33 +574,53 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         return connectors;
     }
 
-    private Set<String> getElectricalIconFileNames() {
-        Set<String> cache = electricalIconFileNames;
-        if (cache != null) {
-            return cache;
+    private String extractModuleFromClassName(String className) {
+        if (StrUtil.isBlank(className)) {
+            return "Electrical";
         }
+        String[] parts = className.split("\\.");
+        if (parts.length >= 2 && "Modelica".equals(parts[0]) && SUPPORTED_MODULES.contains(parts[1])) {
+            return parts[1];
+        }
+        return "Electrical";
+    }
+
+    private Set<String> getModuleIconFileNames(String moduleName) {
+        Map<String, Set<String>> cache = moduleIconFileNames;
+        if (cache == null) {
+            cache = loadModuleIconFileNames();
+            moduleIconFileNames = cache;
+        }
+        return cache.getOrDefault(StrUtil.blankToDefault(moduleName, "Electrical"), Set.of());
+    }
+
+    private Map<String, Set<String>> loadModuleIconFileNames() {
         synchronized (this) {
-            if (electricalIconFileNames != null) {
-                return electricalIconFileNames;
+            if (moduleIconFileNames != null) {
+                return moduleIconFileNames;
             }
-            Set<String> loaded = new HashSet<>();
-            Path electricalDir = Path.of(componentIconDir).resolve("Electrical").normalize();
-            try {
-                if (Files.exists(electricalDir) && Files.isDirectory(electricalDir)) {
-                    try (var stream = Files.list(electricalDir)) {
-                        stream.filter(Files::isRegularFile).forEach(path -> {
-                            String fileName = path.getFileName().toString();
-                            if (fileName.toLowerCase().endsWith(".svg")) {
-                                loaded.add(fileName);
-                            }
-                        });
+            Map<String, Set<String>> loadedByModule = new HashMap<>();
+            for (String module : SUPPORTED_MODULES) {
+                Set<String> loaded = new HashSet<>();
+                Path moduleDir = Path.of(componentIconDir).resolve(module).normalize();
+                try {
+                    if (Files.exists(moduleDir) && Files.isDirectory(moduleDir)) {
+                        try (var stream = Files.list(moduleDir)) {
+                            stream.filter(Files::isRegularFile).forEach(path -> {
+                                String fileName = path.getFileName().toString();
+                                if (fileName.toLowerCase().endsWith(".svg")) {
+                                    loaded.add(fileName);
+                                }
+                            });
+                        }
                     }
+                } catch (Exception e) {
+                    log.warn("加载组件图标目录索引失败 module={}, reason={}", module, e.getMessage());
                 }
-            } catch (Exception e) {
-                log.warn("加载组件图标目录索引失败: {}", e.getMessage());
+                loadedByModule.put(module, loaded);
             }
-            electricalIconFileNames = loaded;
-            return loaded;
+            moduleIconFileNames = loadedByModule;
+            return loadedByModule;
         }
     }
 

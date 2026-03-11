@@ -42,7 +42,26 @@ public class ModelDeployController {
             return Result.success(components);
         } catch (Exception e) {
             log.error("获取组件列表失败", e);
-            return Result.error("获取组件列表失败: " + e.getMessage());
+            return Result.error("获取组件列表失败，请稍后重试");
+        }
+    }
+
+    /**
+     * 分页获取组件列表（支持模块筛选）
+     */
+    @GetMapping("/components/paged")
+    public Result<Map<String, Object>> getComponentsPaged(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String module,
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "200") int pageSize) {
+        try {
+            Map<String, Object> data = modelDeployService.getComponentsPaged(category, keyword, module, pageNum, pageSize);
+            return Result.success(data);
+        } catch (Exception e) {
+            log.error("分页获取组件列表失败", e);
+            return Result.error("分页获取组件列表失败，请稍后重试");
         }
     }
 
@@ -57,7 +76,22 @@ public class ModelDeployController {
             return Result.success(detail);
         } catch (Exception e) {
             log.error("获取组件详情失败", e);
-            return Result.error("获取组件详情失败: " + e.getMessage());
+            return Result.error("获取组件详情失败，请稍后重试");
+        }
+    }
+
+    /**
+     * 组件元数据调试（查看端口是否来自 OMC 集合）
+     */
+    @GetMapping("/components/debug/by-class")
+    public Result<Map<String, Object>> getComponentMetaDebugByClassName(
+            @RequestParam String className) {
+        try {
+            Map<String, Object> detail = modelDeployService.getComponentMetaDebugByClassName(className);
+            return Result.success(detail);
+        } catch (Exception e) {
+            log.error("获取组件调试信息失败", e);
+            return Result.error("获取组件调试信息失败，请稍后重试");
         }
     }
     
@@ -71,7 +105,7 @@ public class ModelDeployController {
             return Result.success(projectId);
         } catch (Exception e) {
             log.error("保存项目失败", e);
-            return Result.error("保存项目失败: " + e.getMessage());
+            return Result.error("保存项目失败，请稍后重试");
         }
     }
     
@@ -85,7 +119,7 @@ public class ModelDeployController {
             return Result.success("更新成功");
         } catch (Exception e) {
             log.error("更新项目失败", e);
-            return Result.error("更新项目失败: " + e.getMessage());
+            return Result.error("更新项目失败，请稍后重试");
         }
     }
     
@@ -99,7 +133,7 @@ public class ModelDeployController {
             return Result.success(project);
         } catch (Exception e) {
             log.error("获取项目失败", e);
-            return Result.error("获取项目失败: " + e.getMessage());
+            return Result.error("获取项目失败，请稍后重试");
         }
     }
     
@@ -113,7 +147,7 @@ public class ModelDeployController {
             return Result.success("删除成功");
         } catch (Exception e) {
             log.error("删除项目失败", e);
-            return Result.error("删除项目失败: " + e.getMessage());
+            return Result.error("删除项目失败，请稍后重试");
         }
     }
     
@@ -129,7 +163,7 @@ public class ModelDeployController {
             return Result.success(page);
         } catch (Exception e) {
             log.error("获取项目列表失败", e);
-            return Result.error("获取项目列表失败: " + e.getMessage());
+            return Result.error("获取项目列表失败，请稍后重试");
         }
     }
     
@@ -143,7 +177,7 @@ public class ModelDeployController {
             return Result.success(taskId);
         } catch (Exception e) {
             log.error("提交仿真任务失败", e);
-            return Result.error("提交仿真任务失败: " + e.getMessage());
+            return Result.error("提交仿真任务失败，请稍后重试");
         }
     }
     
@@ -157,7 +191,7 @@ public class ModelDeployController {
             return Result.success(task);
         } catch (Exception e) {
             log.error("查询任务状态失败", e);
-            return Result.error("查询任务状态失败: " + e.getMessage());
+            return Result.error("查询任务状态失败，请稍后重试");
         }
     }
     
@@ -173,7 +207,7 @@ public class ModelDeployController {
             return Result.success(page);
         } catch (Exception e) {
             log.error("获取任务列表失败", e);
-            return Result.error("获取任务列表失败: " + e.getMessage());
+            return Result.error("获取任务列表失败，请稍后重试");
         }
     }
 }

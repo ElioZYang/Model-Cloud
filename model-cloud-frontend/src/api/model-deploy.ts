@@ -22,8 +22,17 @@ export interface Component {
   name: string
   className?: string
   indexPath?: string
+  sourcePath?: string
   description?: string
   coverImage?: string
+  restriction?: string
+  nodeType?: string
+  partial?: boolean
+  leaf?: boolean
+  draggable?: boolean
+  connectable?: boolean
+  parentClassName?: string
+  childrenCount?: number
   sourceCode?: string
   fileName?: string
   parameters?: Record<string, any>
@@ -38,6 +47,14 @@ export interface Component {
     input?: string[]
     output?: string[]
   }
+}
+
+export interface ComponentPagedResult {
+  records: Component[]
+  total: number
+  pageNum: number
+  pageSize: number
+  modules?: string[]
 }
 
 /**
@@ -111,10 +128,28 @@ export const modelDeployApi = {
   },
 
   /**
+   * 分页获取组件列表（支持模块筛选）
+   */
+  getComponentsPaged(params: { category?: string; keyword?: string; module?: string; pageNum?: number; pageSize?: number }) {
+    return request.get<ComponentPagedResult>('/business/model-deploy/components/paged', {
+      params
+    })
+  },
+
+  /**
    * 获取组件详情（按 className）
    */
   getComponentDetailByClassName(className: string) {
     return request.get<Component>('/business/model-deploy/components/by-class', {
+      params: { className }
+    })
+  },
+
+  /**
+   * 调试：查看组件元数据来源与端口
+   */
+  getComponentDebugByClassName(className: string) {
+    return request.get<Record<string, any>>('/business/model-deploy/components/debug/by-class', {
       params: { className }
     })
   },

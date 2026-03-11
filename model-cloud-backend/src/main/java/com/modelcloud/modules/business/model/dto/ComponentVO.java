@@ -20,4 +20,12 @@ public class ComponentVO implements Serializable {
     private String indexPath;
     private String sourcePath;
     private String coverImage;
+    private String restriction;
+    private String nodeType;
+    private Boolean partial;
+    private Boolean leaf;
+    private Boolean draggable;
+    private Boolean connectable;
+    private String parentClassName;
+    private Integer childrenCount;
 }

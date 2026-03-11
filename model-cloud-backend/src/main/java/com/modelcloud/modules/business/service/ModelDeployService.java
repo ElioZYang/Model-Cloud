@@ -27,12 +27,32 @@ public interface ModelDeployService {
     List<ComponentVO> getComponents(String category, String keyword);
 
     /**
+     * 分页获取组件列表（支持按模块筛选）
+     *
+     * @param category 组件类别（可选）
+     * @param keyword  关键词（可选）
+     * @param module   顶层模块，如 Electrical/Mechanics/Blocks/Math（可选）
+     * @param pageNum  页码（从1开始）
+     * @param pageSize 每页大小
+     * @return 分页结果
+     */
+    Map<String, Object> getComponentsPaged(String category, String keyword, String module, int pageNum, int pageSize);
+
+    /**
      * 获取组件详情（按 className，包括参数、端口等）
      *
      * @param className 完整类名，如 Modelica.Electrical.Analog.Basic.Resistor
      * @return 组件详情
      */
     Map<String, Object> getComponentDetailByClassName(String className);
+
+    /**
+     * 调试接口：返回组件元数据来源与端口对比信息
+     *
+     * @param className 完整类名
+     * @return 调试信息
+     */
+    Map<String, Object> getComponentMetaDebugByClassName(String className);
     
     /**
      * 保存建模项目

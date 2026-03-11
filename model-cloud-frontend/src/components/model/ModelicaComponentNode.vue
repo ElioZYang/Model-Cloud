@@ -27,6 +27,8 @@
           :type="getConnectorType(layout.connector, layout.position)"
           :position="layout.position"
           :style="getHandleStyle(layout)"
+          :title="layout.connector.name"
+          :aria-label="`端口 ${layout.connector.name}`"
           class="connector-handle"
           :class="getConnectorClass(layout.connector)"
         />
@@ -305,6 +307,13 @@ const getLabelStyle = (layout: ConnectorLayout) => {
   line-height: 16px;
   user-select: none;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 2;
+}
+
+.connector-handle:hover + .connector-label {
+  opacity: 1;
 }
 </style>
 
