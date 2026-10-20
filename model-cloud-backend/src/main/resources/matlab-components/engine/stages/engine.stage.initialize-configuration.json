@@ -1,0 +1,74 @@
+{
+  "id": "engine.stage.initialize-configuration",
+  "name": "DP 组装",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "workflow",
+  "functionName": "component_engine_initialize_configuration",
+  "description": "根据气路、轴系和引气关系装配原项目 DP，并执行 INPUT_ELECTRIC 与 READMAP",
+  "category": "发动机组装组件",
+  "sourceRelativePath": "workflows/component_engine_initialize_configuration.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "assembly_json",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "V",
+      "type": "number",
+      "required": true,
+      "defaultValue": 60
+    },
+    {
+      "name": "M",
+      "type": "number",
+      "required": true,
+      "defaultValue": 0
+    },
+    {
+      "name": "H",
+      "type": "number",
+      "required": true,
+      "defaultValue": 3000
+    }
+  ],
+  "outputs": [
+    {
+      "name": "DP",
+      "type": "engine.dp",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "component_engine_initialize_configuration",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "assembly_json"
+      },
+      {
+        "source": "input",
+        "name": "V"
+      },
+      {
+        "source": "input",
+        "name": "M"
+      },
+      {
+        "source": "input",
+        "name": "H"
+      }
+    ],
+    "returns": [
+      {
+        "output": "DP",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  }
+}

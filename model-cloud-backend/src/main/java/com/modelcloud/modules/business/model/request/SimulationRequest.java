@@ -17,11 +17,21 @@ public class SimulationRequest implements Serializable {
      * 关联的建模项目ID（可选，如果为空则使用modelCode）
      */
     private Long projectId;
+
+    /**
+     * 执行引擎：modelica/matlab。缺省保持原Modelica行为。
+     */
+    private String engineType = "modelica";
     
     /**
      * Modelica模型代码（如果projectId为空则必填）
      */
     private String modelCode;
+
+    /**
+     * MATLAB函数执行图。第一阶段仅允许一个标量节点且不允许连线。
+     */
+    private Map<String, Object> executionPayload;
     
     /**
      * 仿真参数
@@ -58,4 +68,3 @@ public class SimulationRequest implements Serializable {
         private Map<String, Object> inputParams;
     }
 }
-

@@ -1,0 +1,75 @@
+{
+  "id": "engine.gas-path.hpt",
+  "legacyName": "hpt",
+  "assemblyDefaults": {
+    "TPR": 1,
+    "EFFT": 0.89,
+    "PRT": 0,
+    "WA_extraction": 0
+  },
+  "name": "高压涡轮",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "calculation",
+  "functionName": "TURBINE",
+  "description": "hpt；使用 TURBINE 计算高压涡轮膨胀与功率过程",
+  "category": "气路组件",
+  "sourceRelativePath": "components/TURBINE.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "INPUT",
+      "type": "bus",
+      "required": true,
+      "description": "高压涡轮输入参数与入口气流状态"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "OUTPUT",
+      "type": "bus",
+      "required": true,
+      "description": "高压涡轮出口气流状态与功率参数"
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "TURBINE",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "INPUT"
+      }
+    ],
+    "returns": [
+      {
+        "output": "OUTPUT",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  },
+  "physicalCapabilities": {
+    "flow": {
+      "inputs": [
+        {
+          "id": "INPUT",
+          "role": "main"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "OUTPUT",
+          "role": "main"
+        }
+      ]
+    },
+    "shaft": {
+      "joinable": true
+    },
+    "bleed": {
+      "joinable": true
+    }
+  }
+}

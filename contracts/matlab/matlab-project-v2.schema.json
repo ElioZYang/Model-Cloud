@@ -1,0 +1,361 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modelcloud.local/contracts/matlab/matlab-project-v2.schema.json",
+  "title": "MATLAB modeling project document (V2 persisted format)",
+  "description": "The full projectData document stored by the backend (bs_modeling_project.projectData) and exchanged with the frontend. schemaVersion stays 2 for this release; the root-level nodes/edges arrays are a legacy read-compat mirror generated one-way from scenes[rootSceneId] on save. Parsers must keep unresolved nodes/ports/edges and mark them, never silently drop them.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "engineType",
+    "rootSceneId",
+    "scenes"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 2
+    },
+    "engineType": {
+      "const": "matlab"
+    },
+    "rootSceneId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scenes": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/scene"
+      }
+    },
+    "nodes": {
+      "description": "Legacy root mirror of scenes[rootSceneId].nodes. Read-compat only; never a second runtime state source.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/savedNode"
+      }
+    },
+    "edges": {
+      "description": "Legacy root mirror of scenes[rootSceneId].edges.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/savedEdge"
+      }
+    },
+    "legacySource": {
+      "description": "True only while an old flat (pre-scene) project is loaded; never serialized.",
+      "type": "boolean"
+    },
+    "designPointOnly": {
+      "description": "V2 projects that only contain a design-point workflow require an explicit UI upgrade.",
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "scene": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "title",
+        "nodes",
+        "edges"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parentSceneId": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "workflow",
+            "physical"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/savedNode"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/savedEdge"
+          }
+        },
+        "boundaryPorts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/boundaryPort"
+          }
+        },
+        "assemblyDefaults": {
+          "type": "object"
+        },
+        "relationGroups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relationGroup"
+          }
+        },
+        "viewport": {
+          "$ref": "#/$defs/viewport"
+        }
+      },
+      "additionalProperties": true
+    },
+    "savedNode": {
+      "type": "object",
+      "required": [
+        "id",
+        "componentId",
+        "values",
+        "resources"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "componentId": {
+          "type": "string"
+        },
+        "functionName": {
+          "type": "string"
+        },
+        "instanceName": {
+          "type": "string"
+        },
+        "values": {
+          "type": "object"
+        },
+        "resources": {
+          "type": "object"
+        },
+        "nodeKind": {
+          "description": "Project-node kind. Catalog components use componentKind; expanded execution nodes use executionKind. This field must never conflate the three vocabularies.",
+          "type": "string"
+        },
+        "executionKind": {
+          "type": "string"
+        },
+        "childSceneId": {
+          "type": "string"
+        },
+        "legacyOrder": {
+          "type": "number"
+        },
+        "assemblyDefaults": {
+          "type": "object"
+        },
+        "legacyName": {
+          "type": "string"
+        },
+        "position": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y"
+          ]
+        },
+        "busConfig": {
+          "type": "object"
+        },
+        "selectorConfig": {
+          "type": "object"
+        },
+        "boundaryPorts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/boundaryPort"
+          }
+        },
+        "presentation": {
+          "type": "object"
+        },
+        "unresolved": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "savedEdge": {
+      "type": "object",
+      "required": [
+        "id",
+        "source",
+        "sourceHandle",
+        "target",
+        "targetHandle"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string"
+        },
+        "sourceHandle": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "targetHandle": {
+          "type": "string"
+        },
+        "relation": {
+          "enum": [
+            "flow",
+            "shaft",
+            "bleed",
+            "workflow",
+            null
+          ]
+        },
+        "streamRole": {
+          "enum": [
+            "core",
+            "bypass",
+            null
+          ]
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "unresolved": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "boundaryPort": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "direction",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "direction": {
+          "enum": [
+            "input",
+            "output"
+          ]
+        },
+        "type": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "shape": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "mapping": {
+          "type": "object",
+          "properties": {
+            "childNodeId": {
+              "type": "string"
+            },
+            "childHandle": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "childNodeId",
+            "childHandle"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "relationGroup": {
+      "type": "object",
+      "description": "A shaft or bleed group. Membership = anchor node + endpoints of edges carrying groupId. Single-member shaft groups are legal (no self edge required).",
+      "required": [
+        "id",
+        "relation",
+        "name",
+        "order",
+        "anchorNodeId",
+        "parameters"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "relation": {
+          "enum": [
+            "shaft",
+            "bleed"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "anchorNodeId": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "viewport": {
+      "type": "object",
+      "description": "Scene viewport is project data; it must be saved explicitly when leaving a scene.",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "zoom": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "zoom"
+      ]
+    }
+  }
+}

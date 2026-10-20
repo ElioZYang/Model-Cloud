@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modelcloud.local/contracts/matlab/matlab-execution-graph-v1.schema.json",
+  "title": "MATLAB execution graph (v1)",
+  "description": "The compiled, trusted graph exchanged between the Java backend (MatlabTrustedGraphCompiler output), the Python simulation service and the Julia/MATLAB runner. The backend always emits schemaVersion 'matlab.execution.v1'; the Python executor rejects any payload with a missing or different version. nodeKind/componentKind are legacy duplicates on expanded nodes scheduled for removal.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "nodes",
+    "edges",
+    "executionOrder"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "matlab.execution.v1"
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/executionNode"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/executionEdge"
+      }
+    },
+    "executionOrder": {
+      "description": "Topological order over node ids; contains every node id exactly once and respects edge direction.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "publicOutputs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/publicOutput"
+      }
+    },
+    "modelPrograms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "entries"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "entries": {
+            "type": "object",
+            "required": [
+              "design",
+              "offdesign",
+              "thermal"
+            ],
+            "properties": {
+              "design": {
+                "$ref": "#"
+              },
+              "offdesign": {
+                "$ref": "#"
+              },
+              "thermal": {
+                "$ref": "#"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "analysisMode": { "enum": ["design", "offdesign", "thermal"] }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "executionNode": {
+      "type": "object",
+      "required": [
+        "id",
+        "componentId",
+        "executionKind"
+      ],
+      "properties": {
+        "id": {
+          "description": "Stable expanded execution id (path-qualified, e.g. root__sub__leaf).",
+          "type": "string",
+          "minLength": 1
+        },
+        "componentId": {
+          "description": "Trusted catalog id. Bus nodes use builtin.bus.creator / builtin.bus.selector.",
+          "type": "string"
+        },
+        "executionKind": {
+          "description": "Kind on expanded execution nodes only. Project nodes use nodeKind; catalog components use componentKind.",
+          "type": "string"
+        },
+        "functionName": {
+          "type": "string"
+        },
+        "sourceRelativePath": {
+          "description": "Component .m path relative to the MATLAB component root; the file stem must equal functionName.",
+          "type": "string"
+        },
+        "values": {
+          "description": "Finite scalar/string/boolean literal inputs plus assembly_json for engine initialization nodes.",
+          "type": "object"
+        },
+        "resources": {
+          "type": "object"
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/port"
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/port"
+          }
+        },
+        "invocation": {
+          "description": "Catalog invocation binding: function, arguments(source=input|object with bindings), returns(output, returnIndex, path).",
+          "type": "object"
+        },
+        "originPath": {
+          "description": "Display path from the root scene to the originating scene node; enables error localization to a nested node.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sourceNodeId": {
+          "description": "Original scene node id before expansion.",
+          "type": "string"
+        },
+        "phase": {
+          "type": "string"
+        },
+        "nodeKind": {
+          "description": "Legacy duplicate of executionKind on trusted nodes; tolerated until phase 6 removes it.",
+          "type": "string"
+        },
+        "componentKind": {
+          "description": "Legacy catalog kind mirrored on trusted nodes; tolerated until phase 6 removes it.",
+          "type": "string"
+        },
+        "busConfig": {
+          "type": "object"
+        },
+        "selectorConfig": {
+          "type": "object"
+        },
+        "instanceName": {
+          "type": "string"
+        },
+        "legacyOrder": {
+          "type": "number"
+        },
+        "position": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "executionEdge": {
+      "type": "object",
+      "required": [
+        "sourceNodeId",
+        "sourcePort",
+        "targetNodeId",
+        "targetPort"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "sourceNodeId": {
+          "type": "string"
+        },
+        "sourcePort": {
+          "type": "string"
+        },
+        "targetNodeId": {
+          "type": "string"
+        },
+        "targetPort": {
+          "type": "string"
+        },
+        "dataType": {
+          "description": "Type inherited from the trusted source port; 'unknown' only for unconnected bus creator inputs.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "port": {
+      "type": "object",
+      "required": [
+        "name",
+        "type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "shape": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "defaultValue": {},
+        "min": {},
+        "max": {}
+      },
+      "additionalProperties": true
+    },
+    "publicOutput": {
+      "type": "object",
+      "required": [
+        "name",
+        "sourceNodeId",
+        "sourcePort"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "sourceNodeId": {
+          "type": "string"
+        },
+        "sourcePort": {
+          "type": "string"
+        },
+        "originPath": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

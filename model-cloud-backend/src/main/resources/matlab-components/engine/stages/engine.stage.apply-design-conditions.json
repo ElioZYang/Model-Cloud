@@ -1,0 +1,80 @@
+{
+  "id": "engine.stage.apply-design-conditions",
+  "name": "设计条件设置",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "workflow",
+  "functionName": "component_engine_apply_design_conditions",
+  "description": "按原主脚本顺序设置 THRUST、WA 和 PWG",
+  "category": "设计点组件",
+  "sourceRelativePath": "workflows/component_engine_apply_design_conditions.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "DP",
+      "type": "engine.dp",
+      "required": true
+    },
+    {
+      "name": "thrust",
+      "type": "number",
+      "required": true,
+      "defaultValue": 0
+    },
+    {
+      "name": "air_mass_flow",
+      "type": "number",
+      "required": true,
+      "defaultValue": 0
+    },
+    {
+      "name": "generator_power_kw",
+      "type": "array",
+      "unit": "kW",
+      "required": true,
+      "defaultValue": 1000,
+      "dynamicLength": {
+        "source": "shaftGroups",
+        "defaultValue": 0
+      },
+      "description": "各轴设计功率，按轴组顺序输入"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "DP",
+      "type": "engine.dp",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "component_engine_apply_design_conditions",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "DP"
+      },
+      {
+        "source": "input",
+        "name": "thrust"
+      },
+      {
+        "source": "input",
+        "name": "air_mass_flow"
+      },
+      {
+        "source": "input",
+        "name": "generator_power_kw"
+      }
+    ],
+    "returns": [
+      {
+        "output": "DP",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  }
+}

@@ -30,6 +30,17 @@ class Settings(BaseSettings):
     # OpenModelica配置
     OMC_PATH: str = "omc"
     OMC_WORK_DIR: str = "./runtime/modelica_simulations"
+
+    # Julia + MATLAB.jl配置
+    JULIA_PATH: str = "julia"
+    JULIA_PROJECT_PATH: str = ""
+    JULIA_MATLAB_RUNNER_PATH: str = "./julia/run_matlab_graph.jl"
+    MATLAB_COMPONENT_ROOT: str = ""
+    MATLAB_TASK_WORK_DIR: str = "./runtime/matlab_simulations"
+    MATLAB_TASK_TIMEOUT: int = 3600
+    MATLAB_MAX_CONCURRENT_TASKS: int = 1
+    # 阶段6：并发上限统一读 MATLAB_MAX_CONCURRENT_SESSIONS（缺省回落到旧键，默认 1 保持串行）。
+    MATLAB_MAX_CONCURRENT_SESSIONS: int = 0
     
     # 文件存储配置
     TEMP_DIR: str = "./runtime/modelica_simulations"
@@ -99,4 +110,4 @@ settings = Settings()
 os.makedirs(settings.TEMP_DIR, exist_ok=True)
 os.makedirs(settings.RESULT_DIR, exist_ok=True)
 os.makedirs(settings.OMC_WORK_DIR, exist_ok=True)
-
+os.makedirs(settings.MATLAB_TASK_WORK_DIR, exist_ok=True)

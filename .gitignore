@@ -29,3 +29,7 @@ dist-ssr
 .env.*.local
 
 .mos
+.codex-tmp
+/model-cloud-simulation/runtime/modelica_simulations/
+/model-cloud-simulation/runtime/modelica_results/
+/model-cloud-simulation/runtime/matlab_simulations/

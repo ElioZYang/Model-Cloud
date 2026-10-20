@@ -31,5 +31,7 @@ public class ModelingProjectRequest implements Serializable {
      * 生成的Modelica代码（可选）
      */
     private String modelicaCode;
-}
 
+    /** 项目类型，未传时按 MODELICA 处理以兼容旧客户端。 */
+    private String projectType;
+}

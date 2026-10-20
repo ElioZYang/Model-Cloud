@@ -1,0 +1,54 @@
+{
+  "id": "engine.stage.solve-design-point",
+  "name": "设计点平衡求解",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "workflow",
+  "functionName": "component_engine_solve_design_point",
+  "description": "调用原 BALANCE_FUNCTION_DESIGN(DP,0)，返回原始 DP 和 XD",
+  "category": "设计点组件",
+  "sourceRelativePath": "workflows/component_engine_solve_design_point.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "DP",
+      "type": "engine.dp",
+      "required": true
+    }
+  ],
+  "outputs": [
+    {
+      "name": "DP",
+      "type": "engine.dp",
+      "required": true
+    },
+    {
+      "name": "XD",
+      "type": "engine.design_unknowns",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "component_engine_solve_design_point",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "DP"
+      }
+    ],
+    "returns": [
+      {
+        "output": "DP",
+        "returnIndex": 0,
+        "path": ""
+      },
+      {
+        "output": "XD",
+        "returnIndex": 1,
+        "path": ""
+      }
+    ]
+  }
+}

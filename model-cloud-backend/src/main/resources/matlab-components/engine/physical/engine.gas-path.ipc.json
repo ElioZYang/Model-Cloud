@@ -1,0 +1,74 @@
+{
+  "id": "engine.gas-path.ipc",
+  "legacyName": "ipc",
+  "assemblyDefaults": {
+    "TPR": 1,
+    "EFFC": 0.85,
+    "PRC": 1
+  },
+  "name": "中压压气机",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "calculation",
+  "functionName": "COMPRESSOR",
+  "description": "ipc；使用 COMPRESSOR 计算中压压气机压缩过程",
+  "category": "气路组件",
+  "sourceRelativePath": "components/COMPRESSOR.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "INPUT",
+      "type": "bus",
+      "required": true,
+      "description": "中压压气机输入参数与入口气流状态"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "OUTPUT",
+      "type": "bus",
+      "required": true,
+      "description": "中压压气机出口气流状态与功率参数"
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "COMPRESSOR",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "INPUT"
+      }
+    ],
+    "returns": [
+      {
+        "output": "OUTPUT",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  },
+  "physicalCapabilities": {
+    "flow": {
+      "inputs": [
+        {
+          "id": "INPUT",
+          "role": "main"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "OUTPUT",
+          "role": "main"
+        }
+      ]
+    },
+    "shaft": {
+      "joinable": true
+    },
+    "bleed": {
+      "joinable": true
+    }
+  }
+}

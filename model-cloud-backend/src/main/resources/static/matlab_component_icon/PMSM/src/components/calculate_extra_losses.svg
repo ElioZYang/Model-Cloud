@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 150" role="img" aria-label="Calculate extra losses">
+  <defs>
+    <linearGradient id="componentBg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff8ec"/>
+      <stop offset="1" stop-color="#ffdda3"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="150" rx="18" fill="url(#componentBg)"/>
+  <rect x="15" y="15" width="210" height="120" rx="14" fill="#fff" stroke="#d9780d" stroke-width="3"/>
+  <text x="120" y="66" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="700" fill="#d9780d">fx</text>
+  <text x="120" y="94" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#75420c">EXTRA LOSS</text>
+  <text x="120" y="116" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#8b6842">PMSM</text>
+</svg>

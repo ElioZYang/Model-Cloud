@@ -1,0 +1,54 @@
+{
+  "id": "engine.stage.envelope-speed",
+  "name": "速度扫描",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "workflow",
+  "functionName": "component_engine_envelope_speed",
+  "description": "按原主脚本状态顺序执行速度扫描",
+  "category": "工况扫描组件",
+  "sourceRelativePath": "workflows/component_engine_envelope_speed.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "scan_state",
+      "type": "engine.scan_state",
+      "required": true
+    },
+    {
+      "name": "speed_points",
+      "type": "number",
+      "required": true,
+      "defaultValue": 100
+    }
+  ],
+  "outputs": [
+    {
+      "name": "scan_state",
+      "type": "engine.scan_state",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "component_engine_envelope_speed",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "scan_state"
+      },
+      {
+        "source": "input",
+        "name": "speed_points"
+      }
+    ],
+    "returns": [
+      {
+        "output": "scan_state",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  }
+}

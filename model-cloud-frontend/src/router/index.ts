@@ -82,6 +82,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '模型部署' }
       },
       {
+        path: 'model/matlab-deploy',
+        name: 'MatlabModelDeploy',
+        component: () => import('@/views/business/MatlabModelDeploy.vue'),
+        meta: { title: 'MATLAB在线建模' }
+      },
+      {
+        path: 'editor',
+        name: 'OnlineIde',
+        component: () => import('@/views/tools/OnlineIde.vue'),
+        meta: { title: '在线代码编辑器' }
+      },
+      {
         path: 'system/user',
         name: 'UserList',
         component: () => import('@/views/system/UserList.vue'),
@@ -162,4 +174,3 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
-

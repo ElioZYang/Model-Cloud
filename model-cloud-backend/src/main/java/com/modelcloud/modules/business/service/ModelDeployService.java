@@ -3,11 +3,13 @@ package com.modelcloud.modules.business.service;
 import com.modelcloud.modules.business.model.domain.BsModelingProject;
 import com.modelcloud.modules.business.model.domain.BsSimulationTask;
 import com.modelcloud.modules.business.model.dto.ComponentVO;
+import com.modelcloud.modules.business.model.dto.MatlabComponentVO;
 import com.modelcloud.modules.business.model.request.ModelingProjectRequest;
 import com.modelcloud.modules.business.model.request.SimulationRequest;
 
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.ResponseEntity;
 
 /**
  * 模型部署服务接口
@@ -53,6 +55,11 @@ public interface ModelDeployService {
      * @return 调试信息
      */
     Map<String, Object> getComponentMetaDebugByClassName(String className);
+
+    /**
+     * 获取第一阶段可用于在线计算的MATLAB函数组件。
+     */
+    List<MatlabComponentVO> getMatlabComponents();
     
     /**
      * 保存建模项目
@@ -76,7 +83,7 @@ public interface ModelDeployService {
      * @param projectId 项目ID
      * @return 项目对象
      */
-    BsModelingProject getProject(Long projectId);
+    BsModelingProject getProject(Long projectId, String projectType);
     
     /**
      * 删除建模项目
@@ -92,7 +99,7 @@ public interface ModelDeployService {
      * @param pageSize 每页大小
      * @return 项目列表
      */
-    com.mybatisflex.core.paginate.Page<BsModelingProject> getUserProjects(int pageNum, int pageSize);
+    com.mybatisflex.core.paginate.Page<BsModelingProject> getUserProjects(int pageNum, int pageSize, String projectType);
     
     /**
      * 提交仿真任务
@@ -109,6 +116,12 @@ public interface ModelDeployService {
      * @return 任务对象
      */
     BsSimulationTask getSimulationTask(Long taskId);
+
+    /**
+     * 获取当前用户任务中的图片产物。artifactId 只允许是仿真服务返回的
+     * task-scoped 标识，不接受文件系统路径。
+     */
+    ResponseEntity<byte[]> getSimulationArtifact(Long taskId, String artifactId);
     
     /**
      * 获取用户的仿真任务列表
@@ -119,4 +132,3 @@ public interface ModelDeployService {
      */
     com.mybatisflex.core.paginate.Page<BsSimulationTask> getUserSimulationTasks(int pageNum, int pageSize);
 }
-

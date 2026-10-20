@@ -1,0 +1,1787 @@
+{
+  "id": "engine.configuration.3-spool-separated-turbofan",
+  "name": "三轴分排涡扇",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "subsystem",
+  "functionName": "",
+  "description": "三轴分排涡扇完整构型，旁通流由原风扇分排计算内部处理。",
+  "category": "发动机构型",
+  "sourceRelativePath": "",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "flight_speed_mps",
+      "type": "number",
+      "required": true,
+      "defaultValue": 60,
+      "description": "设计点速度"
+    },
+    {
+      "name": "mach",
+      "type": "number",
+      "required": true,
+      "defaultValue": 0,
+      "description": "马赫数"
+    },
+    {
+      "name": "altitude_m",
+      "type": "number",
+      "required": true,
+      "defaultValue": 3000,
+      "description": "设计点高度"
+    },
+    {
+      "name": "generator_power_kw",
+      "type": "array",
+      "required": true,
+      "defaultValue": [
+        0,
+        0,
+        0
+      ],
+      "description": "各轴设计功率，按轴组顺序输入",
+      "unit": "kW",
+      "dynamicLength": {
+        "source": "shaftGroups",
+        "defaultValue": 0
+      }
+    },
+    {
+      "name": "power_points",
+      "type": "number",
+      "required": false,
+      "defaultValue": 20
+    },
+    {
+      "name": "speed_points",
+      "type": "number",
+      "required": false,
+      "defaultValue": 100
+    },
+    {
+      "name": "altitude_points",
+      "type": "number",
+      "required": false,
+      "defaultValue": 100
+    }
+  ],
+  "outputs": [
+    {
+      "name": "DP",
+      "type": "engine.dp",
+      "required": true
+    },
+    {
+      "name": "XD",
+      "type": "engine.design_unknowns",
+      "required": true
+    },
+    {
+      "name": "MISSION_power",
+      "type": "engine.mission",
+      "required": true
+    },
+    {
+      "name": "MISSION_final",
+      "type": "engine.mission",
+      "required": true
+    },
+    {
+      "name": "design_plot",
+      "type": "engine.plot_artifact",
+      "required": true
+    },
+    {
+      "name": "power_plot",
+      "type": "engine.plot_artifact",
+      "required": true
+    },
+    {
+      "name": "final_plot",
+      "type": "engine.plot_artifact",
+      "required": true
+    },
+    {
+      "name": "MISSION",
+      "type": "engine.mission",
+      "required": true
+    },
+    {
+      "name": "THRUST_ARRAY",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "TIT_ARRAY",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "COMP_WP",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "TURB_WP",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "MOTOR_WP",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "OP",
+      "type": "engine.op",
+      "required": true
+    },
+    {
+      "name": "X0",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "DX",
+      "type": "array",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "templateDefinition": {
+    "schemaVersion": 3,
+    "rootSceneId": "workflow",
+    "scenes": {
+      "workflow": {
+        "id": "workflow",
+        "title": "三轴分排涡扇",
+        "boundaryPorts": [
+          {
+            "id": "flight_speed_mps",
+            "name": "flight_speed_mps",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "design_point",
+              "childPortId": "flight_speed_mps"
+            },
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "mach",
+            "name": "mach",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "design_point",
+              "childPortId": "mach"
+            },
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "altitude_m",
+            "name": "altitude_m",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "design_point",
+              "childPortId": "altitude_m"
+            },
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "generator_power_kw",
+            "name": "generator_power_kw",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "design_point",
+              "childPortId": "generator_power_kw"
+            },
+            "kind": "data",
+            "dataType": "array",
+            "dynamicLength": {
+              "source": "shaftGroups",
+              "defaultValue": 0
+            }
+          },
+          {
+            "id": "DP",
+            "name": "DP",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "design_point",
+              "childPortId": "DP"
+            },
+            "kind": "data",
+            "dataType": "engine.dp"
+          },
+          {
+            "id": "XD",
+            "name": "XD",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "design_point",
+              "childPortId": "XD"
+            },
+            "kind": "data",
+            "dataType": "engine.design_unknowns"
+          },
+          {
+            "id": "MISSION_power",
+            "name": "MISSION_power",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "MISSION_power"
+            },
+            "kind": "data",
+            "dataType": "engine.mission"
+          },
+          {
+            "id": "MISSION_final",
+            "name": "MISSION_final",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "MISSION_final"
+            },
+            "kind": "data",
+            "dataType": "engine.mission"
+          },
+          {
+            "id": "design_plot",
+            "name": "design_plot",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "plot",
+              "childPortId": "design_plot"
+            },
+            "kind": "data",
+            "dataType": "engine.plot_artifact"
+          },
+          {
+            "id": "power_plot",
+            "name": "power_plot",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "plot",
+              "childPortId": "power_plot"
+            },
+            "kind": "data",
+            "dataType": "engine.plot_artifact"
+          },
+          {
+            "id": "final_plot",
+            "name": "final_plot",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "plot",
+              "childPortId": "final_plot"
+            },
+            "kind": "data",
+            "dataType": "engine.plot_artifact"
+          },
+          {
+            "id": "power_points",
+            "name": "power_points",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "power_points"
+            },
+            "defaultValue": 20,
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "speed_points",
+            "name": "speed_points",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "speed_points"
+            },
+            "defaultValue": 100,
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "altitude_points",
+            "name": "altitude_points",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "altitude_points"
+            },
+            "defaultValue": 100,
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "MISSION",
+            "name": "MISSION",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "MISSION"
+            },
+            "kind": "data",
+            "dataType": "engine.mission"
+          },
+          {
+            "id": "THRUST_ARRAY",
+            "name": "THRUST_ARRAY",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "THRUST_ARRAY"
+            },
+            "kind": "data",
+            "dataType": "array"
+          },
+          {
+            "id": "TIT_ARRAY",
+            "name": "TIT_ARRAY",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "TIT_ARRAY"
+            },
+            "kind": "data",
+            "dataType": "array"
+          },
+          {
+            "id": "COMP_WP",
+            "name": "COMP_WP",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "COMP_WP"
+            },
+            "kind": "data",
+            "dataType": "array"
+          },
+          {
+            "id": "TURB_WP",
+            "name": "TURB_WP",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "TURB_WP"
+            },
+            "kind": "data",
+            "dataType": "array"
+          },
+          {
+            "id": "MOTOR_WP",
+            "name": "MOTOR_WP",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "MOTOR_WP"
+            },
+            "kind": "data",
+            "dataType": "array"
+          },
+          {
+            "id": "OP",
+            "name": "OP",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "OP"
+            },
+            "kind": "data",
+            "dataType": "engine.op"
+          },
+          {
+            "id": "X0",
+            "name": "X0",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "X0"
+            },
+            "kind": "data",
+            "dataType": "array"
+          },
+          {
+            "id": "DX",
+            "name": "DX",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan",
+              "childPortId": "DX"
+            },
+            "kind": "data",
+            "dataType": "array"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "design_point",
+            "componentId": "engine.configuration.design-point",
+            "instanceName": "设计点模型",
+            "nodeKind": "subsystem",
+            "executionKind": "subsystem",
+            "values": {},
+            "resources": {},
+            "childSceneId": "design_point"
+          },
+          {
+            "id": "scan",
+            "componentId": "engine.configuration.envelope-scan",
+            "instanceName": "工况扫描",
+            "nodeKind": "subsystem",
+            "executionKind": "subsystem",
+            "values": {},
+            "resources": {},
+            "childSceneId": "scan"
+          },
+          {
+            "id": "plot",
+            "componentId": "engine.configuration.plot",
+            "instanceName": "特性图绘制",
+            "nodeKind": "subsystem",
+            "executionKind": "subsystem",
+            "values": {},
+            "resources": {},
+            "childSceneId": "plot"
+          }
+        ],
+        "dataEdges": [
+          {
+            "id": "workflow_dp_scan",
+            "sourceNodeId": "design_point",
+            "sourcePort": "DP",
+            "targetNodeId": "scan",
+            "targetPort": "DP"
+          },
+          {
+            "id": "workflow_dp_plot",
+            "sourceNodeId": "design_point",
+            "sourcePort": "DP",
+            "targetNodeId": "plot",
+            "targetPort": "DP"
+          },
+          {
+            "id": "workflow_power_plot",
+            "sourceNodeId": "scan",
+            "sourcePort": "MISSION_power",
+            "targetNodeId": "plot",
+            "targetPort": "MISSION_power"
+          },
+          {
+            "id": "workflow_final_plot",
+            "sourceNodeId": "scan",
+            "sourcePort": "MISSION_final",
+            "targetNodeId": "plot",
+            "targetPort": "MISSION_final"
+          }
+        ],
+        "viewport": {
+          "y": 0,
+          "zoom": 1,
+          "x": 0
+        }
+      },
+      "design_point": {
+        "id": "design_point",
+        "title": "设计点模型",
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "zoom": 1
+        },
+        "boundaryPorts": [
+          {
+            "id": "flight_speed_mps",
+            "name": "flight_speed_mps",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "physical_configuration",
+              "childPortId": "V"
+            },
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "mach",
+            "name": "mach",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "physical_configuration",
+              "childPortId": "M"
+            },
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "altitude_m",
+            "name": "altitude_m",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "physical_configuration",
+              "childPortId": "H"
+            },
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "generator_power_kw",
+            "name": "generator_power_kw",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "design_conditions",
+              "childPortId": "generator_power_kw"
+            },
+            "kind": "data",
+            "dataType": "array",
+            "dynamicLength": {
+              "source": "shaftGroups",
+              "defaultValue": 0
+            }
+          },
+          {
+            "id": "DP",
+            "name": "DP",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "solve_design",
+              "childPortId": "DP"
+            },
+            "kind": "data",
+            "dataType": "engine.dp"
+          },
+          {
+            "id": "XD",
+            "name": "XD",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "solve_design",
+              "childPortId": "XD"
+            },
+            "kind": "data",
+            "dataType": "engine.design_unknowns"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "physical_configuration",
+            "componentId": "project.subsystem.engine-assembly",
+            "functionName": "",
+            "instanceName": "发动机组装",
+            "nodeKind": "subsystem",
+            "executionKind": "subsystem",
+            "childSceneId": "physical",
+            "legacyOrder": 1,
+            "position": {
+              "x": 40,
+              "y": 120
+            },
+            "values": {
+              "V": 60,
+              "M": 0,
+              "H": 3000
+            },
+            "resources": {},
+            "boundaryPorts": [
+              {
+                "id": "V",
+                "name": "V",
+                "direction": "input",
+                "mapping": {
+                  "childNodeId": "dp_assembly",
+                  "childPortId": "V"
+                },
+                "kind": "data",
+                "dataType": "number"
+              },
+              {
+                "id": "M",
+                "name": "M",
+                "direction": "input",
+                "mapping": {
+                  "childNodeId": "dp_assembly",
+                  "childPortId": "M"
+                },
+                "kind": "data",
+                "dataType": "number"
+              },
+              {
+                "id": "H",
+                "name": "H",
+                "direction": "input",
+                "mapping": {
+                  "childNodeId": "dp_assembly",
+                  "childPortId": "H"
+                },
+                "kind": "data",
+                "dataType": "number"
+              },
+              {
+                "id": "DP",
+                "name": "DP",
+                "direction": "output",
+                "mapping": {
+                  "childNodeId": "dp_assembly",
+                  "childPortId": "DP"
+                },
+                "kind": "data",
+                "dataType": "engine.dp"
+              }
+            ]
+          },
+          {
+            "id": "design_conditions",
+            "componentId": "engine.stage.apply-design-conditions",
+            "functionName": "component_engine_apply_design_conditions",
+            "instanceName": "设计条件设置",
+            "nodeKind": "workflowNode",
+            "executionKind": "matlabFunction",
+            "legacyOrder": 2,
+            "position": {
+              "x": 420,
+              "y": 120
+            },
+            "values": {
+              "thrust": 0,
+              "air_mass_flow": 0,
+              "generator_power_kw": [
+                0,
+                0,
+                0
+              ]
+            },
+            "resources": {}
+          },
+          {
+            "id": "solve_design",
+            "componentId": "engine.stage.solve-design-point",
+            "functionName": "component_engine_solve_design_point",
+            "instanceName": "设计点平衡求解",
+            "nodeKind": "workflowNode",
+            "executionKind": "matlabFunction",
+            "legacyOrder": 3,
+            "position": {
+              "x": 800,
+              "y": 120
+            },
+            "values": {},
+            "resources": {}
+          }
+        ],
+        "parentSceneId": "workflow",
+        "dataEdges": [
+          {
+            "id": "dp_initialize_to_conditions",
+            "sourceNodeId": "physical_configuration",
+            "sourcePort": "DP",
+            "targetNodeId": "design_conditions",
+            "targetPort": "DP"
+          },
+          {
+            "id": "dp_conditions_to_solve",
+            "sourceNodeId": "design_conditions",
+            "sourcePort": "DP",
+            "targetNodeId": "solve_design",
+            "targetPort": "DP"
+          }
+        ]
+      },
+      "physical": {
+        "id": "physical",
+        "parentSceneId": "design_point",
+        "title": "发动机组装",
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "zoom": 1
+        },
+        "boundaryPorts": [
+          {
+            "id": "V",
+            "name": "V",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "dp_assembly",
+              "childPortId": "V"
+            },
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "M",
+            "name": "M",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "dp_assembly",
+              "childPortId": "M"
+            },
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "H",
+            "name": "H",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "dp_assembly",
+              "childPortId": "H"
+            },
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "DP",
+            "name": "DP",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "dp_assembly",
+              "childPortId": "DP"
+            },
+            "kind": "data",
+            "dataType": "engine.dp"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "dp_assembly",
+            "componentId": "engine.stage.initialize-configuration",
+            "functionName": "component_engine_initialize_configuration",
+            "instanceName": "DP 组装",
+            "nodeKind": "workflowNode",
+            "executionKind": "matlabFunction",
+            "legacyOrder": 1000,
+            "position": {
+              "x": 430,
+              "y": 20
+            },
+            "values": {
+              "V": 60,
+              "M": 0,
+              "H": 3000
+            },
+            "resources": {}
+          },
+          {
+            "id": "assembly_descriptor_assembly_physical",
+            "componentId": "project.subsystem.engine-assembly-relations",
+            "nodeKind": "subsystem",
+            "executionKind": "subsystem",
+            "physicalAssemblyId": "assembly_physical",
+            "childSceneId": "assembly_relations",
+            "instanceName": "装配关系",
+            "functionName": "",
+            "legacyOrder": 1,
+            "values": {},
+            "resources": {},
+            "boundaryPorts": [
+              {
+                "id": "assembly_json",
+                "name": "assembly_json",
+                "kind": "data",
+                "direction": "output",
+                "dataType": "string"
+              }
+            ],
+            "position": {
+              "x": 40,
+              "y": 300
+            }
+          }
+        ],
+        "dataEdges": [
+          {
+            "id": "edge_assembly_descriptor_assembly_physical_assembly_json_dp_assembly",
+            "sourceNodeId": "assembly_descriptor_assembly_physical",
+            "sourcePort": "assembly_json",
+            "targetNodeId": "dp_assembly",
+            "targetPort": "assembly_json"
+          }
+        ]
+      },
+      "scan": {
+        "id": "scan",
+        "title": "工况扫描",
+        "boundaryPorts": [
+          {
+            "id": "DP",
+            "name": "DP",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "scan_initialize",
+              "childPortId": "DP"
+            },
+            "kind": "data",
+            "dataType": "engine.dp"
+          },
+          {
+            "id": "power_points",
+            "name": "power_points",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "scan_power",
+              "childPortId": "power_points"
+            },
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "speed_points",
+            "name": "speed_points",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "scan_speed",
+              "childPortId": "speed_points"
+            },
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "altitude_points",
+            "name": "altitude_points",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "scan_altitude",
+              "childPortId": "altitude_points"
+            },
+            "kind": "data",
+            "dataType": "number"
+          },
+          {
+            "id": "MISSION_power",
+            "name": "MISSION_power",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan_power",
+              "childPortId": "MISSION_power"
+            },
+            "kind": "data",
+            "dataType": "engine.mission"
+          },
+          {
+            "id": "MISSION_final",
+            "name": "MISSION_final",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan_finalize",
+              "childPortId": "MISSION_final"
+            },
+            "kind": "data",
+            "dataType": "engine.mission"
+          },
+          {
+            "id": "MISSION",
+            "name": "MISSION",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan_finalize",
+              "childPortId": "MISSION_final"
+            },
+            "kind": "data",
+            "dataType": "engine.mission"
+          },
+          {
+            "id": "THRUST_ARRAY",
+            "name": "THRUST_ARRAY",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan_finalize",
+              "childPortId": "THRUST_ARRAY"
+            },
+            "kind": "data",
+            "dataType": "array"
+          },
+          {
+            "id": "TIT_ARRAY",
+            "name": "TIT_ARRAY",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan_finalize",
+              "childPortId": "TIT_ARRAY"
+            },
+            "kind": "data",
+            "dataType": "array"
+          },
+          {
+            "id": "COMP_WP",
+            "name": "COMP_WP",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan_finalize",
+              "childPortId": "COMP_WP"
+            },
+            "kind": "data",
+            "dataType": "array"
+          },
+          {
+            "id": "TURB_WP",
+            "name": "TURB_WP",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan_finalize",
+              "childPortId": "TURB_WP"
+            },
+            "kind": "data",
+            "dataType": "array"
+          },
+          {
+            "id": "MOTOR_WP",
+            "name": "MOTOR_WP",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan_finalize",
+              "childPortId": "MOTOR_WP"
+            },
+            "kind": "data",
+            "dataType": "array"
+          },
+          {
+            "id": "OP",
+            "name": "OP",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan_finalize",
+              "childPortId": "OP"
+            },
+            "kind": "data",
+            "dataType": "engine.op"
+          },
+          {
+            "id": "X0",
+            "name": "X0",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan_finalize",
+              "childPortId": "X0"
+            },
+            "kind": "data",
+            "dataType": "array"
+          },
+          {
+            "id": "DX",
+            "name": "DX",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "scan_finalize",
+              "childPortId": "DX"
+            },
+            "kind": "data",
+            "dataType": "array"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "scan_initialize",
+            "componentId": "engine.stage.envelope-initialize",
+            "instanceName": "非设计点初始化",
+            "nodeKind": "workflowNode",
+            "executionKind": "matlabFunction",
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "scan_power",
+            "componentId": "engine.stage.envelope-power",
+            "instanceName": "功率扫描",
+            "nodeKind": "workflowNode",
+            "executionKind": "matlabFunction",
+            "values": {},
+            "resources": {},
+            "phase": "power"
+          },
+          {
+            "id": "scan_speed_initialize",
+            "componentId": "engine.stage.envelope-speed-initialize",
+            "instanceName": "速度扫描重置",
+            "nodeKind": "workflowNode",
+            "executionKind": "matlabFunction",
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "scan_speed",
+            "componentId": "engine.stage.envelope-speed",
+            "instanceName": "速度扫描",
+            "nodeKind": "workflowNode",
+            "executionKind": "matlabFunction",
+            "values": {},
+            "resources": {},
+            "phase": "speed"
+          },
+          {
+            "id": "scan_altitude",
+            "componentId": "engine.stage.envelope-altitude",
+            "instanceName": "高度扫描",
+            "nodeKind": "workflowNode",
+            "executionKind": "matlabFunction",
+            "values": {},
+            "resources": {},
+            "phase": "altitude"
+          },
+          {
+            "id": "scan_finalize",
+            "componentId": "engine.stage.envelope-finalize",
+            "instanceName": "扫描结果汇总",
+            "nodeKind": "workflowNode",
+            "executionKind": "matlabFunction",
+            "values": {},
+            "resources": {},
+            "phase": "final"
+          }
+        ],
+        "dataEdges": [
+          {
+            "id": "scan_1",
+            "sourceNodeId": "scan_initialize",
+            "sourcePort": "scan_state",
+            "targetNodeId": "scan_power",
+            "targetPort": "scan_state"
+          },
+          {
+            "id": "scan_2",
+            "sourceNodeId": "scan_power",
+            "sourcePort": "scan_state",
+            "targetNodeId": "scan_speed_initialize",
+            "targetPort": "scan_state"
+          },
+          {
+            "id": "scan_3",
+            "sourceNodeId": "scan_speed_initialize",
+            "sourcePort": "scan_state",
+            "targetNodeId": "scan_speed",
+            "targetPort": "scan_state"
+          },
+          {
+            "id": "scan_4",
+            "sourceNodeId": "scan_speed",
+            "sourcePort": "scan_state",
+            "targetNodeId": "scan_altitude",
+            "targetPort": "scan_state"
+          },
+          {
+            "id": "scan_5",
+            "sourceNodeId": "scan_altitude",
+            "sourcePort": "scan_state",
+            "targetNodeId": "scan_finalize",
+            "targetPort": "scan_state"
+          }
+        ],
+        "viewport": {
+          "y": 0,
+          "zoom": 1,
+          "x": 0
+        }
+      },
+      "plot": {
+        "id": "plot",
+        "title": "特性图绘制",
+        "boundaryPorts": [
+          {
+            "id": "DP",
+            "name": "DP",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "plot_design",
+              "childPortId": "DP"
+            },
+            "kind": "data",
+            "dataType": "engine.dp"
+          },
+          {
+            "id": "MISSION_power",
+            "name": "MISSION_power",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "plot_power",
+              "childPortId": "MISSION"
+            },
+            "kind": "data",
+            "dataType": "engine.mission"
+          },
+          {
+            "id": "MISSION_final",
+            "name": "MISSION_final",
+            "direction": "input",
+            "mapping": {
+              "childNodeId": "plot_final",
+              "childPortId": "MISSION"
+            },
+            "kind": "data",
+            "dataType": "engine.mission"
+          },
+          {
+            "id": "design_plot",
+            "name": "design_plot",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "plot_design",
+              "childPortId": "plot_result"
+            },
+            "kind": "data",
+            "dataType": "engine.plot_artifact"
+          },
+          {
+            "id": "power_plot",
+            "name": "power_plot",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "plot_power",
+              "childPortId": "plot_result"
+            },
+            "kind": "data",
+            "dataType": "engine.plot_artifact"
+          },
+          {
+            "id": "final_plot",
+            "name": "final_plot",
+            "direction": "output",
+            "mapping": {
+              "childNodeId": "plot_final",
+              "childPortId": "plot_result"
+            },
+            "kind": "data",
+            "dataType": "engine.plot_artifact"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "plot_design",
+            "componentId": "engine.plot.flow",
+            "instanceName": "设计点气路图",
+            "nodeKind": "workflowNode",
+            "executionKind": "matlabFunction",
+            "values": {
+              "phase": "design"
+            },
+            "resources": {},
+            "phase": "design"
+          },
+          {
+            "id": "plot_power",
+            "componentId": "engine.plot.map-mission",
+            "instanceName": "功率扫描特性图",
+            "nodeKind": "workflowNode",
+            "executionKind": "matlabFunction",
+            "values": {
+              "phase": "power"
+            },
+            "resources": {},
+            "phase": "power"
+          },
+          {
+            "id": "plot_final",
+            "componentId": "engine.plot.map-mission",
+            "instanceName": "全工况特性图",
+            "nodeKind": "workflowNode",
+            "executionKind": "matlabFunction",
+            "values": {
+              "phase": "final"
+            },
+            "resources": {},
+            "phase": "final"
+          }
+        ],
+        "dataEdges": [],
+        "viewport": {
+          "y": 0,
+          "zoom": 1,
+          "x": 0
+        }
+      },
+      "assembly_relations": {
+        "id": "assembly_relations",
+        "parentSceneId": "physical",
+        "title": "装配关系",
+        "nodes": [
+          {
+            "id": "inlet_1",
+            "componentId": "engine.gas-path.inlet",
+            "functionName": "INLET",
+            "instanceName": "进气道 1",
+            "nodeKind": "physicalComponent",
+            "legacyName": "inlet",
+            "legacyOrder": 1,
+            "assemblyDefaults": {
+              "TPR": -1
+            },
+            "position": {
+              "x": 40,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "duct_1",
+            "componentId": "engine.gas-path.duct",
+            "functionName": "DUCT",
+            "instanceName": "管道 1",
+            "nodeKind": "physicalComponent",
+            "legacyName": "duct",
+            "legacyOrder": 2,
+            "assemblyDefaults": {
+              "TPR": 0.97
+            },
+            "position": {
+              "x": 260,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "fan_1",
+            "componentId": "engine.gas-path.fan",
+            "functionName": "COMPRESSOR",
+            "instanceName": "风扇 1",
+            "nodeKind": "physicalComponent",
+            "legacyName": "fan",
+            "legacyOrder": 3,
+            "assemblyDefaults": {
+              "TPR": 1,
+              "EFFC": 0.89,
+              "PRC": 1.5
+            },
+            "position": {
+              "x": 480,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "duct_2",
+            "componentId": "engine.gas-path.duct",
+            "functionName": "DUCT",
+            "instanceName": "管道 2",
+            "nodeKind": "physicalComponent",
+            "legacyName": "duct",
+            "legacyOrder": 4,
+            "assemblyDefaults": {
+              "TPR": 0.97
+            },
+            "position": {
+              "x": 700,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "lpc_1",
+            "componentId": "engine.gas-path.lpc",
+            "functionName": "COMPRESSOR",
+            "instanceName": "低压压气机 1",
+            "nodeKind": "physicalComponent",
+            "legacyName": "lpc",
+            "legacyOrder": 5,
+            "assemblyDefaults": {
+              "TPR": 1,
+              "EFFC": 0.8777,
+              "PRC": 2.18
+            },
+            "position": {
+              "x": 920,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "duct_3",
+            "componentId": "engine.gas-path.duct",
+            "functionName": "DUCT",
+            "instanceName": "管道 3",
+            "nodeKind": "physicalComponent",
+            "legacyName": "duct",
+            "legacyOrder": 6,
+            "assemblyDefaults": {
+              "TPR": 0.97
+            },
+            "position": {
+              "x": 1140,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "hpc_1",
+            "componentId": "engine.gas-path.hpc",
+            "functionName": "COMPRESSOR",
+            "instanceName": "高压压气机 1",
+            "nodeKind": "physicalComponent",
+            "legacyName": "hpc",
+            "legacyOrder": 7,
+            "assemblyDefaults": {
+              "TPR": 1,
+              "EFFC": 0.8677,
+              "PRC": 11.069,
+              "WA_extraction": 0
+            },
+            "position": {
+              "x": 1360,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "burn_1",
+            "componentId": "engine.gas-path.burn",
+            "functionName": "BURN",
+            "instanceName": "主燃烧室 1",
+            "nodeKind": "physicalComponent",
+            "legacyName": "burn",
+            "legacyOrder": 8,
+            "assemblyDefaults": {
+              "TPR": 0.95,
+              "EB": 0.999,
+              "HU": 43124000,
+              "TO": 1577.55
+            },
+            "position": {
+              "x": 1580,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "hpt_1",
+            "componentId": "engine.gas-path.hpt",
+            "functionName": "TURBINE",
+            "instanceName": "高压涡轮 1",
+            "nodeKind": "physicalComponent",
+            "legacyName": "hpt",
+            "legacyOrder": 9,
+            "assemblyDefaults": {
+              "TPR": 1,
+              "EFFT": 0.89,
+              "PRT": 0,
+              "WA_extraction": 0
+            },
+            "position": {
+              "x": 1800,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "duct_4",
+            "componentId": "engine.gas-path.duct",
+            "functionName": "DUCT",
+            "instanceName": "管道 4",
+            "nodeKind": "physicalComponent",
+            "legacyName": "duct",
+            "legacyOrder": 10,
+            "assemblyDefaults": {
+              "TPR": 0.97
+            },
+            "position": {
+              "x": 2020,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "ipt_1",
+            "componentId": "engine.gas-path.ipt",
+            "functionName": "TURBINE",
+            "instanceName": "中压涡轮 1",
+            "nodeKind": "physicalComponent",
+            "legacyName": "ipt",
+            "legacyOrder": 11,
+            "assemblyDefaults": {
+              "TPR": 1,
+              "EFFT": 0.89,
+              "PRT": 0
+            },
+            "position": {
+              "x": 2240,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "duct_5",
+            "componentId": "engine.gas-path.duct",
+            "functionName": "DUCT",
+            "instanceName": "管道 5",
+            "nodeKind": "physicalComponent",
+            "legacyName": "duct",
+            "legacyOrder": 12,
+            "assemblyDefaults": {
+              "TPR": 0.97
+            },
+            "position": {
+              "x": 2460,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "lpt_1",
+            "componentId": "engine.gas-path.lpt",
+            "functionName": "TURBINE",
+            "instanceName": "低压涡轮 1",
+            "nodeKind": "physicalComponent",
+            "legacyName": "lpt",
+            "legacyOrder": 13,
+            "assemblyDefaults": {
+              "TPR": 1,
+              "EFFT": 0.89,
+              "PRT": 0,
+              "WA_extraction": 0
+            },
+            "position": {
+              "x": 2680,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "duct_6",
+            "componentId": "engine.gas-path.duct",
+            "functionName": "DUCT",
+            "instanceName": "管道 6",
+            "nodeKind": "physicalComponent",
+            "legacyName": "duct",
+            "legacyOrder": 14,
+            "assemblyDefaults": {
+              "TPR": 0.97
+            },
+            "position": {
+              "x": 2900,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "afterburn_1",
+            "componentId": "engine.gas-path.afterburn",
+            "functionName": "AFTERBURN",
+            "instanceName": "加力燃烧室 1",
+            "nodeKind": "physicalComponent",
+            "legacyName": "afterburn",
+            "legacyOrder": 15,
+            "assemblyDefaults": {
+              "TPR": 0.9,
+              "EB": 0.9,
+              "HU": 43124000,
+              "TO": 2200
+            },
+            "position": {
+              "x": 3120,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          },
+          {
+            "id": "nozzle_1",
+            "componentId": "engine.gas-path.nozzle",
+            "functionName": "NOZZLE",
+            "instanceName": "喷管 1",
+            "nodeKind": "physicalComponent",
+            "legacyName": "nozzle",
+            "legacyOrder": 16,
+            "assemblyDefaults": {
+              "TPR": 0.97
+            },
+            "position": {
+              "x": 3340,
+              "y": 180
+            },
+            "values": {},
+            "resources": {}
+          }
+        ],
+        "dataEdges": [],
+        "boundaryPorts": [],
+        "viewport": {
+          "x": 0,
+          "y": 0,
+          "zoom": 0.65
+        }
+      }
+    },
+    "physicalAssemblies": {
+      "assembly_physical": {
+        "id": "assembly_physical",
+        "name": "三轴分排涡扇",
+        "domain": "aircraft-engine",
+        "memberNodeIds": [
+          "inlet_1",
+          "duct_1",
+          "fan_1",
+          "duct_2",
+          "lpc_1",
+          "duct_3",
+          "hpc_1",
+          "burn_1",
+          "hpt_1",
+          "duct_4",
+          "ipt_1",
+          "duct_5",
+          "lpt_1",
+          "duct_6",
+          "afterburn_1",
+          "nozzle_1"
+        ],
+        "flowRelations": [
+          {
+            "id": "flow_1",
+            "kind": "flow",
+            "sourceNodeId": "inlet_1",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "duct_1",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_2",
+            "kind": "flow",
+            "sourceNodeId": "duct_1",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "fan_1",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_3",
+            "kind": "flow",
+            "sourceNodeId": "fan_1",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "duct_2",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_4",
+            "kind": "flow",
+            "sourceNodeId": "duct_2",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "lpc_1",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_5",
+            "kind": "flow",
+            "sourceNodeId": "lpc_1",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "duct_3",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_6",
+            "kind": "flow",
+            "sourceNodeId": "duct_3",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "hpc_1",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_7",
+            "kind": "flow",
+            "sourceNodeId": "hpc_1",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "burn_1",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_8",
+            "kind": "flow",
+            "sourceNodeId": "burn_1",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "hpt_1",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_9",
+            "kind": "flow",
+            "sourceNodeId": "hpt_1",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "duct_4",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_10",
+            "kind": "flow",
+            "sourceNodeId": "duct_4",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "ipt_1",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_11",
+            "kind": "flow",
+            "sourceNodeId": "ipt_1",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "duct_5",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_12",
+            "kind": "flow",
+            "sourceNodeId": "duct_5",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "lpt_1",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_13",
+            "kind": "flow",
+            "sourceNodeId": "lpt_1",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "duct_6",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_14",
+            "kind": "flow",
+            "sourceNodeId": "duct_6",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "afterburn_1",
+            "targetPortId": "INPUT"
+          },
+          {
+            "id": "flow_15",
+            "kind": "flow",
+            "sourceNodeId": "afterburn_1",
+            "sourcePortId": "OUTPUT",
+            "targetNodeId": "nozzle_1",
+            "targetPortId": "INPUT"
+          }
+        ],
+        "shaftGroups": [
+          {
+            "id": "shaft_1",
+            "kind": "shaft",
+            "name": "轴 1",
+            "order": 100,
+            "memberNodeIds": [
+              "fan_1",
+              "lpt_1"
+            ],
+            "parameters": {
+              "E_mech": 0.985,
+              "E_motor": 0.97
+            }
+          },
+          {
+            "id": "shaft_2",
+            "kind": "shaft",
+            "name": "轴 2",
+            "order": 101,
+            "memberNodeIds": [
+              "lpc_1",
+              "ipt_1"
+            ],
+            "parameters": {
+              "E_mech": 0.985,
+              "E_motor": 0.97
+            }
+          },
+          {
+            "id": "shaft_3",
+            "kind": "shaft",
+            "name": "轴 3",
+            "order": 102,
+            "memberNodeIds": [
+              "hpc_1",
+              "hpt_1"
+            ],
+            "parameters": {
+              "E_mech": 0.985,
+              "E_motor": 0.97
+            }
+          }
+        ],
+        "bleedGroups": [
+          {
+            "id": "bleed_1",
+            "kind": "bleed",
+            "name": "引气组 1",
+            "order": 101,
+            "memberNodeIds": [
+              "hpc_1",
+              "hpt_1",
+              "lpt_1"
+            ]
+          }
+        ],
+        "initializerBinding": {
+          "nodeId": "dp_assembly",
+          "inputPort": "assembly_json"
+        },
+        "defaults": {
+          "type": "3 spool separated turbofan",
+          "flow": "separated",
+          "THRUST": 98,
+          "WA": 313.798,
+          "BYPASS_RATIO": 4.9373,
+          "TPRM": 0.8,
+          "EFFC": [
+            0.89,
+            0.8777,
+            0.8677
+          ],
+          "EFFT": [
+            0.89,
+            0.89,
+            0.89
+          ],
+          "PRC_outerfan": 1.655,
+          "PRC": [
+            1.5,
+            2.18,
+            11.069
+          ],
+          "PRT": [
+            0,
+            0,
+            0
+          ],
+          "EB": [
+            0.999,
+            0.9
+          ],
+          "E_mech": [
+            [
+              0.985
+            ],
+            [
+              0.985
+            ],
+            [
+              0.985
+            ]
+          ],
+          "E_motor": [
+            0.97,
+            0.97,
+            0.97
+          ],
+          "HU": [
+            43124000,
+            43124000
+          ],
+          "TO": [
+            1577.55,
+            2200
+          ],
+          "SHAFT_CONTROL": 1
+        }
+      }
+    }
+  },
+  "catalogOrder": 11
+}

@@ -1,0 +1,64 @@
+{
+  "id": "engine.stage.envelope-power",
+  "name": "功率扫描",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "workflow",
+  "functionName": "component_engine_envelope_power",
+  "description": "按原主脚本状态顺序执行功率扫描",
+  "category": "工况扫描组件",
+  "sourceRelativePath": "workflows/component_engine_envelope_power.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "scan_state",
+      "type": "engine.scan_state",
+      "required": true
+    },
+    {
+      "name": "power_points",
+      "type": "number",
+      "required": true,
+      "defaultValue": 20
+    }
+  ],
+  "outputs": [
+    {
+      "name": "scan_state",
+      "type": "engine.scan_state",
+      "required": true
+    },
+    {
+      "name": "MISSION_power",
+      "type": "engine.mission",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "component_engine_envelope_power",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "scan_state"
+      },
+      {
+        "source": "input",
+        "name": "power_points"
+      }
+    ],
+    "returns": [
+      {
+        "output": "scan_state",
+        "returnIndex": 0,
+        "path": ""
+      },
+      {
+        "output": "MISSION_power",
+        "returnIndex": 1,
+        "path": ""
+      }
+    ]
+  }
+}

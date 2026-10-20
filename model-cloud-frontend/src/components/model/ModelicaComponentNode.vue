@@ -130,6 +130,10 @@ const decideSide = (connector: Connector, index: number): Side => {
   if (name === 'p') return 'left'
   if (name === 'n') return 'right'
 
+  const connectorType = String(connector.type || '').toLowerCase()
+  if (connectorType.includes('input')) return 'left'
+  if (connectorType.includes('output')) return 'right'
+
   // 默认端口放置顺序：左、右、上、下
   const baseOrder: Side[] = ['left', 'right', 'top', 'bottom']
   if (index < 4) {
@@ -156,6 +160,10 @@ const getConnectorType = (connector: Connector, position: Position): 'source' | 
   if (name === 'n') return 'target'
 
   const type = connector.type || ''
+  const normalizedType = type.toLowerCase()
+  // 信号端口供Modelica组件和MATLAB函数组件共同使用。
+  if (normalizedType.includes('input')) return 'target'
+  if (normalizedType.includes('output')) return 'source'
   // 简化处理：PositivePin作为source，NegativePin作为target
   if (type.includes('PositivePin')) return 'source'
   if (type.includes('NegativePin')) return 'target'
@@ -316,4 +324,3 @@ const getLabelStyle = (layout: ConnectorLayout) => {
   opacity: 1;
 }
 </style>
-

@@ -54,6 +54,8 @@ public class SecurityConfig {
                     "/public/**",
                     "/component_icon/**",
                     "/api/component_icon/**",
+                    "/matlab_component_icon/**",
+                    "/api/matlab_component_icon/**",
                     "/business/label/list",
                     "/business/label/category/list",
                     "/business/model/list",
@@ -86,4 +88,3 @@ public class SecurityConfig {
         return source;
     }
 }
-

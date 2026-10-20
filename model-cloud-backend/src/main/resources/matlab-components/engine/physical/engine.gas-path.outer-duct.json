@@ -1,0 +1,66 @@
+{
+  "id": "engine.gas-path.outer-duct",
+  "legacyName": "outer duct",
+  "assemblyDefaults": {
+    "TPR": 0.97
+  },
+  "name": "外涵管道",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "calculation",
+  "functionName": "DUCT",
+  "description": "outer duct；使用 DUCT 计算外涵道压降、焓增与修正流量",
+  "category": "气路组件",
+  "sourceRelativePath": "components/DUCT.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "INPUT",
+      "type": "bus",
+      "required": true,
+      "description": "外涵管道输入参数与入口气流状态"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "OUTPUT",
+      "type": "bus",
+      "required": true,
+      "description": "外涵管道出口气流状态"
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "DUCT",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "INPUT"
+      }
+    ],
+    "returns": [
+      {
+        "output": "OUTPUT",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  },
+  "physicalCapabilities": {
+    "flow": {
+      "inputs": [
+        {
+          "id": "INPUT",
+          "role": "bypass"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "OUTPUT",
+          "role": "bypass"
+        }
+      ]
+    }
+  }
+}

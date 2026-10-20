@@ -1,0 +1,54 @@
+{
+  "id": "engine.plot.flow",
+  "name": "设计点气路图",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "workflow",
+  "functionName": "component_engine_plot_flow",
+  "description": "调用原 PLOTFLOW 绘制设计点气路温压图并返回 PNG 图片清单",
+  "category": "绘图组件",
+  "sourceRelativePath": "workflows/component_engine_plot_flow.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "DP",
+      "type": "engine.dp",
+      "required": true
+    },
+    {
+      "name": "phase",
+      "type": "string",
+      "required": false,
+      "defaultValue": "design"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "plot_result",
+      "type": "engine.plot_artifact",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "component_engine_plot_flow",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "DP"
+      },
+      {
+        "source": "input",
+        "name": "phase"
+      }
+    ],
+    "returns": [
+      {
+        "output": "plot_result",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  }
+}

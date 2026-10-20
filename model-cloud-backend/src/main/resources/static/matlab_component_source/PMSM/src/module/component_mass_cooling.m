@@ -1,0 +1,73 @@
+function response = component_mass_cooling(request)
+%COMPONENT_MASS_COOLING PMSM质量与冷却结构组件入口。
+%
+% 输入：request.inputs.design_draft
+% 输出：
+%   response.outputs.motor_static
+%   response.outputs.mass
+%   response.outputs.cooling_geometry
+
+design_draft = require_component_input(request, 'design_draft', ...
+    'PMSM:MassCooling:MissingDesignDraft', ...
+    '质量与冷却结构组件缺少 request.inputs.design_draft。');
+require_business_fields(design_draft, ...
+    {'input', 'geometry', 'slot', 'winding', 'magnet', ...
+     'operating', 'thermal', 'intermediate'}, ...
+    'design_draft', 'PMSM:MassCooling:InvalidDesignDraft');
+
+pmsm_input = design_draft.input;
+geometry = design_draft.geometry;
+slot_params = design_draft.slot;
+winding_params = design_draft.winding;
+mag_params = design_draft.magnet;
+operating = design_draft.operating;
+
+[mass_params, geometry_from_mass] = calculate_motor_mass( ...
+        pmsm_input, ...
+        operating, ...
+        geometry.stator_ID / 1000, ...
+        geometry.stator_OD / 1000, ...
+        geometry.rotor_OD / 1000, ...
+        geometry.rotor_ID / 1000, ...
+        geometry.core_length / 1000, ...
+        geometry.slot_number, ...
+        slot_params, winding_params, mag_params, geometry.air_gap / 1000);
+if isstruct(geometry_from_mass)
+    geometry = geometry_from_mass;
+end
+
+cooling_geometry = struct( ...
+    'housing_OD', geometry.housing_OD, ...
+    'cgv_height', geometry.cgv_height, ...
+    'cgv_length', geometry.cgv_length, ...
+    'cooling_mode', pmsm_input.cooling);
+
+motor_static = design_draft;
+motor_static.geometry = geometry;
+motor_static.mass = mass_params;
+
+response = struct();
+response.outputs = struct( ...
+    'motor_static', motor_static, ...
+    'mass', mass_params, ...
+    'cooling_geometry', cooling_geometry);
+end
+
+function result = require_component_input(request, field_name, error_id, message)
+if ~isstruct(request) || ~isfield(request, 'inputs') ...
+        || ~isstruct(request.inputs) || ~isfield(request.inputs, field_name)
+    error(error_id, message);
+end
+result = request.inputs.(field_name);
+if ~isstruct(result)
+    error(error_id, '%s 必须是结构体。', message);
+end
+end
+
+function require_business_fields(value, fields, value_name, error_id)
+for index = 1:numel(fields)
+    if ~isfield(value, fields{index})
+        error(error_id, '%s 缺少字段 %s。', value_name, fields{index});
+    end
+end
+end

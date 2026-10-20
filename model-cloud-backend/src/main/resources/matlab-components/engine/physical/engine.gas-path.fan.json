@@ -1,0 +1,104 @@
+{
+  "id": "engine.gas-path.fan",
+  "legacyName": "fan",
+  "assemblyDefaults": {
+    "TPR": 1,
+    "EFFC": 0.79,
+    "PRC": 1.5
+  },
+  "name": "风扇",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "calculation",
+  "functionName": "COMPRESSOR",
+  "description": "fan；使用 COMPRESSOR 计算风扇压缩过程",
+  "category": "气路组件",
+  "sourceRelativePath": "components/COMPRESSOR.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "INPUT",
+      "type": "bus",
+      "required": true,
+      "description": "风扇输入参数与入口气流状态"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "OUTPUT",
+      "type": "bus",
+      "required": true,
+      "description": "风扇出口气流状态与功率参数"
+    },
+    {
+      "name": "CORE",
+      "type": "bus",
+      "required": true,
+      "description": "显式气路分支端口"
+    },
+    {
+      "name": "BYPASS",
+      "type": "bus",
+      "required": true,
+      "description": "显式气路分支端口"
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "COMPRESSOR",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "INPUT"
+      }
+    ],
+    "returns": [
+      {
+        "output": "OUTPUT",
+        "returnIndex": 0,
+        "path": ""
+      },
+      {
+        "output": "CORE",
+        "returnIndex": 0,
+        "path": ""
+      },
+      {
+        "output": "BYPASS",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  },
+  "physicalCapabilities": {
+    "flow": {
+      "inputs": [
+        {
+          "id": "INPUT",
+          "role": "main"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "OUTPUT",
+          "role": "main"
+        },
+        {
+          "id": "CORE",
+          "role": "core"
+        },
+        {
+          "id": "BYPASS",
+          "role": "bypass"
+        }
+      ]
+    },
+    "shaft": {
+      "joinable": true
+    },
+    "bleed": {
+      "joinable": true
+    }
+  }
+}

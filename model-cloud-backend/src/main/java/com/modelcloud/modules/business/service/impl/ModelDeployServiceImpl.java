@@ -9,6 +9,7 @@ import com.modelcloud.modules.business.mapper.BsSimulationTaskMapper;
 import com.modelcloud.modules.business.model.domain.BsComponentParseMeta;
 import com.modelcloud.modules.business.model.domain.BsComponentParseMetaOmc;
 import com.modelcloud.modules.business.model.dto.ComponentVO;
+import com.modelcloud.modules.business.model.dto.MatlabComponentVO;
 import com.modelcloud.modules.business.model.domain.BsModelingProject;
 import com.modelcloud.modules.business.model.domain.BsSimulationTask;
 import com.modelcloud.modules.business.model.request.ModelingProjectRequest;
@@ -16,32 +17,42 @@ import com.modelcloud.modules.business.model.request.SimulationRequest;
 import com.modelcloud.modules.business.repository.BsComponentParseMetaOmcRepository;
 import com.modelcloud.modules.business.repository.BsComponentParseMetaRepository;
 import com.modelcloud.modules.business.service.ModelDeployService;
+import com.modelcloud.modules.business.service.MatlabConfigService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import static com.modelcloud.modules.business.model.domain.table.BsModelingProjectTableDef.BS_MODELING_PROJECT;
 
 /**
  * 模型部署服务实现类
@@ -51,12 +62,20 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 public class ModelDeployServiceImpl implements ModelDeployService {
+    private static final Pattern ARTIFACT_ID = Pattern.compile("^[A-Za-z0-9_-]{1,128}$");
     private static final Set<String> SUPPORTED_MODULES = Set.of("Electrical", "Mechanics", "Blocks", "Math");
+    /** PMSM remains an array catalog; engine definitions are discovered by directory. */
+    private static final List<MatlabComponentCatalog> MATLAB_COMPONENT_CATALOGS = List.of(
+            new MatlabComponentCatalog("matlab-components/pmsm-components.json", "PMSM(混动发动机)", "PMSM/src"),
+            new MatlabComponentCatalog("matlab-components/pmsm-independent-components.json", "PMSM(独立)", "PMSM_Independent/src"));
+
+    private record MatlabComponentCatalog(String resourcePath, String library, String sourcePrefix) {}
     
     private final BsComponentParseMetaOmcRepository bsComponentParseMetaOmcRepository;
     private final BsComponentParseMetaRepository bsComponentParseMetaRepository;
     private final BsModelingProjectMapper projectMapper;
     private final BsSimulationTaskMapper taskMapper;
+    private final MatlabConfigService matlabConfigService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${model-cloud.simulation.base-url:http://localhost:8000/api/v1/simulation}")
@@ -67,18 +86,23 @@ public class ModelDeployServiceImpl implements ModelDeployService {
     private String componentSourceDir;
     @Value("${model-cloud.component.icon-url-prefix:/api/component_icon}")
     private String componentIconUrlPrefix;
+    @Value("${model-cloud.matlab-component.icon-url-prefix:/api/matlab_component_icon}")
+    private String matlabComponentIconUrlPrefix;
 
     private volatile Map<String, Set<String>> moduleIconFileNames = null;
+    private volatile List<MatlabComponentVO> matlabComponents = null;
     
     public ModelDeployServiceImpl(
             BsComponentParseMetaOmcRepository bsComponentParseMetaOmcRepository,
             BsComponentParseMetaRepository bsComponentParseMetaRepository,
             BsModelingProjectMapper projectMapper,
-            BsSimulationTaskMapper taskMapper) {
+            BsSimulationTaskMapper taskMapper,
+            MatlabConfigService matlabConfigService) {
         this.bsComponentParseMetaOmcRepository = bsComponentParseMetaOmcRepository;
         this.bsComponentParseMetaRepository = bsComponentParseMetaRepository;
         this.projectMapper = projectMapper;
         this.taskMapper = taskMapper;
+        this.matlabConfigService = matlabConfigService;
     }
     
     private static final Set<String> EXCLUDE_PATH_PARTS = Set.of(
@@ -133,6 +157,234 @@ public class ModelDeployServiceImpl implements ModelDeployService {
                 StrUtil.blankToDefault(a.getClassName(), ""),
                 StrUtil.blankToDefault(b.getClassName(), "")));
         return scannedList;
+    }
+
+    @Override
+    public List<MatlabComponentVO> getMatlabComponents() {
+        List<MatlabComponentVO> cached = matlabComponents;
+        if (cached != null) {
+            return cached;
+        }
+        synchronized (this) {
+            if (matlabComponents != null) {
+                return matlabComponents;
+            }
+            List<MatlabComponentVO> loaded = new ArrayList<>();
+            try {
+                for (MatlabComponentCatalog catalog : MATLAB_COMPONENT_CATALOGS) {
+                    ClassPathResource resource = new ClassPathResource(catalog.resourcePath());
+                    try (InputStream inputStream = resource.getInputStream()) {
+                        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                        List<MatlabComponentVO> catalogComponents = JSON.parseArray(
+                                content, MatlabComponentVO.class);
+                        for (MatlabComponentVO component : catalogComponents) {
+                            component.setLibrary(catalog.library());
+                            component.setSourceRelativePath(normalizeMatlabSourcePath(
+                                    component.getSourceRelativePath(), catalog.sourcePrefix()));
+                            loaded.add(component);
+                        }
+                    }
+                }
+                for (Map<String, Object> definition : MatlabEngineCatalogReader.readDefinitions()) {
+                    MatlabComponentVO component = JSON.parseObject(
+                            JSON.toJSONString(definition), MatlabComponentVO.class);
+                    component.setLibrary("航空发动机");
+                    component.setSourceRelativePath(normalizeMatlabSourcePath(
+                            component.getSourceRelativePath(), "engine/src"));
+                    loaded.add(component);
+                }
+                String prefix = StrUtil.blankToDefault(
+                        matlabComponentIconUrlPrefix, "/api/matlab_component_icon")
+                        .replaceAll("/+$", "");
+                Set<String> componentIds = new HashSet<>();
+                for (MatlabComponentVO component : loaded) {
+                    validateMatlabComponentDefinition(component, componentIds);
+                    component.setCoverImage(prefix + "/" + component.getIconRelativePath());
+                    component.setFallbackIcon(prefix + "/" + component.getFallbackIconRelativePath());
+                }
+                matlabComponents = List.copyOf(loaded);
+                return matlabComponents;
+            } catch (Exception e) {
+                log.error("加载MATLAB组件元数据失败", e);
+                throw new BusinessException("加载MATLAB组件元数据失败: " + e.getMessage());
+            }
+        }
+    }
+
+    private String normalizeMatlabSourcePath(String sourcePath, String sourcePrefix) {
+        if (StrUtil.isBlank(sourcePath)) return sourcePath;
+        String normalized = sourcePath.replace('\\', '/');
+        return sourcePrefix.replaceAll("/+$", "") + "/" + normalized;
+    }
+
+    private MatlabComponentVO getMatlabComponent(String componentId) {
+        return getMatlabComponents().stream()
+                .filter(component -> component.getId().equals(componentId))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException("未知MATLAB组件: " + componentId));
+    }
+
+    private void validateMatlabComponentDefinition(
+            MatlabComponentVO component, Set<String> componentIds) {
+        if (component == null || StrUtil.isBlank(component.getId())
+                || !componentIds.add(component.getId())) {
+            throw new BusinessException("MATLAB组件ID为空或重复: "
+                    + (component == null ? "null" : component.getId()));
+        }
+        if (StrUtil.isBlank(component.getLibrary()) || StrUtil.isBlank(component.getCategory())) {
+            throw new BusinessException("MATLAB组件库或类别为空: " + component.getId());
+        }
+        boolean catalogOnly = "subsystem".equals(component.getComponentKind())
+                || "workflowSubsystem".equals(component.getComponentKind())
+                || "physicalComponent".equals(component.getComponentKind())
+                ;
+        if (component.getInputs() == null) component.setInputs(List.of());
+        if (component.getOutputs() == null) component.setOutputs(List.of());
+        if (catalogOnly) {
+            validatePortDefinitions(component.getInputs(), "输入", component.getId());
+            validatePortDefinitions(component.getOutputs(), "输出", component.getId());
+            if (component.getResources() == null) component.setResources(List.of());
+            return;
+        }
+        if (!matlabIdentifier(component.getFunctionName())) {
+            throw new BusinessException("MATLAB函数名不合法: " + component.getId());
+        }
+        String sourcePath = component.getSourceRelativePath();
+        if (StrUtil.isBlank(sourcePath) || sourcePath.startsWith("/")
+                || sourcePath.startsWith("\\") || sourcePath.contains("..")
+                || !sourcePath.replace('\\', '/').endsWith("/" + component.getFunctionName() + ".m")) {
+            throw new BusinessException("MATLAB组件源码路径不合法: " + component.getId());
+        }
+        if (!new ClassPathResource(
+                "static/matlab_component_source/" + sourcePath.replace('\\', '/')).exists()) {
+            throw new BusinessException("MATLAB组件源码不存在: " + sourcePath);
+        }
+        if (component.getOutputs().isEmpty()) {
+            throw new BusinessException("MATLAB组件输出不能为空: " + component.getId());
+        }
+        if (component.getResources() == null) component.setResources(List.of());
+
+        Set<String> inputNames = validatePortDefinitions(component.getInputs(), "输入", component.getId());
+        Set<String> outputNames = validatePortDefinitions(component.getOutputs(), "输出", component.getId());
+        Set<String> resourceNames = new HashSet<>();
+        for (MatlabComponentVO.ResourceVO resource : component.getResources()) {
+            if (resource == null || !matlabIdentifier(resource.getName())
+                    || !resourceNames.add(resource.getName())) {
+                throw new BusinessException("MATLAB组件资源定义不正确: " + component.getId());
+            }
+        }
+
+        MatlabComponentVO.InvocationVO invocation = component.getInvocation();
+        if (invocation == null || !component.getFunctionName().equals(invocation.getFunction())
+                || invocation.getArguments() == null || invocation.getReturns() == null
+                || invocation.getReturns().isEmpty()) {
+            throw new BusinessException("MATLAB组件invocation定义不正确: " + component.getId());
+        }
+        for (MatlabComponentVO.ArgumentVO argument : invocation.getArguments()) {
+            if ("input".equals(argument.getSource())) {
+                if (!inputNames.contains(argument.getName())) {
+                    throw new BusinessException("invocation引用不存在的输入: " + argument.getName());
+                }
+            } else if ("object".equals(argument.getSource())) {
+                for (MatlabComponentVO.BindingVO binding :
+                        argument.getBindings() == null ? List.<MatlabComponentVO.BindingVO>of() : argument.getBindings()) {
+                    validateInvocationBinding(binding, inputNames, resourceNames, component.getId());
+                }
+            } else {
+                throw new BusinessException("invocation参数source不受支持: " + component.getId());
+            }
+        }
+        Set<String> mappedOutputs = new HashSet<>();
+        Set<Integer> returnIndexes = new HashSet<>();
+        for (MatlabComponentVO.ReturnVO result : invocation.getReturns()) {
+            if (result.getReturnIndex() == null || result.getReturnIndex() < 0
+                    || !outputNames.contains(result.getOutput())
+                    || !mappedOutputs.add(result.getOutput())) {
+                throw new BusinessException("invocation返回值定义不正确: " + component.getId());
+            }
+            if (StrUtil.isNotBlank(result.getPath()) && !matlabFieldPath(result.getPath())) {
+                throw new BusinessException("invocation返回路径不合法: " + result.getPath());
+            }
+            // Physical fan ports may expose core and bypass handles that
+            // reference the same MATLAB return value as the regular output.
+            // Output names remain unique and every declared output is mapped.
+            returnIndexes.add(result.getReturnIndex());
+        }
+        if (!mappedOutputs.equals(outputNames)) {
+            throw new BusinessException("invocation未完整映射组件输出: " + component.getId());
+        }
+        int maxReturnIndex = returnIndexes.stream().max(Integer::compareTo).orElse(-1);
+        for (int index = 0; index <= maxReturnIndex; index++) {
+            if (!returnIndexes.contains(index)) {
+                throw new BusinessException("invocation returnIndex必须从0连续编号: " + component.getId());
+            }
+        }
+    }
+
+    private Set<String> validatePortDefinitions(
+            List<MatlabComponentVO.PortVO> ports, String direction, String componentId) {
+        Set<String> names = new HashSet<>();
+        for (MatlabComponentVO.PortVO port : ports) {
+            if (port == null || !matlabIdentifier(port.getName()) || StrUtil.isBlank(port.getType())
+                    || !names.add(port.getName())) {
+                throw new BusinessException("MATLAB组件" + direction + "端口定义不正确: " + componentId);
+            }
+        }
+        return names;
+    }
+
+    private void validateInvocationBinding(
+            MatlabComponentVO.BindingVO binding, Set<String> inputNames,
+            Set<String> resourceNames, String componentId) {
+        if (binding == null || !matlabFieldPath(binding.getTarget())) {
+            throw new BusinessException("invocation对象绑定target不合法: " + componentId);
+        }
+        if ("input".equals(binding.getSource())) {
+            if (!inputNames.contains(binding.getName())) {
+                throw new BusinessException("invocation对象绑定引用不存在的输入: " + binding.getName());
+            }
+        } else if ("resource".equals(binding.getSource())) {
+            if (!resourceNames.contains(binding.getName()) || !matlabIdentifier(binding.getProperty())) {
+                throw new BusinessException("invocation对象绑定引用不存在的资源: " + binding.getName());
+            }
+        } else {
+            throw new BusinessException("invocation对象绑定source不受支持: " + componentId);
+        }
+    }
+
+    private boolean matlabIdentifier(String value) {
+        return value != null && value.matches("^[A-Za-z][A-Za-z0-9_]*$");
+    }
+
+    private boolean matlabFieldPath(String value) {
+        return value != null && value.matches("^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)*$");
+    }
+
+    private Map<String, Object> buildTrustedMatlabGraph(Map<String, Object> rawPayload) {
+        return new MatlabTrustedGraphCompiler(this::getMatlabComponent).buildTrustedGraph(rawPayload);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void materializeMatlabResources(
+            Map<String, Object> payload, Long userId, String taskId) {
+        Object rawNodes = payload.get("nodes");
+        if (!(rawNodes instanceof List<?> nodes)) return;
+        for (Object rawNode : nodes) {
+            if (!(rawNode instanceof Map<?, ?> map)) continue;
+            Map<String, Object> node = (Map<String, Object>) map;
+            Object rawResources = node.get("resources");
+            if (!(rawResources instanceof Map<?, ?> resources)) continue;
+            Map<String, Object> resolved = new LinkedHashMap<>();
+            for (Map.Entry<?, ?> entry : resources.entrySet()) {
+                if (!(entry.getValue() instanceof Map<?, ?> metadata)) continue;
+                Object configId = metadata.get("configId");
+                if (configId == null || String.valueOf(configId).isBlank()) continue;
+                resolved.put(String.valueOf(entry.getKey()),
+                        matlabConfigService.materializeTaskSnapshot(
+                                userId, String.valueOf(configId), taskId));
+            }
+            node.put("resources", resolved);
+        }
     }
 
     @Override
@@ -458,9 +710,6 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         } else if (StrUtil.isNotBlank(content)) {
             try {
                 var info = com.modelcloud.modules.business.utils.ModelicaParser.parseModel(content);
-                if (StrUtil.isNotBlank(info.getClassName())) {
-                    result.put("className", info.getClassName());
-                }
                 
                 for (var param : info.getParameters()) {
                     String defaultValue = StrUtil.blankToDefault(param.getDefaultValue(), "0");
@@ -663,12 +912,14 @@ public class ModelDeployServiceImpl implements ModelDeployService {
             throw new BusinessException("项目数据不能为空");
         }
         
+        String projectType = normalizeProjectType(request.getProjectType());
         BsModelingProject project = new BsModelingProject();
         project.setUserId(userId);
         project.setName(request.getName());
         project.setDescription(request.getDescription());
         project.setProjectData(request.getProjectData());
         project.setModelicaCode(request.getModelicaCode());
+        project.setProjectType(projectType);
         project.setIsDel(0);
         
         projectMapper.insert(project);
@@ -704,12 +955,15 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         if (request.getModelicaCode() != null) {
             project.setModelicaCode(request.getModelicaCode());
         }
+        if (StrUtil.isNotBlank(request.getProjectType())) {
+            project.setProjectType(normalizeProjectType(request.getProjectType()));
+        }
         
         projectMapper.update(project);
     }
     
     @Override
-    public BsModelingProject getProject(Long projectId) {
+    public BsModelingProject getProject(Long projectId, String projectType) {
         Long userId = SecurityUtils.getCurrentUserId();
         if (userId == null) {
             throw new BusinessException("用户未登录");
@@ -723,7 +977,13 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         if (!project.getUserId().equals(userId)) {
             throw new BusinessException("无权访问此项目");
         }
-        
+
+        if (StrUtil.isNotBlank(projectType)
+                && !normalizeProjectType(projectType).equalsIgnoreCase(
+                StrUtil.blankToDefault(project.getProjectType(), "MODELICA"))) {
+            throw new BusinessException("项目类型与当前页面不匹配");
+        }
+
         return project;
     }
     
@@ -749,18 +1009,45 @@ public class ModelDeployServiceImpl implements ModelDeployService {
     }
     
     @Override
-    public Page<BsModelingProject> getUserProjects(int pageNum, int pageSize) {
+    public Page<BsModelingProject> getUserProjects(int pageNum, int pageSize, String projectType) {
         Long userId = SecurityUtils.getCurrentUserId();
         if (userId == null) {
             throw new BusinessException("用户未登录");
         }
         
+        String normalizedProjectType = StrUtil.isBlank(projectType)
+                ? null
+                : normalizeProjectType(projectType);
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .where("user_id = ?", userId)
-                .and("is_del = ?", 0)
-                .orderBy("create_time", false);
+                .and("is_del = ?", 0);
+
+        if (normalizedProjectType != null) {
+            queryWrapper.and("project_type = ?", normalizedProjectType);
+        }
+
+        if ("JULIA_MATLAB".equals(normalizedProjectType)) {
+            queryWrapper.select(
+                    BS_MODELING_PROJECT.ID,
+                    BS_MODELING_PROJECT.NAME,
+                    BS_MODELING_PROJECT.DESCRIPTION,
+                    BS_MODELING_PROJECT.PROJECT_TYPE,
+                    BS_MODELING_PROJECT.CREATE_TIME,
+                    BS_MODELING_PROJECT.UPDATE_TIME
+            );
+        }
+
+        queryWrapper.orderBy("create_time", false);
         
         return projectMapper.paginate(pageNum, pageSize, queryWrapper);
+    }
+
+    private String normalizeProjectType(String projectType) {
+        String normalized = StrUtil.blankToDefault(projectType, "MODELICA").trim().toUpperCase();
+        if (!"MODELICA".equals(normalized) && !"JULIA_MATLAB".equals(normalized)) {
+            throw new BusinessException("不支持的项目类型：" + projectType);
+        }
+        return normalized;
     }
     
     @Override
@@ -770,27 +1057,34 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         if (userId == null) {
             throw new BusinessException("用户未登录");
         }
-        
-        // 验证请求
-        if (request.getProjectId() == null && StrUtil.isBlank(request.getModelCode())) {
-            throw new BusinessException("项目ID或模型代码必须提供其一");
-        }
-        
+
+        String engineType = StrUtil.blankToDefault(request.getEngineType(), "modelica").toLowerCase();
         String modelCode = request.getModelCode();
-        
-        // 如果提供了项目ID，从项目获取模型代码
-        if (request.getProjectId() != null) {
-            BsModelingProject project = projectMapper.selectOneById(request.getProjectId());
-            if (project == null || project.getIsDel() == 1) {
-                throw new BusinessException("项目不存在");
+        Map<String, Object> trustedExecutionPayload = null;
+
+        if ("matlab".equals(engineType)) {
+            trustedExecutionPayload = buildTrustedMatlabGraph(request.getExecutionPayload());
+            modelCode = null;
+        } else if ("modelica".equals(engineType)) {
+            if (request.getProjectId() == null && StrUtil.isBlank(modelCode)) {
+                throw new BusinessException("项目ID或模型代码必须提供其一");
             }
-            if (!project.getUserId().equals(userId)) {
-                throw new BusinessException("无权使用此项目");
+            // 如果提供了项目ID，从项目获取模型代码
+            if (request.getProjectId() != null) {
+                BsModelingProject project = projectMapper.selectOneById(request.getProjectId());
+                if (project == null || project.getIsDel() == 1) {
+                    throw new BusinessException("项目不存在");
+                }
+                if (!project.getUserId().equals(userId)) {
+                    throw new BusinessException("无权使用此项目");
+                }
+                modelCode = project.getModelicaCode();
+                if (StrUtil.isBlank(modelCode)) {
+                    throw new BusinessException("项目未生成Modelica代码");
+                }
             }
-            modelCode = project.getModelicaCode();
-            if (StrUtil.isBlank(modelCode)) {
-                throw new BusinessException("项目未生成Modelica代码");
-            }
+        } else {
+            throw new BusinessException("不支持的执行引擎: " + engineType);
         }
         
         // 创建仿真任务记录
@@ -798,7 +1092,14 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         task.setUserId(userId);
         task.setProjectId(request.getProjectId());
         task.setTaskId(UUID.randomUUID().toString().replace("-", ""));
+        if (trustedExecutionPayload != null && "matlab".equals(engineType)) {
+            materializeMatlabResources(trustedExecutionPayload, userId, task.getTaskId());
+        }
+        task.setEngineType(engineType);
         task.setModelCode(modelCode);
+        task.setExecutionPayload(trustedExecutionPayload == null
+                ? null
+                : JSON.toJSONString(trustedExecutionPayload));
         task.setSimulationParams(JSON.toJSONString(request.getSimulationParams()));
         task.setStatus("pending");
         task.setProgress(0);
@@ -830,6 +1131,44 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         syncTaskStatusFromSimulation(task);
         return task;
     }
+
+    @Override
+    public ResponseEntity<byte[]> getSimulationArtifact(Long taskId, String artifactId) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            throw new BusinessException("用户未登录");
+        }
+        if (StrUtil.isBlank(artifactId) || !ARTIFACT_ID.matcher(artifactId).matches()) {
+            throw new BusinessException("图片产物标识不合法");
+        }
+        BsSimulationTask task = taskMapper.selectOneById(taskId);
+        if (task == null) {
+            throw new BusinessException("任务不存在");
+        }
+        if (!userId.equals(task.getUserId())) {
+            throw new BusinessException("无权访问此任务");
+        }
+        String artifactUrl = simulationBaseUrl + "/tasks/"
+                + URLEncoder.encode(task.getTaskId(), StandardCharsets.UTF_8)
+                + "/artifacts/" + URLEncoder.encode(artifactId, StandardCharsets.UTF_8);
+        try {
+            ResponseEntity<byte[]> response = restTemplate.exchange(
+                    artifactUrl, HttpMethod.GET, HttpEntity.EMPTY, byte[].class);
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                throw new BusinessException("图片产物不存在");
+            }
+            HttpHeaders headers = new HttpHeaders();
+            MediaType contentType = response.getHeaders().getContentType();
+            headers.setContentType(contentType == null ? MediaType.IMAGE_PNG : contentType);
+            headers.setContentLength(response.getBody().length);
+            headers.setCacheControl("private, max-age=3600");
+            return new ResponseEntity<>(response.getBody(), headers, response.getStatusCode());
+        } catch (RestClientException e) {
+            log.warn("获取仿真图片失败 taskId={}, artifactId={}, reason={}",
+                    task.getTaskId(), artifactId, e.getMessage());
+            throw new BusinessException("图片产物不存在");
+        }
+    }
     
     @Override
     public Page<BsSimulationTask> getUserSimulationTasks(int pageNum, int pageSize) {
@@ -849,8 +1188,13 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         String submitUrl = simulationBaseUrl + "/submit";
         Map<String, Object> payload = new HashMap<>();
         payload.put("taskId", task.getTaskId());
-        payload.put("modelCode", task.getModelCode());
-        payload.put("simulationParams", JSON.parseObject(task.getSimulationParams()));
+        payload.put("engineType", StrUtil.blankToDefault(task.getEngineType(), "modelica"));
+        if ("matlab".equals(task.getEngineType())) {
+            payload.put("executionPayload", JSON.parseObject(task.getExecutionPayload()));
+        } else {
+            payload.put("modelCode", task.getModelCode());
+            payload.put("simulationParams", JSON.parseObject(task.getSimulationParams()));
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -893,6 +1237,7 @@ public class ModelDeployServiceImpl implements ModelDeployService {
             String errorMessage = json.getString("errorMessage");
             String resultFileUrl = json.getString("resultFileUrl");
             Object resultData = json.get("resultData");
+            Object errorDetail = json.get("errorDetail");
 
             if (StrUtil.isNotBlank(status)) {
                 task.setStatus(status);
@@ -908,6 +1253,8 @@ public class ModelDeployServiceImpl implements ModelDeployService {
             }
             if (resultData != null) {
                 task.setResultData(JSON.toJSONString(resultData));
+            } else if (errorDetail != null) {
+                task.setResultData(JSON.toJSONString(Map.of("errorDetail", errorDetail)));
             }
             if ("completed".equals(status) || "failed".equals(status) || "cancelled".equals(status)) {
                 task.setEndTime(LocalDateTime.now());
@@ -918,4 +1265,3 @@ public class ModelDeployServiceImpl implements ModelDeployService {
         }
     }
 }
-

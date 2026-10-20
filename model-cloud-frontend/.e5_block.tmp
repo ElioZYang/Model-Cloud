@@ -1,0 +1,431 @@
+    String(node.data?.componentId || '').startsWith('engine.configuration.')
+  ))
+  const legacyWorkflow = legacyRootNode?.data?.childSceneId
+    ? sceneStore.value[String(legacyRootNode.data.childSceneId)]
+    : undefined
+  const legacyPhysicalWrapper = legacyWorkflow?.nodes.find((node) => (
+    String(node.data?.childSceneId || '')
+    && sceneStore.value[String(node.data?.childSceneId || '')]?.kind === 'physical'
+    && (String(node.data?.componentId || '').includes('initialize-configuration')
+      || node.id === 'physical_configuration')
+  ))
+  const legacyPhysicalId = String(legacyPhysicalWrapper?.data?.childSceneId || '')
+  const legacyPhysical = legacyPhysicalId ? sceneStore.value[legacyPhysicalId] : undefined
+  if (!rootScene || !legacyRootNode || !legacyWorkflow || !legacyPhysical) return false
+
+  const token = `upgrade_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
+  const templateEvent = {
+    clientX: flowContainer.value ? flowContainer.value.getBoundingClientRect().left + 220 : 220,
+    clientY: flowContainer.value ? flowContainer.value.getBoundingClientRect().top + 120 : 120
+  } as DragEvent
+  const beforeNodeIds = new Set(nodes.value.map((node) => node.id))
+  if (!instantiateTemplateComponent(component, templateEvent)) return false
+  const newComposite = nodes.value.find((node) => !beforeNodeIds.has(node.id))
+  const newRootWorkflowId = String(newComposite?.data?.childSceneId || '')
+  const newRootWorkflow = newRootWorkflowId ? sceneStore.value[newRootWorkflowId] : undefined
+  const newDesignPointWrapper = newRootWorkflow?.nodes.find((node) => (
+    String(node.data?.componentId || '') === 'engine.configuration.design-point'
+    || node.id.endsWith('_design_point')
+    || node.id === 'design_point'
+  ))
+  const newWorkflowId = String(newDesignPointWrapper?.data?.childSceneId || '')
+  const newWorkflow = newWorkflowId ? sceneStore.value[newWorkflowId] : undefined
+  const newPhysicalWrapper = newWorkflow?.nodes.find((node) => (
+    String(node.data?.childSceneId || '')
+    && sceneStore.value[String(node.data?.childSceneId || '')]?.kind === 'physical'
+  ))
+  const newPhysicalId = String(newPhysicalWrapper?.data?.childSceneId || '')
+  if (!newComposite || !newRootWorkflow || !newWorkflow || !newPhysicalId) return false
+
+  // Clone the complete legacy physical subtree with isolated IDs, then attach
+  // its root to the newly-instantiated workflow's physical wrapper.
+  const legacySceneIds: string[] = []
+  const visitScene = (sceneId: string) => {
+    if (!sceneStore.value[sceneId] || legacySceneIds.includes(sceneId)) return
+    legacySceneIds.push(sceneId)
+    sceneStore.value[sceneId].nodes.forEach((node) => {
+      const childId = String(node.data?.childSceneId || '')
+      if (childId) visitScene(childId)
+    })
+  }
+  visitScene(legacyPhysical.id)
+  const sceneIdMap = new Map<string, string>([[legacyPhysical.id, newPhysicalId]])
+  legacySceneIds.filter((id) => id !== legacyPhysical.id).forEach((id) => {
+    sceneIdMap.set(id, `scene_${token}_${id}`)
+  })
+  const nodeIdMap = new Map<string, string>()
+  legacySceneIds.forEach((sceneId) => {
+    sceneStore.value[sceneId].nodes.forEach((node) => {
+      nodeIdMap.set(`${sceneId}:${node.id}`, `node_${token}_${node.id}`)
+    })
+  })
+  const clonedPhysicalScenes: Record<string, RuntimeScene> = {}
+  legacySceneIds.forEach((sourceSceneId) => {
+    const source = sceneStore.value[sourceSceneId]
+    const clonedNodes = source.nodes.map((node) => ({
+      ...cloneMatlabGraph(node),
+      id: nodeIdMap.get(`${sourceSceneId}:${node.id}`) || node.id,
+      selected: false,
+      data: {
+        ...cloneMatlabGraph(node.data || {}),
+        parentSceneId: sceneIdMap.get(source.parentSceneId || '') || newWorkflowId,
+        childSceneId: node.data?.childSceneId
+          ? sceneIdMap.get(String(node.data.childSceneId)) : undefined,
+        boundaryPorts: remapClonedBoundaryPorts(
+          node.data?.boundaryPorts,
+          nodeIdMap,
+          [String(node.data?.childSceneId || '') || undefined, sourceSceneId]
+        )
+      }
+    }))
+    const clonedEdges = source.edges.map((edge) => ({
+      ...cloneMatlabGraph(edge),
+      id: `edge_${token}_${edge.id}`,
+      source: nodeIdMap.get(`${sourceSceneId}:${edge.source}`) || edge.source,
+      target: nodeIdMap.get(`${sourceSceneId}:${edge.target}`) || edge.target,
+      data: {
+        ...cloneMatlabGraph(edge.data || {}),
+        groupId: edge.data?.groupId ? `group_${token}_${edge.data.groupId}` : undefined
+      }
+    }))
+    const clonedId = sceneIdMap.get(sourceSceneId) || sourceSceneId
+    clonedPhysicalScenes[clonedId] = {
+      ...cloneMatlabGraph(source),
+      id: clonedId,
+      parentSceneId: sourceSceneId === legacyPhysical.id ? newWorkflowId : sceneIdMap.get(source.parentSceneId || ''),
+      nodes: clonedNodes,
+      edges: normalizeSceneEdges(clonedEdges, source.kind),
+      relationGroups: source.relationGroups?.map((group) => ({
+        ...cloneMatlabGraph(group),
+        id: `group_${token}_${group.id}`,
+        anchorNodeId: nodeIdMap.get(`${sourceSceneId}:${group.anchorNodeId}`) || group.anchorNodeId
+      })),
+      boundaryPorts: remapClonedBoundaryPorts(source.boundaryPorts, nodeIdMap, [sourceSceneId]),
+      viewport: cloneMatlabGraph(source.viewport)
+    }
+  })
+  Object.assign(sceneStore.value, clonedPhysicalScenes)
+  sceneStore.value[newPhysicalId] = {
+    ...sceneStore.value[newPhysicalId],
+    ...clonedPhysicalScenes[newPhysicalId],
+    id: newPhysicalId,
+    parentSceneId: newWorkflowId,
+    title: `${component.name} · 物理构型（迁移）`
+  }
+
+  // Clone the old workflow graph and match its stage nodes to the new
+  // template nodes, so user-edited values, positions and edges survive.
+  const workflowNodeIdMap = new Map<string, string>()
+  legacyWorkflow.nodes.forEach((node) => {
+    workflowNodeIdMap.set(node.id, `node_${token}_workflow_${node.id}`)
+  })
+  const isPhysicalWrapper = (node: Node) => {
+    const childSceneId = String(node.data?.childSceneId || '')
+    return Boolean(childSceneId && sceneStore.value[childSceneId]?.kind === 'physical')
+      || String(node.data?.componentId || '').includes('initialize-configuration')
+      || node.id === 'physical_configuration'
+  }
+  const templateNodeMap = new Map<string, string>()
+  newWorkflow.nodes.forEach((templateNode) => {
+    const templateComponentId = String(templateNode.data?.componentId || '')
+    const matchingLegacy = legacyWorkflow.nodes.find((legacyNode) => (
+      String(legacyNode.data?.componentId || '') === templateComponentId
+      || legacyNode.id === templateNode.id
+      || String(legacyNode.data?.instanceName || '') === String(templateNode.data?.instanceName || '')
+    )) || (isPhysicalWrapper(templateNode)
+      ? legacyWorkflow.nodes.find((legacyNode) => isPhysicalWrapper(legacyNode))
+      : undefined)
+    if (matchingLegacy) templateNodeMap.set(templateNode.id, workflowNodeIdMap.get(matchingLegacy.id) || matchingLegacy.id)
+  })
+  const clonedWorkflowNodes = legacyWorkflow.nodes.map((node) => ({
+    ...cloneMatlabGraph(node),
+    id: workflowNodeIdMap.get(node.id) || node.id,
+    selected: false,
+    data: {
+      ...cloneMatlabGraph(node.data || {}),
+      childSceneId: node.data?.childSceneId
+        ? sceneIdMap.get(String(node.data.childSceneId)) || node.data.childSceneId : undefined,
+      boundaryPorts: (Array.isArray(node.data?.boundaryPorts) ? node.data.boundaryPorts : []).map((port: MatlabBoundaryPort) => ({
+        ...cloneMatlabGraph(port),
+        mapping: port.mapping ? {
+          ...port.mapping,
+          childNodeId: workflowNodeIdMap.get(port.mapping.childNodeId)
+            || nodeIdMap.get(`${legacyWorkflow.id}:${port.mapping.childNodeId}`)
+            || port.mapping.childNodeId
+        } : undefined
+      }))
+    }
+  }))
+  const clonedWorkflowEdges = legacyWorkflow.edges.map((edge) => ({
+    ...cloneMatlabGraph(edge),
+    id: `edge_${token}_workflow_${edge.id}`,
+    source: workflowNodeIdMap.get(edge.source) || edge.source,
+    target: workflowNodeIdMap.get(edge.target) || edge.target
+  }))
+  const requiredTemplateNodes = newWorkflow.nodes
+    .filter((node) => !templateNodeMap.has(node.id))
+    .map((node) => ({ ...cloneMatlabGraph(node), selected: false }))
+  const workflowNodes = [...clonedWorkflowNodes, ...requiredTemplateNodes]
+  const workflowNodeIds = new Set(workflowNodes.map((node) => node.id))
+  const remappedTemplateEdges = newWorkflow.edges
+    .map((edge) => ({
+      ...cloneMatlabGraph(edge),
+      id: `edge_${token}_template_${edge.id}`,
+      source: templateNodeMap.get(edge.source) || edge.source,
+      target: templateNodeMap.get(edge.target) || edge.target
+    }))
+    .filter((edge) => workflowNodeIds.has(edge.source) && workflowNodeIds.has(edge.target))
+  const edgeSignature = (edge: Edge) => `${edge.source}:${edge.sourceHandle || ''}->${edge.target}:${edge.targetHandle || ''}`
+  const knownEdgeSignatures = new Set(clonedWorkflowEdges.map(edgeSignature))
+  remappedTemplateEdges.forEach((edge) => {
+    if (!knownEdgeSignatures.has(edgeSignature(edge))) clonedWorkflowEdges.push(edge)
+  })
+  const migratedBoundaryPorts = newWorkflow.boundaryPorts.map((port) => ({
+    ...cloneMatlabGraph(port),
+    mapping: port.mapping ? {
+      ...port.mapping,
+      childNodeId: templateNodeMap.get(port.mapping.childNodeId) || port.mapping.childNodeId
+    } : undefined
+  }) as MatlabBoundaryPort)
+  sceneStore.value[newWorkflowId] = {
+    ...newWorkflow,
+    nodes: workflowNodes,
+    edges: clonedWorkflowEdges,
+    boundaryPorts: migratedBoundaryPorts,
+    viewport: cloneMatlabGraph(legacyWorkflow.viewport)
+  }
+  if (newRootWorkflowId && sceneStore.value[newRootWorkflowId]) {
+    sceneStore.value[newRootWorkflowId] = {
+      ...sceneStore.value[newRootWorkflowId],
+      nodes: sceneStore.value[newRootWorkflowId].nodes.map((node) => node.id === newDesignPointWrapper?.id
+        ? {
+            ...node,
+            data: {
+              ...node.data,
+              childSceneId: newWorkflowId,
+              boundaryPorts: cloneMatlabGraph(migratedBoundaryPorts),
+              ...makeCompositePortData(migratedBoundaryPorts)
+            }
+          }
+        : node)
+    }
+  }
+  const oldRootValues = legacyRootNode.data?.values && typeof legacyRootNode.data.values === 'object'
+    ? legacyRootNode.data.values : {}
+  nodes.value = nodes.value.map((node) => node.id === newComposite.id
+    ? {
+        ...node,
+        data: {
+          ...node.data,
+          values: { ...(node.data?.values || {}), ...cloneMatlabGraph(oldRootValues) }
+        }
+      }
+    : node)
+  sceneStore.value[projectRootSceneId.value].nodes = cloneMatlabGraph(nodes.value)
+  designPointUpgradePending.value = false
+  return true
+}
+
+const promotePhysicalSceneWithTemplate = async (component: MatlabComponent, physicalScene: RuntimeScene) => {
+  // Promotion always creates a complete configuration at the project root.
+  // The hand-built physical scene is copied into the new design-point tree;
+  // its original scene and wrapper remain untouched for existing workflows.
+  const sourceRootId = physicalScene.id
+  const sourceSceneIds: string[] = []
+  const sourceScenes = new Map<string, RuntimeScene>()
+  const collectSource = (sceneId: string) => {
+    const source = sceneStore.value[sceneId]
+    if (!source || sourceSceneIds.includes(sceneId)) return
+    sourceSceneIds.push(sceneId)
+    sourceScenes.set(sceneId, cloneMatlabGraph(source))
+    source.nodes.forEach((node) => {
+      const childId = String(node.data?.childSceneId || '')
+      if (childId) collectSource(childId)
+    })
+  }
+  collectSource(sourceRootId)
+  if (sourceSceneIds.length === 0) return false
+
+  if (activeSceneId.value !== projectRootSceneId.value) {
+    await hydrateActiveScene(projectRootSceneId.value)
+  }
+  const beforeNodeIds = new Set(nodes.value.map((node) => node.id))
+  const rect = flowContainer.value?.getBoundingClientRect()
+  if (!instantiateTemplateComponent(component, {
+    clientX: rect ? rect.left + 220 : 220,
+    clientY: rect ? rect.top + 120 : 120
+  } as DragEvent)) return false
+  const newComposite = nodes.value.find((node) => !beforeNodeIds.has(node.id))
+  const rootWorkflowId = String(newComposite?.data?.childSceneId || '')
+  const rootWorkflow = rootWorkflowId ? sceneStore.value[rootWorkflowId] : undefined
+  const designPointNode = rootWorkflow?.nodes.find((node) => (
+    String(node.data?.componentId || '') === 'engine.configuration.design-point'
+    || node.id.endsWith('_design_point')
+    || node.id === 'design_point'
+  ))
+  const designSceneId = String(designPointNode?.data?.childSceneId || '')
+  const designScene = designSceneId ? sceneStore.value[designSceneId] : undefined
+  const generatedPhysicalWrapper = designScene?.nodes.find((node) => (
+    String(node.data?.componentId || '').includes('initialize-configuration')
+    || sceneStore.value[String(node.data?.childSceneId || '')]?.kind === 'physical'
+  ))
+  const generatedPhysicalId = String(generatedPhysicalWrapper?.data?.childSceneId || '')
+  if (!newComposite || !rootWorkflow || !designScene || !generatedPhysicalWrapper || !generatedPhysicalId) return false
+
+  // The generated physical root can have template descendants. Remove those
+  // descendants before assigning the isolated copy, while retaining its root
+  // id because the wrapper already points at it.
+  const generatedDescendants = new Set<string>()
+  const collectGenerated = (sceneId: string, includeRoot = false) => {
+    const generated = sceneStore.value[sceneId]
+    if (!generated || generatedDescendants.has(sceneId)) return
+    if (includeRoot) generatedDescendants.add(sceneId)
+    generated.nodes.forEach((node) => {
+      const childId = String(node.data?.childSceneId || '')
+      if (childId && childId !== sourceRootId) {
+        generatedDescendants.add(childId)
+        collectGenerated(childId)
+      }
+    })
+  }
+  collectGenerated(generatedPhysicalId)
+  generatedDescendants.delete(generatedPhysicalId)
+  generatedDescendants.forEach((sceneId) => delete sceneStore.value[sceneId])
+
+  const token = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+  const sceneIdMap = new Map<string, string>([[sourceRootId, generatedPhysicalId]])
+  sourceSceneIds.filter((id) => id !== sourceRootId).forEach((id) => {
+    sceneIdMap.set(id, `scene_promoted_${token}_${id}`)
+  })
+  const nodeIdMap = new Map<string, string>()
+  sourceSceneIds.forEach((sceneId) => {
+    const source = sourceScenes.get(sceneId)
+    source?.nodes.forEach((node) => {
+      nodeIdMap.set(`${sceneId}:${node.id}`, `node_promoted_${token}_${node.id}`)
+    })
+  })
+  sourceSceneIds.forEach((sourceSceneId) => {
+    const source = sourceScenes.get(sourceSceneId)
+    if (!source) return
+    const clonedNodes = source.nodes.map((node) => ({
+      ...cloneMatlabGraph(node),
+      id: nodeIdMap.get(`${sourceSceneId}:${node.id}`) || node.id,
+      selected: false,
+      data: {
+        ...cloneMatlabGraph(node.data || {}),
+        parentSceneId: sceneIdMap.get(source.parentSceneId || '') || designSceneId,
+        childSceneId: node.data?.childSceneId
+          ? sceneIdMap.get(String(node.data.childSceneId)) : undefined,
+        boundaryPorts: remapClonedBoundaryPorts(
+          node.data?.boundaryPorts,
+          nodeIdMap,
+          [String(node.data?.childSceneId || '') || undefined, sourceSceneId]
+        )
+      }
+    }))
+    const clonedEdges = source.edges.map((edge) => ({
+      ...cloneMatlabGraph(edge),
+      id: `edge_promoted_${token}_${edge.id}`,
+      source: nodeIdMap.get(`${sourceSceneId}:${edge.source}`) || edge.source,
+      target: nodeIdMap.get(`${sourceSceneId}:${edge.target}`) || edge.target,
+      data: {
+        ...cloneMatlabGraph(edge.data || {}),
+        groupId: edge.data?.groupId ? `group_promoted_${token}_${edge.data.groupId}` : undefined
+      }
+    }))
+    const clonedId = sceneIdMap.get(sourceSceneId) || sourceSceneId
+    sceneStore.value[clonedId] = {
+      ...cloneMatlabGraph(source),
+      id: clonedId,
+      parentSceneId: sourceSceneId === sourceRootId
+        ? designSceneId : sceneIdMap.get(source.parentSceneId || ''),
+      nodes: clonedNodes,
+      edges: normalizeSceneEdges(clonedEdges, source.kind),
+      relationGroups: source.relationGroups?.map((group) => ({
+        ...cloneMatlabGraph(group),
+        id: `group_promoted_${token}_${group.id}`,
+        anchorNodeId: nodeIdMap.get(`${sourceSceneId}:${group.anchorNodeId}`) || group.anchorNodeId
+      })),
+      boundaryPorts: remapClonedBoundaryPorts(source.boundaryPorts, nodeIdMap, [sourceSceneId]),
+      viewport: cloneMatlabGraph(source.viewport)
+    }
+  })
+  sceneStore.value[generatedPhysicalId] = {
+    ...sceneStore.value[generatedPhysicalId],
+    id: generatedPhysicalId,
+    parentSceneId: designSceneId,
+    title: `${component.name} · 物理构型（手工迁移）`
+  }
+  sceneStore.value[designSceneId] = {
+    ...designScene,
+    nodes: designScene.nodes.map((node) => node.id === generatedPhysicalWrapper.id
+      ? { ...node, data: { ...node.data, childSceneId: generatedPhysicalId } }
+      : node)
+  }
+  return true
+}
+
+const confirmPhysicalSceneAction = async () => {
+  const scene = activeScene.value
+  const component = physicalSceneActionTemplates.value.find((candidate) => candidate.id === physicalSceneActionTemplateId.value)
+  if (!scene || !component) {
+    ElMessage.warning('请选择完整构型模板')
+    return
+  }
+  if (physicalSceneActionMode.value === 'upgrade') {
+    if (upgradeLegacyDesignPointProject(component)) {
+      physicalSceneActionVisible.value = false
+      scheduleElkLayout(false, 'full')
+      ElMessage.success('旧设计点和物理构型已克隆并接入新的完整构型链路；旧根节点仍保留')
+    }
+    return
+  }
+  if (scene.kind !== 'physical') {
+    ElMessage.warning('当前场景不是物理构型场景')
+    return
+  }
+  if (physicalSceneActionMode.value === 'replace') {
+    const templateScene = findTemplatePhysicalScene(component)
+    if (!templateScene) {
+      ElMessage.warning('所选模板没有物理构型场景')
+      return
+    }
+    const rebuilt = rebuildProjectGraph({
+      ...parseMatlabProject(JSON.stringify({
+        schemaVersion: 2,
+        engineType: 'matlab',
+        rootSceneId: templateScene.id,
+        scenes: { [templateScene.id]: templateScene }
+      })),
+      rootSceneId: templateScene.id,
+      nodes: templateScene.nodes,
+      edges: templateScene.edges
+    }, 'physical')
+    const physicalTemplateName = component.templateRole === 'physicalTemplate'
+      ? component.name.replace(/\s*·\s*物理构型$/, '')
+      : component.name
+    sceneStore.value[scene.id] = {
+      ...scene,
+      title: `${physicalTemplateName} · 物理构型`,
+      kind: 'physical',
+      nodes: rebuilt.runtimeNodes,
+      edges: normalizeSceneEdges(rebuilt.runtimeEdges, 'physical'),
+      boundaryPorts: cloneMatlabGraph(templateScene.boundaryPorts),
+      assemblyDefaults: cloneMatlabGraph(templateScene.assemblyDefaults),
+      relationGroups: cloneMatlabGraph(templateScene.relationGroups || []),
+      viewport: cloneMatlabGraph(templateScene.viewport)
+    }
+    physicalSceneActionVisible.value = false
+    await hydrateActiveScene(scene.id)
+    scheduleElkLayout(false, 'full')
+    ElMessage.success(`已用“${physicalTemplateName}”替换当前物理场景`)
+    return
+  }
+
+  if (await promotePhysicalSceneWithTemplate(component, scene)) {
+    physicalSceneActionVisible.value = false
+    scheduleElkLayout(false, 'full')
+    ElMessage.success('已将当前手工物理场景接入完整构型的设计点、扫描和绘图流程')
+  }
+}
+

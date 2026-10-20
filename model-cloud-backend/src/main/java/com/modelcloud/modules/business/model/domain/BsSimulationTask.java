@@ -37,11 +37,21 @@ public class BsSimulationTask implements Serializable {
      * 仿真服务返回的任务ID（唯一）
      */
     private String taskId;
+
+    /**
+     * 执行引擎：modelica/matlab。
+     */
+    private String engineType;
     
     /**
      * Modelica模型代码
      */
     private String modelCode;
+
+    /**
+     * MATLAB执行负载（JSON格式）。
+     */
+    private String executionPayload;
     
     /**
      * 仿真参数（JSON格式）
@@ -93,4 +103,3 @@ public class BsSimulationTask implements Serializable {
      */
     private LocalDateTime updateTime;
 }
-

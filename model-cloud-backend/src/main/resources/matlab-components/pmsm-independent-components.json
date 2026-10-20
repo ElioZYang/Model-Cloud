@@ -1,0 +1,4854 @@
+[
+  {
+    "id": "pmsm.calculate_extra_losses",
+    "name": "杂散负载损耗计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_calculate_extra_losses",
+    "description": "根据电功率计算杂散负载损耗",
+    "category": "损耗计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_extra_losses.m",
+    "iconRelativePath": "defaults/loss-calculation.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "electric_power_W",
+        "type": "number",
+        "unit": "W",
+        "required": true,
+        "defaultValue": 1000,
+        "min": 0,
+        "max": 1000000000,
+        "description": "电功率"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "extra_loss_W",
+        "type": "number",
+        "unit": "W",
+        "required": true,
+        "description": "杂散负载损耗"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_extra_losses",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "electric_power_W"
+        }
+      ],
+      "returns": [
+        {
+          "output": "extra_loss_W",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.calculate_wire_diameter",
+    "name": "导线直径计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_calculate_wire_diameter",
+    "description": "根据导体电流与目标电流密度计算导线直径和截面积",
+    "category": "尺寸计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_wire_diameter.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "conductor_current_A",
+        "type": "number",
+        "unit": "A",
+        "required": true,
+        "defaultValue": 100,
+        "min": 1e-09,
+        "max": 1000000,
+        "description": "单根导体承担的电流"
+      },
+      {
+        "name": "target_current_density_A_per_mm2",
+        "type": "number",
+        "unit": "A/mm²",
+        "required": true,
+        "defaultValue": 5,
+        "min": 0.01,
+        "max": 100,
+        "description": "目标电流密度"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "wire_diameter_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": true,
+        "description": "导线直径"
+      },
+      {
+        "name": "wire_area_m2",
+        "type": "number",
+        "unit": "m²",
+        "required": true,
+        "description": "导线截面积"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_wire_diameter",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "conductor_current_A"
+        },
+        {
+          "source": "input",
+          "name": "target_current_density_A_per_mm2"
+        }
+      ],
+      "returns": [
+        {
+          "output": "wire_diameter_mm",
+          "returnIndex": 0
+        },
+        {
+          "output": "wire_area_m2",
+          "returnIndex": 1
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.calculate_copper_resistance",
+    "name": "铜导线交流电阻计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_calculate_copper_resistance",
+    "description": "计算考虑集肤效应和邻近效应的单位长度交流电阻",
+    "category": "电气计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_copper_resistance.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "wire_diameter_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": true,
+        "defaultValue": 1,
+        "min": 1e-06,
+        "max": 100,
+        "description": "导线直径"
+      },
+      {
+        "name": "electrical_frequency_Hz",
+        "type": "number",
+        "unit": "Hz",
+        "required": true,
+        "defaultValue": 400,
+        "min": 1e-06,
+        "max": 1000000,
+        "description": "电频率"
+      },
+      {
+        "name": "copper_resistivity_ohm_m",
+        "type": "number",
+        "unit": "Ω·m",
+        "required": true,
+        "defaultValue": 1.72e-08,
+        "min": 1e-12,
+        "max": 1,
+        "description": "当前温度下的铜电阻率"
+      },
+      {
+        "name": "conductors_per_slot",
+        "type": "number",
+        "unit": "个/槽",
+        "required": true,
+        "defaultValue": 20,
+        "min": 1,
+        "max": 100000,
+        "description": "每槽导体数"
+      },
+      {
+        "name": "wire_area_m2",
+        "type": "number",
+        "unit": "m²",
+        "required": true,
+        "defaultValue": 7.853981633974483e-07,
+        "min": 1e-15,
+        "max": 1,
+        "description": "单根导线截面积"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "ac_resistance_per_m",
+        "type": "number",
+        "unit": "Ω/m",
+        "required": true,
+        "description": "单位长度交流电阻"
+      },
+      {
+        "name": "skin_effect_factor",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "description": "集肤效应系数"
+      },
+      {
+        "name": "proximity_factor",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "description": "邻近效应系数"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_copper_resistance",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "wire_diameter_mm"
+        },
+        {
+          "source": "input",
+          "name": "electrical_frequency_Hz"
+        },
+        {
+          "source": "input",
+          "name": "copper_resistivity_ohm_m"
+        },
+        {
+          "source": "input",
+          "name": "conductors_per_slot"
+        },
+        {
+          "source": "input",
+          "name": "wire_area_m2"
+        }
+      ],
+      "returns": [
+        {
+          "output": "ac_resistance_per_m",
+          "returnIndex": 0
+        },
+        {
+          "output": "skin_effect_factor",
+          "returnIndex": 1
+        },
+        {
+          "output": "proximity_factor",
+          "returnIndex": 2
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.calculate_pm_thickness",
+    "name": "永磁体厚度计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_calculate_pm_thickness",
+    "description": "根据电机几何、磁密和磁钢参数计算永磁体厚度",
+    "category": "尺寸计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_pm_thickness.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "stator_inner_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.1,
+        "min": 1e-06,
+        "max": 100,
+        "description": "定子内径"
+      },
+      {
+        "name": "core_length_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.1,
+        "min": 1e-06,
+        "max": 100,
+        "description": "铁芯长度"
+      },
+      {
+        "name": "air_gap_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.001,
+        "min": 1e-09,
+        "max": 1,
+        "description": "气隙长度"
+      },
+      {
+        "name": "airgap_flux_density_T",
+        "type": "number",
+        "unit": "T",
+        "required": true,
+        "defaultValue": 0.8,
+        "min": 1e-06,
+        "max": 10,
+        "description": "磁极覆盖区气隙磁密"
+      },
+      {
+        "name": "remanence_T",
+        "type": "number",
+        "unit": "T",
+        "required": true,
+        "defaultValue": 1.2,
+        "min": 1e-06,
+        "max": 10,
+        "description": "磁钢剩磁"
+      },
+      {
+        "name": "coercivity_kA_per_m",
+        "type": "number",
+        "unit": "kA/m",
+        "required": true,
+        "defaultValue": 900,
+        "min": 1e-06,
+        "max": 1000000,
+        "description": "磁钢矫顽力"
+      },
+      {
+        "name": "carter_factor",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 1.1,
+        "min": 1e-06,
+        "max": 100,
+        "description": "卡特系数"
+      },
+      {
+        "name": "pole_pairs",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 4,
+        "min": 1,
+        "max": 1000,
+        "description": "极对数"
+      },
+      {
+        "name": "pole_arc_ratio",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0.8,
+        "min": 1e-06,
+        "max": 0.999999,
+        "description": "极弧系数"
+      },
+      {
+        "name": "slot_opening_width_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.002,
+        "min": 1e-09,
+        "max": 1,
+        "description": "槽口宽度"
+      },
+      {
+        "name": "slot_opening_depth_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.004,
+        "min": 1e-09,
+        "max": 1,
+        "description": "槽口深度"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "magnet_thickness_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "description": "永磁体厚度"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_pm_thickness",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "stator_inner_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "core_length_m"
+        },
+        {
+          "source": "input",
+          "name": "air_gap_m"
+        },
+        {
+          "source": "input",
+          "name": "airgap_flux_density_T"
+        },
+        {
+          "source": "input",
+          "name": "remanence_T"
+        },
+        {
+          "source": "input",
+          "name": "coercivity_kA_per_m"
+        },
+        {
+          "source": "input",
+          "name": "carter_factor"
+        },
+        {
+          "source": "input",
+          "name": "pole_pairs"
+        },
+        {
+          "source": "input",
+          "name": "pole_arc_ratio"
+        },
+        {
+          "source": "input",
+          "name": "slot_opening_width_m"
+        },
+        {
+          "source": "input",
+          "name": "slot_opening_depth_m"
+        }
+      ],
+      "returns": [
+        {
+          "output": "magnet_thickness_m",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.calculate_iron_losses",
+    "name": "定子铁耗计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_calculate_iron_losses",
+    "description": "根据定子几何、磁密、频率和齿轭质量计算铁耗",
+    "category": "损耗计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_iron_losses.m",
+    "iconRelativePath": "defaults/loss-calculation.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "stator_inner_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.1,
+        "min": 1e-06,
+        "max": 100,
+        "description": "定子内径"
+      },
+      {
+        "name": "slot_count",
+        "type": "number",
+        "unit": "个",
+        "required": true,
+        "defaultValue": 48,
+        "min": 1,
+        "max": 100000,
+        "description": "定子槽数"
+      },
+      {
+        "name": "core_length_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.1,
+        "min": 1e-06,
+        "max": 100,
+        "description": "铁芯长度"
+      },
+      {
+        "name": "yoke_height_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.02,
+        "min": 1e-09,
+        "max": 100,
+        "description": "定子轭高"
+      },
+      {
+        "name": "tooth_width_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.005,
+        "min": 1e-09,
+        "max": 100,
+        "description": "定子齿宽"
+      },
+      {
+        "name": "stacking_factor",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0.95,
+        "min": 1e-06,
+        "max": 1,
+        "description": "铁芯叠压系数"
+      },
+      {
+        "name": "airgap_flux_density_T",
+        "type": "number",
+        "unit": "T",
+        "required": true,
+        "defaultValue": 0.8,
+        "min": 0,
+        "max": 10,
+        "description": "磁极覆盖区气隙磁密"
+      },
+      {
+        "name": "electrical_frequency_Hz",
+        "type": "number",
+        "unit": "Hz",
+        "required": true,
+        "defaultValue": 400,
+        "min": 0,
+        "max": 1000000,
+        "description": "电频率"
+      },
+      {
+        "name": "pole_pairs",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 4,
+        "min": 1,
+        "max": 1000,
+        "description": "极对数"
+      },
+      {
+        "name": "stator_tooth_mass_kg",
+        "type": "number",
+        "unit": "kg",
+        "required": true,
+        "defaultValue": 5,
+        "min": 0,
+        "max": 1000000000,
+        "description": "定子齿部质量"
+      },
+      {
+        "name": "stator_yoke_mass_kg",
+        "type": "number",
+        "unit": "kg",
+        "required": true,
+        "defaultValue": 10,
+        "min": 0,
+        "max": 1000000000,
+        "description": "定子轭部质量"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "iron_loss_W",
+        "type": "number",
+        "unit": "W",
+        "required": true,
+        "description": "定子总铁耗"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_iron_losses",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "stator_inner_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "slot_count"
+        },
+        {
+          "source": "input",
+          "name": "core_length_m"
+        },
+        {
+          "source": "input",
+          "name": "yoke_height_m"
+        },
+        {
+          "source": "input",
+          "name": "tooth_width_m"
+        },
+        {
+          "source": "input",
+          "name": "stacking_factor"
+        },
+        {
+          "source": "input",
+          "name": "airgap_flux_density_T"
+        },
+        {
+          "source": "input",
+          "name": "electrical_frequency_Hz"
+        },
+        {
+          "source": "input",
+          "name": "pole_pairs"
+        },
+        {
+          "source": "input",
+          "name": "stator_tooth_mass_kg"
+        },
+        {
+          "source": "input",
+          "name": "stator_yoke_mass_kg"
+        }
+      ],
+      "returns": [
+        {
+          "output": "iron_loss_W",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.calculate_windage_losses",
+    "name": "风摩损耗计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_calculate_windage_losses",
+    "description": "计算旋转气隙和转子端面的风摩损耗",
+    "category": "损耗计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_windage_losses.m",
+    "iconRelativePath": "defaults/loss-calculation.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "air_density_kg_per_m3",
+        "type": "number",
+        "unit": "kg/m³",
+        "required": true,
+        "defaultValue": 1.29,
+        "min": 1e-09,
+        "max": 100000,
+        "description": "空气密度"
+      },
+      {
+        "name": "air_dynamic_viscosity_Pa_s",
+        "type": "number",
+        "unit": "Pa·s",
+        "required": true,
+        "defaultValue": 1.81e-05,
+        "min": 1e-12,
+        "max": 1000,
+        "description": "空气动力黏度"
+      },
+      {
+        "name": "mechanical_angular_speed_rad_per_s",
+        "type": "number",
+        "unit": "rad/s",
+        "required": true,
+        "defaultValue": 628.3185307179587,
+        "min": 1e-09,
+        "max": 10000000,
+        "description": "机械角速度"
+      },
+      {
+        "name": "rotor_outer_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.095,
+        "min": 1e-09,
+        "max": 100,
+        "description": "转子外径"
+      },
+      {
+        "name": "rotor_inner_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.03,
+        "min": 0,
+        "max": 100,
+        "description": "转子内径，应小于外径"
+      },
+      {
+        "name": "core_length_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.1,
+        "min": 1e-09,
+        "max": 100,
+        "description": "铁芯长度"
+      },
+      {
+        "name": "air_gap_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.001,
+        "min": 1e-12,
+        "max": 1,
+        "description": "气隙长度"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "windage_loss_W",
+        "type": "number",
+        "unit": "W",
+        "required": true,
+        "description": "风摩损耗"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_windage_losses",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "air_density_kg_per_m3"
+        },
+        {
+          "source": "input",
+          "name": "air_dynamic_viscosity_Pa_s"
+        },
+        {
+          "source": "input",
+          "name": "mechanical_angular_speed_rad_per_s"
+        },
+        {
+          "source": "input",
+          "name": "rotor_outer_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "rotor_inner_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "core_length_m"
+        },
+        {
+          "source": "input",
+          "name": "air_gap_m"
+        }
+      ],
+      "returns": [
+        {
+          "output": "windage_loss_W",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.rr_cyn",
+    "name": "圆柱扇区径向热阻",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_Rr_cyn",
+    "description": "计算圆柱扇区沿半径方向的导热热阻",
+    "category": "热阻计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_Rr_cyn.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "ri",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.05,
+        "min": 1e-09,
+        "max": 100,
+        "description": "内半径"
+      },
+      {
+        "name": "ro",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.06,
+        "min": 1e-09,
+        "max": 100,
+        "description": "外半径，应大于内半径"
+      },
+      {
+        "name": "theta",
+        "type": "number",
+        "unit": "rad",
+        "required": true,
+        "defaultValue": 0.1308996938995747,
+        "min": 1e-09,
+        "max": 6.283185307179586,
+        "description": "扇区角度"
+      },
+      {
+        "name": "l",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.1,
+        "min": 1e-09,
+        "max": 100,
+        "description": "轴向长度"
+      },
+      {
+        "name": "k",
+        "type": "number",
+        "unit": "W/(m·K)",
+        "required": true,
+        "defaultValue": 20,
+        "min": 1e-12,
+        "max": 10000000,
+        "description": "材料导热系数"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "Rr",
+        "type": "number",
+        "unit": "K/W",
+        "required": true,
+        "description": "径向热阻"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_Rr_cyn",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "ri"
+        },
+        {
+          "source": "input",
+          "name": "ro"
+        },
+        {
+          "source": "input",
+          "name": "theta"
+        },
+        {
+          "source": "input",
+          "name": "l"
+        },
+        {
+          "source": "input",
+          "name": "k"
+        }
+      ],
+      "returns": [
+        {
+          "output": "Rr",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.rt_cyn",
+    "name": "圆柱扇区周向热阻",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_Rt_cyn",
+    "description": "计算圆柱扇区沿圆周方向的导热热阻",
+    "category": "热阻计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_Rt_cyn.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "ri",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.05,
+        "min": 1e-09,
+        "max": 100,
+        "description": "内半径"
+      },
+      {
+        "name": "ro",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.06,
+        "min": 1e-09,
+        "max": 100,
+        "description": "外半径，应大于内半径"
+      },
+      {
+        "name": "theta",
+        "type": "number",
+        "unit": "rad",
+        "required": true,
+        "defaultValue": 0.1308996938995747,
+        "min": 1e-09,
+        "max": 6.283185307179586,
+        "description": "扇区角度"
+      },
+      {
+        "name": "l",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.1,
+        "min": 1e-09,
+        "max": 100,
+        "description": "轴向长度"
+      },
+      {
+        "name": "k",
+        "type": "number",
+        "unit": "W/(m·K)",
+        "required": true,
+        "defaultValue": 20,
+        "min": 1e-12,
+        "max": 10000000,
+        "description": "材料导热系数"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "Rt",
+        "type": "number",
+        "unit": "K/W",
+        "required": true,
+        "description": "周向热阻"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_Rt_cyn",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "ri"
+        },
+        {
+          "source": "input",
+          "name": "ro"
+        },
+        {
+          "source": "input",
+          "name": "theta"
+        },
+        {
+          "source": "input",
+          "name": "l"
+        },
+        {
+          "source": "input",
+          "name": "k"
+        }
+      ],
+      "returns": [
+        {
+          "output": "Rt",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.rx_cyn",
+    "name": "圆柱扇区轴向热阻",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_Rx_cyn",
+    "description": "根据圆柱扇区截面积计算轴向导热热阻",
+    "category": "热阻计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_Rx_cyn.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "ri",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.05,
+        "min": 0,
+        "max": 100,
+        "description": "内半径"
+      },
+      {
+        "name": "ro",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.06,
+        "min": 1e-09,
+        "max": 100,
+        "description": "外半径，应大于内半径"
+      },
+      {
+        "name": "theta",
+        "type": "number",
+        "unit": "rad",
+        "required": true,
+        "defaultValue": 0.1308996938995747,
+        "min": 1e-09,
+        "max": 6.283185307179586,
+        "description": "扇区角度"
+      },
+      {
+        "name": "l",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.1,
+        "min": 1e-09,
+        "max": 100,
+        "description": "轴向长度"
+      },
+      {
+        "name": "k",
+        "type": "number",
+        "unit": "W/(m·K)",
+        "required": true,
+        "defaultValue": 20,
+        "min": 1e-12,
+        "max": 10000000,
+        "description": "材料导热系数"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "Rx",
+        "type": "number",
+        "unit": "K/W",
+        "required": true,
+        "description": "轴向热阻"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_Rx_cyn",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "ri"
+        },
+        {
+          "source": "input",
+          "name": "ro"
+        },
+        {
+          "source": "input",
+          "name": "theta"
+        },
+        {
+          "source": "input",
+          "name": "l"
+        },
+        {
+          "source": "input",
+          "name": "k"
+        }
+      ],
+      "returns": [
+        {
+          "output": "Rx",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.r_heatpipe",
+    "name": "热管综合热阻计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_R_heatpipe",
+    "description": "估算热管蒸发段、绝热段和冷凝段的综合热阻",
+    "category": "热阻计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_R_heatpipe.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "L_e",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.02,
+        "min": 1e-09,
+        "max": 100,
+        "description": "蒸发段长度"
+      },
+      {
+        "name": "L_iso",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.02,
+        "min": 0,
+        "max": 100,
+        "description": "绝热段长度"
+      },
+      {
+        "name": "L_c",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.03,
+        "min": 1e-09,
+        "max": 100,
+        "description": "冷凝段长度"
+      },
+      {
+        "name": "HPWidth",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.01,
+        "min": 1e-09,
+        "max": 100,
+        "description": "热管宽度"
+      },
+      {
+        "name": "HPthick",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.002,
+        "min": 1e-09,
+        "max": 100,
+        "description": "热管厚度"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "Rhp",
+        "type": "number",
+        "unit": "K/W",
+        "required": true,
+        "description": "热管总热阻"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_R_heatpipe",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "L_e"
+        },
+        {
+          "source": "input",
+          "name": "L_iso"
+        },
+        {
+          "source": "input",
+          "name": "L_c"
+        },
+        {
+          "source": "input",
+          "name": "HPWidth"
+        },
+        {
+          "source": "input",
+          "name": "HPthick"
+        }
+      ],
+      "returns": [
+        {
+          "output": "Rhp",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.nu_airgap",
+    "name": "气隙努塞尔数计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_Nu_airgap",
+    "description": "根据Taylor数分段经验关系计算旋转气隙努塞尔数",
+    "category": "换热计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_Nu_airgap.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "rho",
+        "type": "number",
+        "unit": "kg/m³",
+        "required": true,
+        "defaultValue": 1.29,
+        "min": 1e-12,
+        "max": 1000000,
+        "description": "气隙流体密度"
+      },
+      {
+        "name": "mu",
+        "type": "number",
+        "unit": "Pa·s",
+        "required": true,
+        "defaultValue": 1.81e-05,
+        "min": 1e-15,
+        "max": 1000,
+        "description": "气隙流体动力黏度"
+      },
+      {
+        "name": "omega",
+        "type": "number",
+        "unit": "rad/s",
+        "required": true,
+        "defaultValue": 628.3185307179587,
+        "min": 0,
+        "max": 10000000,
+        "description": "转子机械角速度"
+      },
+      {
+        "name": "rm",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.047,
+        "min": 1e-12,
+        "max": 100,
+        "description": "气隙特征半径"
+      },
+      {
+        "name": "g",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.001,
+        "min": 1e-12,
+        "max": 1,
+        "description": "气隙长度"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "Nu",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "description": "气隙努塞尔数"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_Nu_airgap",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "rho"
+        },
+        {
+          "source": "input",
+          "name": "mu"
+        },
+        {
+          "source": "input",
+          "name": "omega"
+        },
+        {
+          "source": "input",
+          "name": "rm"
+        },
+        {
+          "source": "input",
+          "name": "g"
+        }
+      ],
+      "returns": [
+        {
+          "output": "Nu",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.nu_cgv",
+    "name": "导叶努塞尔数计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_Nu_cgv",
+    "description": "根据雷诺数和普朗特数计算冷却导叶或机壳努塞尔数",
+    "category": "换热计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_Nu_cgv.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "Re",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 100000,
+        "min": 1e-09,
+        "max": 1000000000000,
+        "description": "雷诺数"
+      },
+      {
+        "name": "Pr",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0.71,
+        "min": 1e-09,
+        "max": 1000000,
+        "description": "普朗特数"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "Nu",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "description": "努塞尔数"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_Nu_cgv",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "Re"
+        },
+        {
+          "source": "input",
+          "name": "Pr"
+        }
+      ],
+      "returns": [
+        {
+          "output": "Nu",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.conv_stator_end",
+    "name": "定子端部换热系数",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_conv_stator_end",
+    "description": "根据端部特征流速估算定子端部对流换热系数",
+    "category": "换热计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_conv_stator_end.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "v",
+        "type": "number",
+        "unit": "m/s",
+        "required": true,
+        "defaultValue": 30,
+        "min": 0,
+        "max": 100000,
+        "description": "定子端部特征流速"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "h",
+        "type": "number",
+        "unit": "W/(m²·K)",
+        "required": true,
+        "description": "端部对流换热系数"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_conv_stator_end",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "v"
+        }
+      ],
+      "returns": [
+        {
+          "output": "h",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.steel_heat_capacity",
+    "name": "钢材比热容计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_steel_heat_capacity",
+    "description": "根据钢材温度采用分段线性关系估算比热容",
+    "category": "材料属性",
+    "sourceRelativePath": "components/mc_pmsm_ind_steel_heat_capacity.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "T",
+        "type": "number",
+        "unit": "K",
+        "required": true,
+        "defaultValue": 350,
+        "min": 1,
+        "max": 5000,
+        "description": "钢材温度"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "cp",
+        "type": "number",
+        "unit": "J/(kg·K)",
+        "required": true,
+        "description": "钢材比热容"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_steel_heat_capacity",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "T"
+        }
+      ],
+      "returns": [
+        {
+          "output": "cp",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.copper_heat_capacity",
+    "name": "铜材比热容计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_copper_heat_capacity",
+    "description": "根据铜材温度采用线性修正关系估算比热容",
+    "category": "材料属性",
+    "sourceRelativePath": "components/mc_pmsm_ind_copper_heat_capacity.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "T",
+        "type": "number",
+        "unit": "K",
+        "required": true,
+        "defaultValue": 350,
+        "min": 1,
+        "max": 5000,
+        "description": "铜材温度"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "cp",
+        "type": "number",
+        "unit": "J/(kg·K)",
+        "required": true,
+        "description": "铜材比热容"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_copper_heat_capacity",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "T"
+        }
+      ],
+      "returns": [
+        {
+          "output": "cp",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.ae",
+    "name": "混合气体绝热指数",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_AE",
+    "description": "根据温度、油气比和湿度计算混合气体绝热指数",
+    "category": "流体属性",
+    "sourceRelativePath": "components/mc_pmsm_ind_AE.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "T",
+        "type": "number",
+        "unit": "K",
+        "required": true,
+        "defaultValue": 300,
+        "min": 1,
+        "max": 5000,
+        "description": "气体温度"
+      },
+      {
+        "name": "FAR",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0,
+        "min": 0,
+        "max": 10,
+        "description": "油气比"
+      },
+      {
+        "name": "D",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0,
+        "min": 0,
+        "max": 10,
+        "description": "湿度比"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "K",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "description": "混合气体绝热指数"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_AE",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "T"
+        },
+        {
+          "source": "input",
+          "name": "FAR"
+        },
+        {
+          "source": "input",
+          "name": "D"
+        }
+      ],
+      "returns": [
+        {
+          "output": "K",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.cpsh",
+    "name": "混合气体定压比热",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_CPSH",
+    "description": "根据温度和油气比计算混合气体定压比热",
+    "category": "流体属性",
+    "sourceRelativePath": "components/mc_pmsm_ind_CPSH.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "T",
+        "type": "number",
+        "unit": "K",
+        "required": true,
+        "defaultValue": 300,
+        "min": 1,
+        "max": 5000,
+        "description": "气体温度"
+      },
+      {
+        "name": "FAR",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0,
+        "min": 0,
+        "max": 10,
+        "description": "油气比"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "Cp",
+        "type": "number",
+        "unit": "待确认",
+        "required": true,
+        "description": "混合气体定压比热，原模型单位制待确认"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_CPSH",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "T"
+        },
+        {
+          "source": "input",
+          "name": "FAR"
+        }
+      ],
+      "returns": [
+        {
+          "output": "Cp",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.gc",
+    "name": "混合气体常数",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_GC",
+    "description": "根据油气比和湿度计算混合气体等效气体常数",
+    "category": "流体属性",
+    "sourceRelativePath": "components/mc_pmsm_ind_GC.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "far",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0,
+        "min": 0,
+        "max": 10,
+        "description": "油气比"
+      },
+      {
+        "name": "d",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0,
+        "min": 0,
+        "max": 10,
+        "description": "湿度比"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "R",
+        "type": "number",
+        "unit": "待确认",
+        "required": true,
+        "description": "混合气体常数，原模型单位制待确认"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_GC",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "far"
+        },
+        {
+          "source": "input",
+          "name": "d"
+        }
+      ],
+      "returns": [
+        {
+          "output": "R",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.sv",
+    "name": "混合气体声速",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_SV",
+    "description": "根据静温、油气比和湿度计算当地声速",
+    "category": "流体属性",
+    "sourceRelativePath": "components/mc_pmsm_ind_SV.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "Ts",
+        "type": "number",
+        "unit": "K",
+        "required": true,
+        "defaultValue": 300,
+        "min": 1,
+        "max": 5000,
+        "description": "气体静温"
+      },
+      {
+        "name": "FAR",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0,
+        "min": 0,
+        "max": 10,
+        "description": "油气比"
+      },
+      {
+        "name": "D",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0,
+        "min": 0,
+        "max": 10,
+        "description": "湿度比"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "V",
+        "type": "number",
+        "unit": "待确认",
+        "required": true,
+        "description": "当地声速，原模型单位制待确认"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_SV",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "Ts"
+        },
+        {
+          "source": "input",
+          "name": "FAR"
+        },
+        {
+          "source": "input",
+          "name": "D"
+        }
+      ],
+      "returns": [
+        {
+          "output": "V",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.mu",
+    "name": "气体动力黏度",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_MU",
+    "description": "使用Sutherland温度关联式计算气体动力黏度",
+    "category": "流体属性",
+    "sourceRelativePath": "components/mc_pmsm_ind_MU.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "Ts",
+        "type": "number",
+        "unit": "K",
+        "required": true,
+        "defaultValue": 300,
+        "min": 1,
+        "max": 5000,
+        "description": "气体静温"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "mu",
+        "type": "number",
+        "unit": "Pa·s",
+        "required": true,
+        "description": "气体动力黏度"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_MU",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "Ts"
+        }
+      ],
+      "returns": [
+        {
+          "output": "mu",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.calculate_annular_cascade_loss",
+    "name": "环形叶栅总压损失",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "functionName": "mc_pmsm_ind_calculate_annular_cascade_loss",
+    "description": "根据环形叶栅几何和流动参数估算总压损失",
+    "category": "流体属性",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_annular_cascade_loss.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "V",
+        "type": "number",
+        "unit": "m/s",
+        "required": true,
+        "defaultValue": 180,
+        "min": 0,
+        "max": 100000,
+        "description": "来流速度"
+      },
+      {
+        "name": "D_inner",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.45,
+        "min": 1e-09,
+        "max": 1000,
+        "description": "叶栅内径"
+      },
+      {
+        "name": "D_outer",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.55,
+        "min": 1e-09,
+        "max": 1000,
+        "description": "叶栅外径，应大于内径"
+      },
+      {
+        "name": "N_blade",
+        "type": "number",
+        "unit": "个",
+        "required": true,
+        "defaultValue": 48,
+        "min": 1,
+        "max": 100000,
+        "description": "叶片数量"
+      },
+      {
+        "name": "blade_height",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.05,
+        "min": 1e-09,
+        "max": 100,
+        "description": "叶高"
+      },
+      {
+        "name": "tip_clearance",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.001,
+        "min": 0,
+        "max": 100,
+        "description": "叶尖间隙"
+      },
+      {
+        "name": "chord_length",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.03,
+        "min": 1e-09,
+        "max": 100,
+        "description": "叶片弦长"
+      },
+      {
+        "name": "Re",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 300000,
+        "min": 1e-09,
+        "max": 1000000000000000,
+        "description": "雷诺数"
+      },
+      {
+        "name": "Ma",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0.5,
+        "min": 0,
+        "max": 100,
+        "description": "马赫数"
+      },
+      {
+        "name": "flow_angle",
+        "type": "number",
+        "unit": "°",
+        "required": true,
+        "defaultValue": 45,
+        "min": -180,
+        "max": 180,
+        "description": "来流角"
+      },
+      {
+        "name": "stagger_angle",
+        "type": "number",
+        "unit": "°",
+        "required": true,
+        "defaultValue": 25,
+        "min": -180,
+        "max": 180,
+        "description": "安装角"
+      },
+      {
+        "name": "rho_in",
+        "type": "number",
+        "unit": "kg/m³",
+        "required": true,
+        "defaultValue": 1.2,
+        "min": 1e-12,
+        "max": 1000000,
+        "description": "进口流体密度"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "total_pressure_loss",
+        "type": "number",
+        "unit": "Pa",
+        "required": true,
+        "description": "环形叶栅总压损失"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_annular_cascade_loss",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "V"
+        },
+        {
+          "source": "input",
+          "name": "D_inner"
+        },
+        {
+          "source": "input",
+          "name": "D_outer"
+        },
+        {
+          "source": "input",
+          "name": "N_blade"
+        },
+        {
+          "source": "input",
+          "name": "blade_height"
+        },
+        {
+          "source": "input",
+          "name": "tip_clearance"
+        },
+        {
+          "source": "input",
+          "name": "chord_length"
+        },
+        {
+          "source": "input",
+          "name": "Re"
+        },
+        {
+          "source": "input",
+          "name": "Ma"
+        },
+        {
+          "source": "input",
+          "name": "flow_angle"
+        },
+        {
+          "source": "input",
+          "name": "stagger_angle"
+        },
+        {
+          "source": "input",
+          "name": "rho_in"
+        }
+      ],
+      "returns": [
+        {
+          "output": "total_pressure_loss",
+          "returnIndex": 0
+        }
+      ]
+    },
+    "componentKind": "scalar"
+  },
+  {
+    "id": "pmsm.workflow.motor-configuration",
+    "name": "电机配置",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "configuration",
+    "functionName": "mc_pmsm_ind_component_motor_configuration",
+    "description": "读取PMSM默认配置并设置设计功率与额定转速",
+    "category": "工作流",
+    "sourceRelativePath": "module/mc_pmsm_ind_component_motor_configuration.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "resources": [
+      {
+        "name": "motorConfig",
+        "type": "file.xlsx",
+        "accept": [
+          ".xlsx"
+        ],
+        "required": false,
+        "description": "PMSM电机配置表；不上传时使用系统默认配置"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "electric_power_kW",
+        "type": "number",
+        "unit": "kW",
+        "required": true,
+        "defaultValue": 50,
+        "min": -1000000,
+        "max": 1000000,
+        "description": "设计点电功率，正值为电动，负值为发电"
+      },
+      {
+        "name": "rated_speed_rpm",
+        "type": "number",
+        "unit": "rpm",
+        "required": true,
+        "defaultValue": 60000,
+        "min": 1,
+        "max": 10000000,
+        "description": "设计点额定转速"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "design_spec",
+        "type": "pmsm.design_spec",
+        "required": true,
+        "description": "PMSM设计输入对象"
+      },
+      {
+        "name": "pmsm_input",
+        "type": "pmsm.input",
+        "required": true,
+        "description": "基础PMSM配置结构体"
+      }
+    ],
+    "invocation": {
+      "function": "mc_pmsm_ind_component_motor_configuration",
+      "arguments": [
+        {
+          "source": "object",
+          "bindings": [
+            {
+              "target": "parameters.electric_power_kW",
+              "source": "input",
+              "name": "electric_power_kW"
+            },
+            {
+              "target": "parameters.rated_speed_rpm",
+              "source": "input",
+              "name": "rated_speed_rpm"
+            },
+            {
+              "target": "resources.motor_config_file",
+              "source": "resource",
+              "name": "motorConfig",
+              "property": "filePath",
+              "optional": true
+            },
+            {
+              "target": "resources.motor_config_id",
+              "source": "resource",
+              "name": "motorConfig",
+              "property": "configId",
+              "optional": true
+            },
+            {
+              "target": "resources.motor_config_original_filename",
+              "source": "resource",
+              "name": "motorConfig",
+              "property": "originalFileName",
+              "optional": true
+            },
+            {
+              "target": "resources.motor_config_sha256",
+              "source": "resource",
+              "name": "motorConfig",
+              "property": "sha256",
+              "optional": true
+            },
+            {
+              "target": "resources.motor_config_template_version",
+              "source": "resource",
+              "name": "motorConfig",
+              "property": "templateVersion",
+              "optional": true
+            }
+          ]
+        }
+      ],
+      "returns": [
+        {
+          "output": "design_spec",
+          "returnIndex": 0,
+          "path": "outputs.design_spec"
+        },
+        {
+          "output": "pmsm_input",
+          "returnIndex": 0,
+          "path": "outputs.design_spec.config"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.workflow.dimensions-electromagnetic",
+    "name": "尺寸与电磁设计",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_component_dimensions_electromagnetic",
+    "description": "计算PMSM主要尺寸、槽形、绕组、转子与磁钢",
+    "category": "工作流",
+    "sourceRelativePath": "module/mc_pmsm_ind_component_dimensions_electromagnetic.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "design_spec",
+        "type": "pmsm.design_spec",
+        "required": true,
+        "description": "PMSM设计输入对象"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "design_draft",
+        "type": "pmsm.design_draft",
+        "required": true,
+        "description": "尺寸与电磁设计草案"
+      },
+      {
+        "name": "pmsm_input",
+        "type": "pmsm.input",
+        "required": true,
+        "description": "本次设计使用的PMSM输入配置"
+      },
+      {
+        "name": "geometry",
+        "type": "pmsm.geometry",
+        "required": true,
+        "description": "电机主要几何参数"
+      },
+      {
+        "name": "slot_params",
+        "type": "pmsm.slot",
+        "required": true,
+        "description": "定子槽参数"
+      },
+      {
+        "name": "winding_params",
+        "type": "pmsm.winding",
+        "required": true,
+        "description": "绕组参数"
+      },
+      {
+        "name": "magnet_params",
+        "type": "pmsm.magnet",
+        "required": true,
+        "description": "转子与磁钢参数"
+      },
+      {
+        "name": "operating",
+        "type": "pmsm.operating",
+        "required": true,
+        "description": "设计工况参数"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_component_dimensions_electromagnetic",
+      "arguments": [
+        {
+          "source": "object",
+          "bindings": [
+            {
+              "target": "inputs.design_spec",
+              "source": "input",
+              "name": "design_spec"
+            }
+          ]
+        }
+      ],
+      "returns": [
+        {
+          "output": "design_draft",
+          "returnIndex": 0,
+          "path": "outputs.design_draft"
+        },
+        {
+          "output": "pmsm_input",
+          "returnIndex": 0,
+          "path": "outputs.design_draft.input"
+        },
+        {
+          "output": "geometry",
+          "returnIndex": 0,
+          "path": "outputs.design_draft.geometry"
+        },
+        {
+          "output": "slot_params",
+          "returnIndex": 0,
+          "path": "outputs.design_draft.slot"
+        },
+        {
+          "output": "winding_params",
+          "returnIndex": 0,
+          "path": "outputs.design_draft.winding"
+        },
+        {
+          "output": "magnet_params",
+          "returnIndex": 0,
+          "path": "outputs.design_draft.magnet"
+        },
+        {
+          "output": "operating",
+          "returnIndex": 0,
+          "path": "outputs.design_draft.operating"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.workflow.mass-cooling",
+    "name": "质量与冷却结构",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_component_mass_cooling",
+    "description": "计算PMSM部件质量、机壳与冷却结构几何",
+    "category": "工作流",
+    "sourceRelativePath": "module/mc_pmsm_ind_component_mass_cooling.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "design_draft",
+        "type": "pmsm.design_draft",
+        "required": true,
+        "description": "尺寸与电磁设计草案"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "motor_static",
+        "type": "pmsm.motor_static",
+        "required": true,
+        "description": "包含质量与冷却几何的静态电机对象"
+      },
+      {
+        "name": "mass",
+        "type": "pmsm.mass",
+        "required": true,
+        "description": "电机部件质量"
+      },
+      {
+        "name": "cooling_geometry",
+        "type": "pmsm.cooling_geometry",
+        "required": true,
+        "description": "机壳与冷却结构几何"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_component_mass_cooling",
+      "arguments": [
+        {
+          "source": "object",
+          "bindings": [
+            {
+              "target": "inputs.design_draft",
+              "source": "input",
+              "name": "design_draft"
+            }
+          ]
+        }
+      ],
+      "returns": [
+        {
+          "output": "motor_static",
+          "returnIndex": 0,
+          "path": "outputs.motor_static"
+        },
+        {
+          "output": "mass",
+          "returnIndex": 0,
+          "path": "outputs.mass"
+        },
+        {
+          "output": "cooling_geometry",
+          "returnIndex": 0,
+          "path": "outputs.cooling_geometry"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.workflow.losses-performance",
+    "name": "损耗与性能",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_component_losses_performance",
+    "description": "计算PMSM设计点各类损耗、效率与功率密度",
+    "category": "工作流",
+    "sourceRelativePath": "module/mc_pmsm_ind_component_losses_performance.m",
+    "iconRelativePath": "defaults/loss-calculation.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "motor_static",
+        "type": "pmsm.motor_static",
+        "required": true,
+        "description": "静态电机设计对象"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "design_result",
+        "type": "pmsm.design_result",
+        "required": true,
+        "description": "完整设计点结果"
+      },
+      {
+        "name": "losses",
+        "type": "pmsm.losses",
+        "required": true,
+        "description": "各类损耗"
+      },
+      {
+        "name": "performance",
+        "type": "pmsm.performance",
+        "required": true,
+        "description": "设计点性能"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_component_losses_performance",
+      "arguments": [
+        {
+          "source": "object",
+          "bindings": [
+            {
+              "target": "inputs.motor_static",
+              "source": "input",
+              "name": "motor_static"
+            }
+          ]
+        }
+      ],
+      "returns": [
+        {
+          "output": "design_result",
+          "returnIndex": 0,
+          "path": "outputs.design_result"
+        },
+        {
+          "output": "losses",
+          "returnIndex": 0,
+          "path": "outputs.losses"
+        },
+        {
+          "output": "performance",
+          "returnIndex": 0,
+          "path": "outputs.performance"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.workflow.motor-model",
+    "name": "电机模型",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "model",
+    "functionName": "mc_pmsm_ind_component_create_motor_model",
+    "description": "把设计结果封装为可供后续分析模块复用的PMSM电机模型",
+    "category": "工作流",
+    "sourceRelativePath": "module/mc_pmsm_ind_component_create_motor_model.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "design_result",
+        "type": "pmsm.design_result",
+        "required": true,
+        "description": "完整设计点结果"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "motor_model",
+        "type": "pmsm.motor_model",
+        "required": true,
+        "description": "可复用PMSM电机模型"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_component_create_motor_model",
+      "arguments": [
+        {
+          "source": "object",
+          "bindings": [
+            {
+              "target": "inputs.design_result",
+              "source": "input",
+              "name": "design_result"
+            }
+          ]
+        }
+      ],
+      "returns": [
+        {
+          "output": "motor_model",
+          "returnIndex": 0,
+          "path": "outputs.motor_model"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.workflow.thermal-network",
+    "name": "PMSM热网络",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_PMSM_thermal_network",
+    "description": "根据PMSM设计结果、损耗、冷却方式及入口流动条件构建并求解热网络",
+    "category": "工作流",
+    "sourceRelativePath": "module/mc_pmsm_ind_PMSM_thermal_network.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "design_result",
+        "type": "pmsm.design_result",
+        "required": true,
+        "description": "损耗与性能组件输出的完整设计结果"
+      },
+      {
+        "name": "T",
+        "type": "number",
+        "unit": "K",
+        "required": true,
+        "defaultValue": 288.15,
+        "min": 1,
+        "max": 5000,
+        "description": "入口总温"
+      },
+      {
+        "name": "P",
+        "type": "number",
+        "unit": "Pa",
+        "required": true,
+        "defaultValue": 101325,
+        "min": 1,
+        "max": 1000000000,
+        "description": "入口总压"
+      },
+      {
+        "name": "D",
+        "type": "number",
+        "required": true,
+        "defaultValue": 0,
+        "min": 0,
+        "max": 1,
+        "description": "相对湿度"
+      },
+      {
+        "name": "WA",
+        "type": "number",
+        "unit": "kg/s",
+        "required": true,
+        "defaultValue": 1,
+        "min": 1e-09,
+        "max": 10000,
+        "description": "空气质量流量"
+      },
+      {
+        "name": "EFFH",
+        "type": "number",
+        "required": true,
+        "defaultValue": 1,
+        "min": 0,
+        "max": 1,
+        "description": "热交换有效系数"
+      },
+      {
+        "name": "FAR",
+        "type": "number",
+        "required": true,
+        "defaultValue": 0,
+        "min": 0,
+        "max": 10,
+        "description": "油气比"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_design_result",
+        "type": "pmsm.design_result",
+        "required": true,
+        "description": "包含热网络结果的完整设计结果"
+      },
+      {
+        "name": "thermal_result",
+        "type": "pmsm.thermal",
+        "required": true,
+        "description": "热网络结果"
+      },
+      {
+        "name": "outlet_temperature_K",
+        "type": "number",
+        "unit": "K",
+        "required": true,
+        "description": "出口总温"
+      },
+      {
+        "name": "outlet_pressure_Pa",
+        "type": "number",
+        "unit": "Pa",
+        "required": true,
+        "description": "出口总压"
+      },
+      {
+        "name": "pressure_ratio",
+        "type": "number",
+        "required": true,
+        "description": "总压比"
+      },
+      {
+        "name": "corrected_mass_flow",
+        "type": "number",
+        "required": true,
+        "description": "修正流量"
+      },
+      {
+        "name": "thermal_geometry",
+        "type": "pmsm.thermal_geometry",
+        "required": true,
+        "description": "热网络几何输入"
+      },
+      {
+        "name": "flow_state",
+        "type": "pmsm.flow_state",
+        "required": true,
+        "description": "热网络流动状态"
+      },
+      {
+        "name": "material_props",
+        "type": "pmsm.material_props",
+        "required": true,
+        "description": "热网络材料属性"
+      },
+      {
+        "name": "node_data",
+        "type": "pmsm.node_data",
+        "required": true,
+        "description": "热网络节点数据"
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_PMSM_thermal_network",
+      "arguments": [
+        {
+          "source": "object",
+          "bindings": [
+            {
+              "target": "pmsm_params",
+              "source": "input",
+              "name": "design_result"
+            },
+            {
+              "target": "T",
+              "source": "input",
+              "name": "T"
+            },
+            {
+              "target": "P",
+              "source": "input",
+              "name": "P"
+            },
+            {
+              "target": "D",
+              "source": "input",
+              "name": "D"
+            },
+            {
+              "target": "WA",
+              "source": "input",
+              "name": "WA"
+            },
+            {
+              "target": "EFFH",
+              "source": "input",
+              "name": "EFFH"
+            },
+            {
+              "target": "FAR",
+              "source": "input",
+              "name": "FAR"
+            }
+          ]
+        }
+      ],
+      "returns": [
+        {
+          "output": "updated_design_result",
+          "returnIndex": 0,
+          "path": "pmsm_params"
+        },
+        {
+          "output": "thermal_result",
+          "returnIndex": 0,
+          "path": "pmsm_params.thermal"
+        },
+        {
+          "output": "outlet_temperature_K",
+          "returnIndex": 0,
+          "path": "T"
+        },
+        {
+          "output": "outlet_pressure_Pa",
+          "returnIndex": 0,
+          "path": "P"
+        },
+        {
+          "output": "pressure_ratio",
+          "returnIndex": 0,
+          "path": "TPR"
+        },
+        {
+          "output": "corrected_mass_flow",
+          "returnIndex": 0,
+          "path": "WCOR"
+        },
+        {
+          "output": "thermal_geometry",
+          "returnIndex": 0,
+          "path": "thermal_geometry"
+        },
+        {
+          "output": "flow_state",
+          "returnIndex": 0,
+          "path": "flow_state"
+        },
+        {
+          "output": "material_props",
+          "returnIndex": 0,
+          "path": "material_props"
+        },
+        {
+          "output": "node_data",
+          "returnIndex": 0,
+          "path": "node_data"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.structure.motor-mass",
+    "name": "PMSM电机质量计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_calculate_motor_mass",
+    "description": "计算部件质量以及机壳和冷却结构尺寸",
+    "category": "质量与结构",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_motor_mass.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "pmsm_input",
+        "type": "pmsm.input",
+        "required": true
+      },
+      {
+        "name": "operating",
+        "type": "pmsm.operating",
+        "required": true
+      },
+      {
+        "name": "stator_inner_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.1,
+        "min": 1e-06
+      },
+      {
+        "name": "stator_outer_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.2,
+        "min": 1e-06
+      },
+      {
+        "name": "rotor_outer_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.095,
+        "min": 1e-06
+      },
+      {
+        "name": "rotor_inner_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.05,
+        "min": 1e-06
+      },
+      {
+        "name": "core_length_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.15,
+        "min": 1e-06
+      },
+      {
+        "name": "slot_count",
+        "type": "number",
+        "required": true,
+        "defaultValue": 36,
+        "min": 2
+      },
+      {
+        "name": "slot_params",
+        "type": "pmsm.slot",
+        "required": true
+      },
+      {
+        "name": "winding_params",
+        "type": "pmsm.winding",
+        "required": true
+      },
+      {
+        "name": "magnet_params",
+        "type": "pmsm.magnet",
+        "required": true
+      },
+      {
+        "name": "air_gap_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.001,
+        "min": 1e-09
+      }
+    ],
+    "outputs": [
+      {
+        "name": "mass_params",
+        "type": "pmsm.mass",
+        "required": true
+      },
+      {
+        "name": "geometry",
+        "type": "pmsm.geometry",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_motor_mass",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "pmsm_input"
+        },
+        {
+          "source": "input",
+          "name": "operating"
+        },
+        {
+          "source": "input",
+          "name": "stator_inner_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "stator_outer_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "rotor_outer_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "rotor_inner_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "core_length_m"
+        },
+        {
+          "source": "input",
+          "name": "slot_count"
+        },
+        {
+          "source": "input",
+          "name": "slot_params"
+        },
+        {
+          "source": "input",
+          "name": "winding_params"
+        },
+        {
+          "source": "input",
+          "name": "magnet_params"
+        },
+        {
+          "source": "input",
+          "name": "air_gap_m"
+        }
+      ],
+      "returns": [
+        {
+          "output": "mass_params",
+          "returnIndex": 0,
+          "path": ""
+        },
+        {
+          "output": "geometry",
+          "returnIndex": 1,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.loss.magnet",
+    "name": "PMSM磁钢损耗计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_calculate_magnet_losses",
+    "description": "估算当前工况下永磁体涡流损耗",
+    "category": "损耗计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_magnet_losses.m",
+    "iconRelativePath": "defaults/loss-calculation.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "magnet_params",
+        "type": "pmsm.magnet",
+        "required": true
+      },
+      {
+        "name": "electrical_frequency_Hz",
+        "type": "number",
+        "unit": "Hz",
+        "required": true,
+        "defaultValue": 1000,
+        "min": 0
+      },
+      {
+        "name": "airgap_flux_density_T",
+        "type": "number",
+        "unit": "T",
+        "required": true,
+        "defaultValue": 0.8,
+        "min": 0
+      },
+      {
+        "name": "operating_speed_rpm",
+        "type": "number",
+        "unit": "rpm",
+        "required": true,
+        "defaultValue": 60000,
+        "min": 0
+      }
+    ],
+    "outputs": [
+      {
+        "name": "magnet_loss_W",
+        "type": "number",
+        "unit": "W",
+        "required": true
+      },
+      {
+        "name": "magnet_params",
+        "type": "pmsm.magnet",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_magnet_losses",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "magnet_params"
+        },
+        {
+          "source": "input",
+          "name": "electrical_frequency_Hz"
+        },
+        {
+          "source": "input",
+          "name": "airgap_flux_density_T"
+        },
+        {
+          "source": "input",
+          "name": "operating_speed_rpm"
+        }
+      ],
+      "returns": [
+        {
+          "output": "magnet_loss_W",
+          "returnIndex": 0,
+          "path": ""
+        },
+        {
+          "output": "magnet_params",
+          "returnIndex": 1,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.loss.total",
+    "name": "PMSM全部损耗计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_calculate_total_losses",
+    "description": "统一计算铜耗、铁耗、磁钢损耗、风摩损耗和附加损耗",
+    "category": "损耗计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_total_losses.m",
+    "iconRelativePath": "defaults/loss-calculation.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "pmsm_input",
+        "type": "pmsm.input",
+        "required": true
+      },
+      {
+        "name": "operating",
+        "type": "pmsm.operating",
+        "required": true
+      },
+      {
+        "name": "geometry",
+        "type": "pmsm.geometry",
+        "required": true
+      },
+      {
+        "name": "slot_params",
+        "type": "pmsm.slot",
+        "required": true
+      },
+      {
+        "name": "magnet_params",
+        "type": "pmsm.magnet",
+        "required": true
+      },
+      {
+        "name": "mass_params",
+        "type": "pmsm.mass",
+        "required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "losses",
+        "type": "pmsm.losses",
+        "required": true
+      },
+      {
+        "name": "total_loss_W",
+        "type": "number",
+        "unit": "W",
+        "required": true
+      },
+      {
+        "name": "magnet_params",
+        "type": "pmsm.magnet",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_total_losses",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "pmsm_input"
+        },
+        {
+          "source": "input",
+          "name": "operating"
+        },
+        {
+          "source": "input",
+          "name": "geometry"
+        },
+        {
+          "source": "input",
+          "name": "slot_params"
+        },
+        {
+          "source": "input",
+          "name": "magnet_params"
+        },
+        {
+          "source": "input",
+          "name": "mass_params"
+        }
+      ],
+      "returns": [
+        {
+          "output": "losses",
+          "returnIndex": 0,
+          "path": ""
+        },
+        {
+          "output": "total_loss_W",
+          "returnIndex": 0,
+          "path": "total"
+        },
+        {
+          "output": "magnet_params",
+          "returnIndex": 1,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.performance.design",
+    "name": "PMSM设计性能计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_calculate_design_performance",
+    "description": "根据运行工况和总损耗计算设计点性能与效率",
+    "category": "性能计算",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_design_performance.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "operating",
+        "type": "pmsm.operating",
+        "required": true
+      },
+      {
+        "name": "total_loss_W",
+        "type": "number",
+        "unit": "W",
+        "required": true,
+        "defaultValue": 1000,
+        "min": 0
+      },
+      {
+        "name": "geometry",
+        "type": "pmsm.geometry",
+        "required": true
+      },
+      {
+        "name": "mass_params",
+        "type": "pmsm.mass",
+        "required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "performance",
+        "type": "pmsm.performance",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_design_performance",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "operating"
+        },
+        {
+          "source": "input",
+          "name": "total_loss_W"
+        },
+        {
+          "source": "input",
+          "name": "geometry"
+        },
+        {
+          "source": "input",
+          "name": "mass_params"
+        }
+      ],
+      "returns": [
+        {
+          "output": "performance",
+          "returnIndex": 0,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.heat.rectangular-duct",
+    "name": "矩形冷却流道换热系数",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_component_calculate_rectangular_duct_h",
+    "description": "使用标量流体属性计算矩形流道对流换热系数",
+    "category": "换热计算",
+    "sourceRelativePath": "module/mc_pmsm_ind_component_calculate_rectangular_duct_h.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "velocity",
+        "type": "number",
+        "unit": "m/s",
+        "required": true,
+        "defaultValue": 1,
+        "min": 1e-06
+      },
+      {
+        "name": "width",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.01,
+        "min": 1e-06
+      },
+      {
+        "name": "height",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.005,
+        "min": 1e-06
+      },
+      {
+        "name": "rho",
+        "type": "number",
+        "unit": "kg/m³",
+        "required": true,
+        "defaultValue": 999.7,
+        "min": 1e-06
+      },
+      {
+        "name": "mu",
+        "type": "number",
+        "unit": "Pa·s",
+        "required": true,
+        "defaultValue": 0.001306,
+        "min": 1e-12
+      },
+      {
+        "name": "cp",
+        "type": "number",
+        "unit": "J/(kg·K)",
+        "required": true,
+        "defaultValue": 4195,
+        "min": 1e-06
+      },
+      {
+        "name": "k",
+        "type": "number",
+        "unit": "W/(m·K)",
+        "required": true,
+        "defaultValue": 0.582,
+        "min": 1e-06
+      },
+      {
+        "name": "Pr",
+        "type": "number",
+        "required": true,
+        "defaultValue": 9.41,
+        "min": 1e-06
+      }
+    ],
+    "outputs": [
+      {
+        "name": "heat_transfer_coefficient",
+        "type": "number",
+        "unit": "W/(m²·K)",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_component_calculate_rectangular_duct_h",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "velocity"
+        },
+        {
+          "source": "input",
+          "name": "width"
+        },
+        {
+          "source": "input",
+          "name": "height"
+        },
+        {
+          "source": "input",
+          "name": "rho"
+        },
+        {
+          "source": "input",
+          "name": "mu"
+        },
+        {
+          "source": "input",
+          "name": "cp"
+        },
+        {
+          "source": "input",
+          "name": "k"
+        },
+        {
+          "source": "input",
+          "name": "Pr"
+        }
+      ],
+      "returns": [
+        {
+          "output": "heat_transfer_coefficient",
+          "returnIndex": 0,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.main-flow.design",
+    "name": "PMSM完整设计",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "workflow",
+    "functionName": "mc_pmsm_ind_PMSM_design",
+    "description": "从PMSM配置直接完成尺寸、电磁、质量、损耗与性能设计",
+    "category": "主流程",
+    "sourceRelativePath": "module/mc_pmsm_ind_PMSM_design.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "pmsm_input",
+        "type": "pmsm.input",
+        "required": true
+      },
+      {
+        "name": "electric_power_kW",
+        "type": "number",
+        "unit": "kW",
+        "required": true,
+        "defaultValue": 50,
+        "min": -1000000,
+        "max": 1000000
+      },
+      {
+        "name": "rated_speed_rpm",
+        "type": "number",
+        "unit": "rpm",
+        "required": true,
+        "defaultValue": 60000,
+        "min": 1,
+        "max": 10000000
+      }
+    ],
+    "outputs": [
+      {
+        "name": "design_result",
+        "type": "pmsm.design_result",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_PMSM_design",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "pmsm_input"
+        },
+        {
+          "source": "input",
+          "name": "electric_power_kW"
+        },
+        {
+          "source": "input",
+          "name": "rated_speed_rpm"
+        }
+      ],
+      "returns": [
+        {
+          "output": "design_result",
+          "returnIndex": 0,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.main-flow.off-design",
+    "name": "PMSM非设计工况",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "workflow",
+    "functionName": "mc_pmsm_ind_PMSM_off_design",
+    "description": "基于已设计电机重新计算指定功率与转速下的损耗和性能",
+    "category": "主流程",
+    "sourceRelativePath": "module/mc_pmsm_ind_PMSM_off_design.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "design_result",
+        "type": "pmsm.design_result",
+        "required": true
+      },
+      {
+        "name": "electric_power_kW",
+        "type": "number",
+        "unit": "kW",
+        "required": true,
+        "defaultValue": 40,
+        "min": -1000000,
+        "max": 1000000
+      },
+      {
+        "name": "operating_speed_rpm",
+        "type": "number",
+        "unit": "rpm",
+        "required": true,
+        "defaultValue": 40000,
+        "min": 1e-06,
+        "max": 10000000
+      }
+    ],
+    "outputs": [
+      {
+        "name": "offdesign_result",
+        "type": "pmsm.design_result",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_PMSM_off_design",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "design_result"
+        },
+        {
+          "source": "input",
+          "name": "electric_power_kW"
+        },
+        {
+          "source": "input",
+          "name": "operating_speed_rpm"
+        }
+      ],
+      "returns": [
+        {
+          "output": "offdesign_result",
+          "returnIndex": 0,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.thermal-base.air-network",
+    "name": "气冷热网络构建",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_build_thermal_network_air",
+    "description": "根据热几何、流动、材料和节点数据构建气冷热网络",
+    "category": "热网络",
+    "sourceRelativePath": "components/mc_pmsm_ind_build_thermal_network_air.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "thermal_geometry",
+        "type": "pmsm.thermal_geometry",
+        "required": true
+      },
+      {
+        "name": "flow_state",
+        "type": "pmsm.flow_state",
+        "required": true
+      },
+      {
+        "name": "material_props",
+        "type": "pmsm.material_props",
+        "required": true
+      },
+      {
+        "name": "node_data",
+        "type": "pmsm.node_data",
+        "required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "thermal_network",
+        "type": "pmsm.thermal_network",
+        "required": true
+      },
+      {
+        "name": "R",
+        "type": "matrix",
+        "required": true
+      },
+      {
+        "name": "C",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "P",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "T",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "LM1",
+        "type": "index_vector",
+        "required": true
+      },
+      {
+        "name": "LM2",
+        "type": "index_vector",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_build_thermal_network_air",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "thermal_geometry"
+        },
+        {
+          "source": "input",
+          "name": "flow_state"
+        },
+        {
+          "source": "input",
+          "name": "material_props"
+        },
+        {
+          "source": "input",
+          "name": "node_data"
+        }
+      ],
+      "returns": [
+        {
+          "output": "thermal_network",
+          "returnIndex": 0,
+          "path": ""
+        },
+        {
+          "output": "R",
+          "returnIndex": 0,
+          "path": "R"
+        },
+        {
+          "output": "C",
+          "returnIndex": 0,
+          "path": "C"
+        },
+        {
+          "output": "P",
+          "returnIndex": 0,
+          "path": "PW_in"
+        },
+        {
+          "output": "T",
+          "returnIndex": 0,
+          "path": "T_in"
+        },
+        {
+          "output": "LM1",
+          "returnIndex": 0,
+          "path": "LM1"
+        },
+        {
+          "output": "LM2",
+          "returnIndex": 0,
+          "path": "LM2"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.thermal-base.hpcgv-network",
+    "name": "HPCGV热网络构建",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_build_thermal_network_hpcgv",
+    "description": "构建HPCGV冷却方式热网络",
+    "category": "热网络",
+    "sourceRelativePath": "components/mc_pmsm_ind_build_thermal_network_hpcgv.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "thermal_geometry",
+        "type": "pmsm.thermal_geometry",
+        "required": true
+      },
+      {
+        "name": "flow_state",
+        "type": "pmsm.flow_state",
+        "required": true
+      },
+      {
+        "name": "material_props",
+        "type": "pmsm.material_props",
+        "required": true
+      },
+      {
+        "name": "node_data",
+        "type": "pmsm.node_data",
+        "required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "thermal_network",
+        "type": "pmsm.thermal_network",
+        "required": true
+      },
+      {
+        "name": "R",
+        "type": "matrix",
+        "required": true
+      },
+      {
+        "name": "C",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "P",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "T",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "LM1",
+        "type": "index_vector",
+        "required": true
+      },
+      {
+        "name": "LM2",
+        "type": "index_vector",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_build_thermal_network_hpcgv",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "thermal_geometry"
+        },
+        {
+          "source": "input",
+          "name": "flow_state"
+        },
+        {
+          "source": "input",
+          "name": "material_props"
+        },
+        {
+          "source": "input",
+          "name": "node_data"
+        }
+      ],
+      "returns": [
+        {
+          "output": "thermal_network",
+          "returnIndex": 0,
+          "path": ""
+        },
+        {
+          "output": "R",
+          "returnIndex": 0,
+          "path": "R"
+        },
+        {
+          "output": "C",
+          "returnIndex": 0,
+          "path": "C"
+        },
+        {
+          "output": "P",
+          "returnIndex": 0,
+          "path": "PW_in"
+        },
+        {
+          "output": "T",
+          "returnIndex": 0,
+          "path": "T_in"
+        },
+        {
+          "output": "LM1",
+          "returnIndex": 0,
+          "path": "LM1"
+        },
+        {
+          "output": "LM2",
+          "returnIndex": 0,
+          "path": "LM2"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.thermal-base.liquid-network",
+    "name": "液冷热网络构建",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_build_thermal_network_liquid",
+    "description": "构建液体冷却方式热网络",
+    "category": "热网络",
+    "sourceRelativePath": "components/mc_pmsm_ind_build_thermal_network_liquid.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "thermal_geometry",
+        "type": "pmsm.thermal_geometry",
+        "required": true
+      },
+      {
+        "name": "flow_state",
+        "type": "pmsm.flow_state",
+        "required": true
+      },
+      {
+        "name": "material_props",
+        "type": "pmsm.material_props",
+        "required": true
+      },
+      {
+        "name": "node_data",
+        "type": "pmsm.node_data",
+        "required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "thermal_network",
+        "type": "pmsm.thermal_network",
+        "required": true
+      },
+      {
+        "name": "R",
+        "type": "matrix",
+        "required": true
+      },
+      {
+        "name": "C",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "P",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "T",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "LM1",
+        "type": "index_vector",
+        "required": true
+      },
+      {
+        "name": "LM2",
+        "type": "index_vector",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_build_thermal_network_liquid",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "thermal_geometry"
+        },
+        {
+          "source": "input",
+          "name": "flow_state"
+        },
+        {
+          "source": "input",
+          "name": "material_props"
+        },
+        {
+          "source": "input",
+          "name": "node_data"
+        }
+      ],
+      "returns": [
+        {
+          "output": "thermal_network",
+          "returnIndex": 0,
+          "path": ""
+        },
+        {
+          "output": "R",
+          "returnIndex": 0,
+          "path": "R"
+        },
+        {
+          "output": "C",
+          "returnIndex": 0,
+          "path": "C"
+        },
+        {
+          "output": "P",
+          "returnIndex": 0,
+          "path": "PW_in"
+        },
+        {
+          "output": "T",
+          "returnIndex": 0,
+          "path": "T_in"
+        },
+        {
+          "output": "LM1",
+          "returnIndex": 0,
+          "path": "LM1"
+        },
+        {
+          "output": "LM2",
+          "returnIndex": 0,
+          "path": "LM2"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.thermal-base.simplify",
+    "name": "热网络降阶",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_simplify_thermal_network",
+    "description": "根据热阻、热容、热源和节点集合生成降阶状态方程",
+    "category": "热网络",
+    "sourceRelativePath": "components/mc_pmsm_ind_simplify_thermal_network.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "R",
+        "type": "matrix",
+        "required": true
+      },
+      {
+        "name": "C",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "P",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "LM1",
+        "type": "index_vector",
+        "required": true
+      },
+      {
+        "name": "LM2",
+        "type": "index_vector",
+        "required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "A",
+        "type": "matrix",
+        "required": true
+      },
+      {
+        "name": "B",
+        "type": "vector",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_simplify_thermal_network",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "R"
+        },
+        {
+          "source": "input",
+          "name": "C"
+        },
+        {
+          "source": "input",
+          "name": "P"
+        },
+        {
+          "source": "input",
+          "name": "LM1"
+        },
+        {
+          "source": "input",
+          "name": "LM2"
+        }
+      ],
+      "returns": [
+        {
+          "output": "A",
+          "returnIndex": 0,
+          "path": ""
+        },
+        {
+          "output": "B",
+          "returnIndex": 1,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.thermal-base.balance-solver",
+    "name": "热平衡求解",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_thermal_balance_solver",
+    "description": "求解热网络节点温度变化量和稳态平衡温度",
+    "category": "热网络",
+    "sourceRelativePath": "components/mc_pmsm_ind_thermal_balance_solver.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "R",
+        "type": "matrix",
+        "required": true
+      },
+      {
+        "name": "C",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "P",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "T",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "LM1",
+        "type": "index_vector",
+        "required": true
+      },
+      {
+        "name": "LM2",
+        "type": "index_vector",
+        "required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "temperature_change",
+        "type": "vector",
+        "required": true
+      },
+      {
+        "name": "balance_temperature",
+        "type": "vector",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_thermal_balance_solver",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "R"
+        },
+        {
+          "source": "input",
+          "name": "C"
+        },
+        {
+          "source": "input",
+          "name": "P"
+        },
+        {
+          "source": "input",
+          "name": "T"
+        },
+        {
+          "source": "input",
+          "name": "LM1"
+        },
+        {
+          "source": "input",
+          "name": "LM2"
+        }
+      ],
+      "returns": [
+        {
+          "output": "temperature_change",
+          "returnIndex": 0,
+          "path": ""
+        },
+        {
+          "output": "balance_temperature",
+          "returnIndex": 1,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.design.main-dimensions",
+    "name": "PMSM主尺寸计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_calculate_main_dimensions",
+    "description": "直接按D²L法计算定子主尺寸、槽数、每槽导体数和线负荷",
+    "category": "尺寸与电磁",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_main_dimensions.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "pmsm_input",
+        "type": "pmsm.input",
+        "required": true,
+        "description": "基础PMSM配置"
+      },
+      {
+        "name": "operating",
+        "type": "pmsm.operating",
+        "required": true,
+        "description": "设计工况"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "stator_inner_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true
+      },
+      {
+        "name": "stator_outer_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true
+      },
+      {
+        "name": "core_length_m",
+        "type": "number",
+        "unit": "m",
+        "required": true
+      },
+      {
+        "name": "slot_count",
+        "type": "number",
+        "unit": "个",
+        "required": true
+      },
+      {
+        "name": "conductors_per_slot",
+        "type": "number",
+        "unit": "个/槽",
+        "required": true
+      },
+      {
+        "name": "electric_loading_A_per_m",
+        "type": "number",
+        "unit": "A/m",
+        "required": true
+      },
+      {
+        "name": "pmsm_input",
+        "type": "pmsm.input",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_main_dimensions",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "pmsm_input"
+        },
+        {
+          "source": "input",
+          "name": "operating"
+        }
+      ],
+      "returns": [
+        {
+          "output": "stator_inner_diameter_m",
+          "returnIndex": 0,
+          "path": ""
+        },
+        {
+          "output": "stator_outer_diameter_m",
+          "returnIndex": 1,
+          "path": ""
+        },
+        {
+          "output": "core_length_m",
+          "returnIndex": 2,
+          "path": ""
+        },
+        {
+          "output": "slot_count",
+          "returnIndex": 3,
+          "path": ""
+        },
+        {
+          "output": "conductors_per_slot",
+          "returnIndex": 4,
+          "path": ""
+        },
+        {
+          "output": "electric_loading_A_per_m",
+          "returnIndex": 5,
+          "path": ""
+        },
+        {
+          "output": "pmsm_input",
+          "returnIndex": 6,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.design.stator-winding",
+    "name": "PMSM定子槽形与绕组设计",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_calculate_stator_winding_design",
+    "description": "直接计算槽形、导线尺寸、绕组长度与相电阻",
+    "category": "尺寸与电磁",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_stator_winding_design.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "pmsm_input",
+        "type": "pmsm.input",
+        "required": true
+      },
+      {
+        "name": "stator_inner_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.1,
+        "min": 1e-06
+      },
+      {
+        "name": "stator_outer_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.2,
+        "min": 1e-06
+      },
+      {
+        "name": "core_length_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.15,
+        "min": 1e-06
+      },
+      {
+        "name": "slot_count",
+        "type": "number",
+        "unit": "个",
+        "required": true,
+        "defaultValue": 24,
+        "min": 2
+      },
+      {
+        "name": "conductors_per_slot",
+        "type": "number",
+        "unit": "个/槽",
+        "required": true,
+        "defaultValue": 16,
+        "min": 1
+      },
+      {
+        "name": "operating",
+        "type": "pmsm.operating",
+        "required": true
+      },
+      {
+        "name": "electric_loading_A_per_m",
+        "type": "number",
+        "unit": "A/m",
+        "required": true,
+        "defaultValue": 10000,
+        "min": 0
+      }
+    ],
+    "outputs": [
+      {
+        "name": "slot_params",
+        "type": "pmsm.slot",
+        "required": true
+      },
+      {
+        "name": "winding_params",
+        "type": "pmsm.winding",
+        "required": true
+      },
+      {
+        "name": "stator_outer_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true
+      },
+      {
+        "name": "operating",
+        "type": "pmsm.operating",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_stator_winding_design",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "pmsm_input"
+        },
+        {
+          "source": "input",
+          "name": "stator_inner_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "stator_outer_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "core_length_m"
+        },
+        {
+          "source": "input",
+          "name": "slot_count"
+        },
+        {
+          "source": "input",
+          "name": "conductors_per_slot"
+        },
+        {
+          "source": "input",
+          "name": "operating"
+        },
+        {
+          "source": "input",
+          "name": "electric_loading_A_per_m"
+        }
+      ],
+      "returns": [
+        {
+          "output": "slot_params",
+          "returnIndex": 0,
+          "path": ""
+        },
+        {
+          "output": "winding_params",
+          "returnIndex": 1,
+          "path": ""
+        },
+        {
+          "output": "stator_outer_diameter_m",
+          "returnIndex": 2,
+          "path": ""
+        },
+        {
+          "output": "operating",
+          "returnIndex": 3,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.design.slot-geometry",
+    "name": "PMSM槽形计算",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_calculate_slot_geometry_new",
+    "description": "直接按磁密、槽面积和尺寸约束计算定子槽形",
+    "category": "尺寸与电磁",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_slot_geometry_new.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "stator_inner_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.1,
+        "min": 1e-06
+      },
+      {
+        "name": "stator_outer_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.2,
+        "min": 1e-06
+      },
+      {
+        "name": "minimum_slot_area_m2",
+        "type": "number",
+        "unit": "m²",
+        "required": true,
+        "defaultValue": 0.0001,
+        "min": 1e-12
+      },
+      {
+        "name": "slot_count",
+        "type": "number",
+        "unit": "个",
+        "required": true,
+        "defaultValue": 24,
+        "min": 2
+      },
+      {
+        "name": "pole_pairs",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 1,
+        "min": 1
+      },
+      {
+        "name": "stacking_factor",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0.96,
+        "min": 1e-06,
+        "max": 1
+      },
+      {
+        "name": "slot_fill_factor",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0.725,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "tooth_width_ratio",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0.5,
+        "min": -100,
+        "max": 100
+      },
+      {
+        "name": "yoke_height_ratio",
+        "type": "number",
+        "unit": "-",
+        "required": true,
+        "defaultValue": 0.502,
+        "min": -100,
+        "max": 100
+      },
+      {
+        "name": "airgap_flux_density_T",
+        "type": "number",
+        "unit": "T",
+        "required": true,
+        "defaultValue": 0.3141592654,
+        "min": 1e-06
+      },
+      {
+        "name": "tooth_flux_density_T",
+        "type": "number",
+        "unit": "T",
+        "required": true,
+        "defaultValue": 3,
+        "min": 1e-06
+      },
+      {
+        "name": "yoke_flux_density_T",
+        "type": "number",
+        "unit": "T",
+        "required": true,
+        "defaultValue": 3,
+        "min": 1e-06
+      }
+    ],
+    "outputs": [
+      {
+        "name": "slot_params",
+        "type": "pmsm.slot",
+        "required": true
+      },
+      {
+        "name": "stator_outer_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_slot_geometry_new",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "stator_inner_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "stator_outer_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "minimum_slot_area_m2"
+        },
+        {
+          "source": "input",
+          "name": "slot_count"
+        },
+        {
+          "source": "input",
+          "name": "pole_pairs"
+        },
+        {
+          "source": "input",
+          "name": "stacking_factor"
+        },
+        {
+          "source": "input",
+          "name": "slot_fill_factor"
+        },
+        {
+          "source": "input",
+          "name": "tooth_width_ratio"
+        },
+        {
+          "source": "input",
+          "name": "yoke_height_ratio"
+        },
+        {
+          "source": "input",
+          "name": "airgap_flux_density_T"
+        },
+        {
+          "source": "input",
+          "name": "tooth_flux_density_T"
+        },
+        {
+          "source": "input",
+          "name": "yoke_flux_density_T"
+        }
+      ],
+      "returns": [
+        {
+          "output": "slot_params",
+          "returnIndex": 0,
+          "path": ""
+        },
+        {
+          "output": "stator_outer_diameter_m",
+          "returnIndex": 1,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.design.rotor-magnet",
+    "name": "PMSM转子与磁钢设计",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_calculate_rotor_magnet_design",
+    "description": "直接选择磁钢并计算转子直径、气隙和磁钢参数",
+    "category": "尺寸与电磁",
+    "sourceRelativePath": "components/mc_pmsm_ind_calculate_rotor_magnet_design.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "pmsm_input",
+        "type": "pmsm.input",
+        "required": true
+      },
+      {
+        "name": "stator_inner_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.1,
+        "min": 1e-06
+      },
+      {
+        "name": "core_length_m",
+        "type": "number",
+        "unit": "m",
+        "required": true,
+        "defaultValue": 0.15,
+        "min": 1e-06
+      },
+      {
+        "name": "slot_params",
+        "type": "pmsm.slot",
+        "required": true
+      },
+      {
+        "name": "operating",
+        "type": "pmsm.operating",
+        "required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "rotor_outer_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true
+      },
+      {
+        "name": "rotor_inner_diameter_m",
+        "type": "number",
+        "unit": "m",
+        "required": true
+      },
+      {
+        "name": "air_gap_m",
+        "type": "number",
+        "unit": "m",
+        "required": true
+      },
+      {
+        "name": "magnet_params",
+        "type": "pmsm.magnet",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_calculate_rotor_magnet_design",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "pmsm_input"
+        },
+        {
+          "source": "input",
+          "name": "stator_inner_diameter_m"
+        },
+        {
+          "source": "input",
+          "name": "core_length_m"
+        },
+        {
+          "source": "input",
+          "name": "slot_params"
+        },
+        {
+          "source": "input",
+          "name": "operating"
+        }
+      ],
+      "returns": [
+        {
+          "output": "rotor_outer_diameter_m",
+          "returnIndex": 0,
+          "path": ""
+        },
+        {
+          "output": "rotor_inner_diameter_m",
+          "returnIndex": 1,
+          "path": ""
+        },
+        {
+          "output": "air_gap_m",
+          "returnIndex": 2,
+          "path": ""
+        },
+        {
+          "output": "magnet_params",
+          "returnIndex": 3,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.design.prepare-operating",
+    "name": "PMSM设计工况准备",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_prepare_design_operating",
+    "description": "根据配置和额定工况生成统一设计运行参数",
+    "category": "尺寸与电磁",
+    "sourceRelativePath": "components/mc_pmsm_ind_prepare_design_operating.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "pmsm_input",
+        "type": "pmsm.input",
+        "required": true
+      },
+      {
+        "name": "electric_power_kW",
+        "type": "number",
+        "unit": "kW",
+        "required": true,
+        "defaultValue": 50
+      },
+      {
+        "name": "rated_speed_rpm",
+        "type": "number",
+        "unit": "rpm",
+        "required": true,
+        "defaultValue": 60000,
+        "min": 1e-06
+      }
+    ],
+    "outputs": [
+      {
+        "name": "operating",
+        "type": "pmsm.operating",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_prepare_design_operating",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "pmsm_input"
+        },
+        {
+          "source": "input",
+          "name": "electric_power_kW"
+        },
+        {
+          "source": "input",
+          "name": "rated_speed_rpm"
+        }
+      ],
+      "returns": [
+        {
+          "output": "operating",
+          "returnIndex": 0,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.design.assemble-result",
+    "name": "PMSM设计结果组装",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_assemble_design_result",
+    "description": "将设计各阶段结果组装为统一PMSM设计结果",
+    "category": "工作流",
+    "sourceRelativePath": "components/mc_pmsm_ind_assemble_design_result.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "pmsm_input",
+        "type": "pmsm.input",
+        "required": true
+      },
+      {
+        "name": "geometry",
+        "type": "pmsm.geometry",
+        "required": true
+      },
+      {
+        "name": "mass_params",
+        "type": "pmsm.mass",
+        "required": true
+      },
+      {
+        "name": "slot_params",
+        "type": "pmsm.slot",
+        "required": true
+      },
+      {
+        "name": "magnet_params",
+        "type": "pmsm.magnet",
+        "required": true
+      },
+      {
+        "name": "winding_params",
+        "type": "pmsm.winding",
+        "required": true
+      },
+      {
+        "name": "operating",
+        "type": "pmsm.operating",
+        "required": true
+      },
+      {
+        "name": "performance",
+        "type": "pmsm.performance",
+        "required": true
+      },
+      {
+        "name": "losses",
+        "type": "pmsm.losses",
+        "required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "design_result",
+        "type": "pmsm.design_result",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_assemble_design_result",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "pmsm_input"
+        },
+        {
+          "source": "input",
+          "name": "geometry"
+        },
+        {
+          "source": "input",
+          "name": "mass_params"
+        },
+        {
+          "source": "input",
+          "name": "slot_params"
+        },
+        {
+          "source": "input",
+          "name": "magnet_params"
+        },
+        {
+          "source": "input",
+          "name": "winding_params"
+        },
+        {
+          "source": "input",
+          "name": "operating"
+        },
+        {
+          "source": "input",
+          "name": "performance"
+        },
+        {
+          "source": "input",
+          "name": "losses"
+        }
+      ],
+      "returns": [
+        {
+          "output": "design_result",
+          "returnIndex": 0,
+          "path": ""
+        }
+      ]
+    }
+  },
+  {
+    "id": "pmsm.thermal-base.geometry",
+    "name": "PMSM热网络几何参数提取",
+    "engineType": "matlab",
+    "executorType": "julia-matlab-graph",
+    "componentKind": "calculation",
+    "functionName": "mc_pmsm_ind_get_pmsm_geometry",
+    "description": "从完整PMSM设计结果直接提取热网络所需几何参数",
+    "category": "热网络",
+    "sourceRelativePath": "components/mc_pmsm_ind_get_pmsm_geometry.m",
+    "iconRelativePath": "defaults/matlab-function.svg",
+    "fallbackIconRelativePath": "defaults/matlab-function.svg",
+    "inputs": [
+      {
+        "name": "pmsm_params",
+        "type": "pmsm.design_result",
+        "required": true,
+        "description": "完整PMSM设计结果"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "thermal_geometry",
+        "type": "pmsm.thermal_geometry",
+        "required": true
+      }
+    ],
+    "resources": [],
+    "invocation": {
+      "function": "mc_pmsm_ind_get_pmsm_geometry",
+      "arguments": [
+        {
+          "source": "input",
+          "name": "pmsm_params"
+        }
+      ],
+      "returns": [
+        {
+          "output": "thermal_geometry",
+          "returnIndex": 0,
+          "path": ""
+        }
+      ]
+    }
+  }
+]

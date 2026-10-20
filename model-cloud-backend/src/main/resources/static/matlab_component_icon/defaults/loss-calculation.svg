@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 150" role="img" aria-label="Loss calculation">
+  <defs>
+    <linearGradient id="lossBg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff7e8"/>
+      <stop offset="1" stop-color="#ffe2b5"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="150" rx="18" fill="url(#lossBg)"/>
+  <rect x="18" y="18" width="204" height="114" rx="14" fill="#fff" stroke="#e68a17" stroke-width="3"/>
+  <path d="M60 96 L91 65 L116 87 L153 48 L180 74" fill="none" stroke="#e68a17" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M165 48 H153 V60" fill="none" stroke="#e68a17" stroke-width="6" stroke-linecap="round"/>
+  <text x="120" y="121" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#985a0d">LOSS</text>
+</svg>

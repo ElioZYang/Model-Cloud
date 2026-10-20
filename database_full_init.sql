@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS `bs_model_collect` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='模型收藏表';
 
 -- -------------------------------------------------------------------
--- 3) 组件与部署仿真相关
+-- 3) 组件、部署仿真与MATLAB配置
 -- -------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `bs_component` (
@@ -204,6 +204,7 @@ CREATE TABLE IF NOT EXISTS `bs_modeling_project` (
   `description` TEXT DEFAULT NULL COMMENT '项目描述',
   `project_data` JSON NOT NULL COMMENT '项目数据',
   `modelica_code` TEXT DEFAULT NULL COMMENT '生成的Modelica代码',
+  `project_type` VARCHAR(32) NOT NULL DEFAULT 'MODELICA' COMMENT '项目类型：MODELICA/JULIA_MATLAB',
   `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `is_del` INT DEFAULT 0 COMMENT '是否删除',
@@ -211,6 +212,8 @@ CREATE TABLE IF NOT EXISTS `bs_modeling_project` (
   KEY `idx_user_id` (`user_id`),
   KEY `idx_is_del` (`is_del`),
   KEY `idx_create_time` (`create_time`),
+  KEY `idx_project_type` (`project_type`),
+  KEY `idx_project_owner_type_time` (`user_id`, `is_del`, `project_type`, `create_time`),
   CONSTRAINT `fk_modeling_project_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='建模项目表';
 
@@ -219,7 +222,9 @@ CREATE TABLE IF NOT EXISTS `bs_simulation_task` (
   `user_id` BIGINT NOT NULL COMMENT '用户ID',
   `project_id` BIGINT DEFAULT NULL COMMENT '关联项目ID',
   `task_id` VARCHAR(100) NOT NULL COMMENT '仿真任务唯一ID',
-  `model_code` TEXT NOT NULL COMMENT '模型代码',
+  `engine_type` VARCHAR(32) NOT NULL DEFAULT 'modelica' COMMENT '执行引擎：modelica/matlab',
+  `model_code` TEXT DEFAULT NULL COMMENT 'Modelica模型代码',
+  `execution_payload` JSON DEFAULT NULL COMMENT 'MATLAB执行负载',
   `simulation_params` JSON NOT NULL COMMENT '仿真参数',
   `status` VARCHAR(50) NOT NULL DEFAULT 'pending' COMMENT '任务状态',
   `progress` INT DEFAULT 0 COMMENT '进度',
@@ -239,6 +244,29 @@ CREATE TABLE IF NOT EXISTS `bs_simulation_task` (
   CONSTRAINT `fk_simulation_task_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_simulation_task_project` FOREIGN KEY (`project_id`) REFERENCES `bs_modeling_project` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='仿真任务表';
+
+CREATE TABLE IF NOT EXISTS `bs_matlab_config` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `config_id` VARCHAR(64) NOT NULL COMMENT '对外配置ID',
+  `user_id` BIGINT NOT NULL COMMENT '所属用户',
+  `name` VARCHAR(255) NOT NULL COMMENT '配置名称',
+  `original_filename` VARCHAR(255) NOT NULL COMMENT '原始文件名',
+  `repo_name` VARCHAR(255) NOT NULL COMMENT 'Gitea仓库',
+  `repo_path` VARCHAR(512) NOT NULL COMMENT 'Gitea文件路径',
+  `file_size` BIGINT NOT NULL COMMENT '文件字节数',
+  `sha256` VARCHAR(64) NOT NULL COMMENT 'SHA-256摘要',
+  `template_version` VARCHAR(32) NOT NULL DEFAULT '1.0' COMMENT '模板版本',
+  `design_parameter_count` INT NOT NULL DEFAULT 0 COMMENT '设计参数数量',
+  `optimization_parameter_count` INT NOT NULL DEFAULT 0 COMMENT '优化参数数量',
+  `material_count` INT NOT NULL DEFAULT 0 COMMENT '材料数量',
+  `create_time` DATETIME NOT NULL COMMENT '创建时间',
+  `update_time` DATETIME NOT NULL COMMENT '更新时间',
+  `is_del` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_bs_matlab_config_config_id` (`config_id`),
+  KEY `idx_bs_matlab_config_user_time` (`user_id`, `create_time`),
+  KEY `idx_bs_matlab_config_user_del` (`user_id`, `is_del`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户MATLAB/PMSM配置文件';
 
 -- -------------------------------------------------------------------
 -- 4) 基础数据

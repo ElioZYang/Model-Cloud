@@ -67,6 +67,7 @@ export interface ModelingProject {
   description?: string
   projectData: string // JSON字符串
   modelicaCode?: string
+  projectType?: 'MODELICA' | 'JULIA_MATLAB' | string
   createTime: string
   updateTime: string
 }
@@ -100,6 +101,7 @@ export interface ModelingProjectRequest {
   description?: string
   projectData: string // JSON字符串
   modelicaCode?: string
+  projectType?: 'MODELICA' | 'JULIA_MATLAB'
 }
 
 /**
@@ -171,8 +173,10 @@ export const modelDeployApi = {
   /**
    * 获取建模项目
    */
-  getProject(projectId: number) {
-    return request.get<ModelingProject>('/business/model-deploy/projects/' + projectId)
+  getProject(projectId: number, projectType?: ModelingProjectRequest['projectType']) {
+    return request.get<ModelingProject>('/business/model-deploy/projects/' + projectId, {
+      params: projectType ? { projectType } : undefined
+    })
   },
 
   /**
@@ -185,14 +189,14 @@ export const modelDeployApi = {
   /**
    * 获取用户的项目列表
    */
-  getUserProjects(pageNum = 1, pageSize = 10) {
+  getUserProjects(pageNum = 1, pageSize = 10, projectType?: ModelingProjectRequest['projectType']) {
     return request.get<{
       records: ModelingProject[]
       total: number
       pageNum: number
       pageSize: number
     }>('/business/model-deploy/projects', {
-      params: { pageNum, pageSize }
+      params: { pageNum, pageSize, projectType }
     })
   },
 
@@ -224,4 +228,3 @@ export const modelDeployApi = {
     })
   }
 }
-

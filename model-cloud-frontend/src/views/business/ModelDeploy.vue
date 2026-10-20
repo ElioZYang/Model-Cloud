@@ -741,14 +741,6 @@ const handleDrop = async (event: DragEvent) => {
       const detailData = await getComponentDetailCached(componentData.id || componentData.className || '')
       if (detailData) {
         componentDetail = detailData
-        try {
-          const debugData = await modelDeployApi.getComponentDebugByClassName(
-            String(detailData.className || componentData.className || componentData.id || '')
-          )
-          console.info('[ModelDeploy] backend debug endpoint', debugData)
-        } catch (debugErr) {
-          console.warn('[ModelDeploy] backend debug endpoint failed', debugErr)
-        }
       } else {
         ElMessage.warning('组件详情加载失败，无法确定端口信息')
         return
@@ -1546,7 +1538,7 @@ const findProjectByName = async (name: string): Promise<ModelingProject | undefi
     return undefined
   }
   try {
-    const res = await modelDeployApi.getUserProjects(1, 200)
+    const res = await modelDeployApi.getUserProjects(1, 200, 'MODELICA')
     if (res.code !== 200) {
       return undefined
     }
@@ -1561,7 +1553,7 @@ const findProjectByName = async (name: string): Promise<ModelingProject | undefi
 // 加载项目
 const handleLoadProject = async (project: ModelingProject) => {
   try {
-    const res = await modelDeployApi.getProject(project.id)
+    const res = await modelDeployApi.getProject(project.id, 'MODELICA')
     if (res.code === 200) {
       const projectData = JSON.parse(res.data.projectData)
       nodes.value = projectData.nodes || []
@@ -1600,7 +1592,7 @@ const handleDeleteProject = async (project: ModelingProject) => {
 // 加载项目列表
 const loadProjectList = async () => {
   try {
-    const res = await modelDeployApi.getUserProjects(1, 100)
+    const res = await modelDeployApi.getUserProjects(1, 100, 'MODELICA')
     if (res.code === 200) {
       projectList.value = res.data.records || []
     }

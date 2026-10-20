@@ -25,6 +25,8 @@ venv/
 env/
 ENV/
 .venv
+.test-deps/
+runtime/pmsm_pytest_*/
 
 # IDE
 .vscode/
@@ -51,6 +53,8 @@ results/
 *.csv
 *.mat
 *.plt
+runtime/matlab_simulations/
+runtime/matlab_registered_components_report.json
 
 # 测试
 .pytest_cache/
@@ -60,4 +64,3 @@ htmlcov/
 # OS
 .DS_Store
 Thumbs.db
-

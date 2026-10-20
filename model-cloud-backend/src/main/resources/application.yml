@@ -17,8 +17,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3307/model_cloud?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456  # ⚠️ 仅用于本地开发，生产环境使用环境变量
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
     hikari:
       minimum-idle: 5
       maximum-pool-size: 20
@@ -43,7 +43,7 @@ spring:
   
   # MongoDB配置
     mongodb:
-      uri: mongodb://localhost:27017/model_cloud
+      uri: ${MONGODB_URI}
       database: model_cloud
   
   # 文件上传配置
@@ -78,14 +78,14 @@ logging:
 model-cloud:
   # JWT配置
   jwt:
-    secret: model-cloud-secret-key-2025-secure-long-string-32bytes
+    secret: ${JWT_SECRET}
     expiration: 86400000  # 24小时
     header: Authorization
     token-prefix: Bearer 
   
   # 文件上传配置
   upload:
-    windows-path: C:/uploads/model-cloud/
+    windows-path: C:/Users/xiong/AppData/Local/ModelCloud/uploads/
     linux-path: /home/uploads/model-cloud/
     ftp-use: false
     ftp-hostname: 
@@ -97,9 +97,9 @@ model-cloud:
   # ⚠️ 生产环境请使用环境变量配置，不要在此处硬编码敏感信息
   gitea:
     url: http://localhost:3000  # 开发环境默认值
-    token: 5c0b0d2ecec6fce451bb006a0c512d7c3091d2c7  # ⚠️ 仅用于本地开发，生产环境使用环境变量
-    username: yangxz
-    password: 123456  # ⚠️ 仅用于本地开发，生产环境使用环境变量
+    token: ${GITEA_TOKEN}
+    username: ${GITEA_USERNAME:modelcloud}
+    password: ${GITEA_PASSWORD}
     
   
   # 安全配置
@@ -129,5 +129,13 @@ model-cloud:
     icon-dir: ./src/main/resources/static/component_icon
     icon-url-prefix: /api/component_icon
 
+  # MATLAB函数组件配置（第一阶段：Julia + MATLAB.jl执行）
+  matlab-component:
+    source-dir: ./src/main/resources/static/matlab_component_source
+    icon-dir: ./src/main/resources/static/matlab_component_icon
+    icon-url-prefix: /api/matlab_component_icon
 
+  # 用户PMSM配置在仿真前复制到该共享任务目录
+  matlab-config:
+    simulation-task-root: ${MATLAB_TASK_WORK_DIR:C:/Users/xiong/AppData/Local/ModelCloud/runtime/matlab_simulations/}
 

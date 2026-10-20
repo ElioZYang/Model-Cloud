@@ -1,0 +1,96 @@
+{
+  "id": "engine.configuration.envelope-scan",
+  "name": "工况扫描",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "subsystem",
+  "functionName": "",
+  "description": "按原项目顺序执行非设计点初始化及功率、速度和高度扫描",
+  "category": "构型构件",
+  "sourceRelativePath": "",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "DP",
+      "type": "engine.dp",
+      "required": true
+    },
+    {
+      "name": "power_points",
+      "type": "number",
+      "required": true,
+      "defaultValue": 20
+    },
+    {
+      "name": "speed_points",
+      "type": "number",
+      "required": true,
+      "defaultValue": 100
+    },
+    {
+      "name": "altitude_points",
+      "type": "number",
+      "required": true,
+      "defaultValue": 100
+    }
+  ],
+  "outputs": [
+    {
+      "name": "MISSION_power",
+      "type": "engine.mission",
+      "required": true
+    },
+    {
+      "name": "MISSION_final",
+      "type": "engine.mission",
+      "required": true
+    },
+    {
+      "name": "MISSION",
+      "type": "engine.mission",
+      "required": true
+    },
+    {
+      "name": "THRUST_ARRAY",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "TIT_ARRAY",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "COMP_WP",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "TURB_WP",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "MOTOR_WP",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "OP",
+      "type": "engine.op",
+      "required": true
+    },
+    {
+      "name": "X0",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "DX",
+      "type": "array",
+      "required": true
+    }
+  ],
+  "resources": []
+}

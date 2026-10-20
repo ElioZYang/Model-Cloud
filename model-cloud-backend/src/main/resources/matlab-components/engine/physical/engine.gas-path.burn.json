@@ -1,0 +1,72 @@
+{
+  "id": "engine.gas-path.burn",
+  "legacyName": "burn",
+  "assemblyDefaults": {
+    "TPR": 0.99,
+    "EB": 0.99,
+    "HU": 43124000,
+    "TO": 1450
+  },
+  "name": "主燃烧室",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "calculation",
+  "functionName": "BURN",
+  "description": "burn；计算主燃烧室燃油流量、油气比、出口温压与相关状态",
+  "category": "气路组件",
+  "sourceRelativePath": "components/BURN.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "INPUT",
+      "type": "bus",
+      "required": true,
+      "description": "主燃烧室输入参数与入口气流状态"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "OUTPUT",
+      "type": "bus",
+      "required": true,
+      "description": "主燃烧室出口气流状态"
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "BURN",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "INPUT"
+      }
+    ],
+    "returns": [
+      {
+        "output": "OUTPUT",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  },
+  "physicalCapabilities": {
+    "flow": {
+      "inputs": [
+        {
+          "id": "INPUT",
+          "role": "main"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "OUTPUT",
+          "role": "main"
+        }
+      ]
+    },
+    "bleed": {
+      "joinable": true
+    }
+  }
+}

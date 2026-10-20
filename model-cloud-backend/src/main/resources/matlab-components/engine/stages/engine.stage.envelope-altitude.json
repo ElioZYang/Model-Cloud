@@ -1,0 +1,54 @@
+{
+  "id": "engine.stage.envelope-altitude",
+  "name": "高度扫描",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "workflow",
+  "functionName": "component_engine_envelope_altitude",
+  "description": "延续速度扫描末态执行高度扫描",
+  "category": "工况扫描组件",
+  "sourceRelativePath": "workflows/component_engine_envelope_altitude.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "scan_state",
+      "type": "engine.scan_state",
+      "required": true
+    },
+    {
+      "name": "altitude_points",
+      "type": "number",
+      "required": true,
+      "defaultValue": 100
+    }
+  ],
+  "outputs": [
+    {
+      "name": "scan_state",
+      "type": "engine.scan_state",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "component_engine_envelope_altitude",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "scan_state"
+      },
+      {
+        "source": "input",
+        "name": "altitude_points"
+      }
+    ],
+    "returns": [
+      {
+        "output": "scan_state",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  }
+}

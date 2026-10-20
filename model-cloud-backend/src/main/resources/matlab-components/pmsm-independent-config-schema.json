@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "designSheet": "50kW",
+  "materialSheet": "Material",
+  "designColumns": ["variables", "value", "opt", "min", "max"],
+  "materialColumns": [
+    "material",
+    "thermal_conductivity (W/(mK))",
+    "density (kg/m^3)",
+    "B_r(T)",
+    "H_cj(kA/m)",
+    "description"
+  ],
+  "requiredVariables": [
+    "voltage_phase", "voltage_line", "N_phase", "pole_pairs",
+    "arc_factor", "carter_factor", "N_slot", "slot_pitch", "N_cs", "A_s",
+    "h_airgap", "B_g", "X_tooth", "X_yoke", "B_tooth", "B_yoke", "a",
+    "J_max", "slot_fill", "cos_phi", "K_w", "K_stack", "rho_Cu", "alpha_Cu",
+    "X_stator", "X_length", "XC_cgv", "XH_cgv", "X_rotor",
+    "temperature_limit", "magnet", "cooling"
+  ]
+}

@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modelcloud.local/contracts/matlab/matlab-public-result-v1.schema.json",
+  "title": "MATLAB public task result (v1)",
+  "description": "The JSON projection of a finished MATLAB graph task. NaN/Inf become null and their original field paths are recorded in nonFinitePaths; they must never be replaced by zero. Plot artifacts expose task-scoped ids only. Producers emit schemaVersion and status on every result (completed on success; the failed projection carries the structured error).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "status",
+    "nodeResults"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "matlab.public-result.v1"
+    },
+    "taskId": {
+      "type": "string"
+    },
+    "status": {
+      "description": "completed: the graph ran to its final output. failed: structured error present. Non-convergence of the original model is a legitimate completed outcome carrying MATLAB diagnostics, never a silent success.",
+      "enum": [
+        "completed",
+        "failed"
+      ]
+    },
+    "engineType": {
+      "type": "string"
+    },
+    "executorType": {
+      "type": "string"
+    },
+    "executionOrder": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "nodeResults": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/nodeResult"
+      }
+    },
+    "finalOutputs": {
+      "type": "object"
+    },
+    "publicOutputs": {
+      "description": "Projection of the graph publicOutputs bindings onto actual node outputs.",
+      "type": "object"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "diagnostics": {
+      "description": "Warnings and MATLAB diagnostics (e.g. fsolve exitflag, residual norm) that do not fail the task.",
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "nonFinitePaths": {
+      "description": "Dot paths of values that were NaN/Inf in the MATLAB result and are null in this projection.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "error": {
+      "$ref": "#/$defs/structuredError"
+    },
+    "modelProgramResults": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "nodeResult": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "componentId": {
+          "type": "string"
+        },
+        "functionName": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "availableOutputPorts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outputs": {
+          "description": "JSON projection of raw MATLAB output structs. null marks non-finite values; original paths are in nonFinitePaths.",
+          "type": "object"
+        },
+        "originPath": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sourceNodeId": {
+          "type": "string"
+        },
+        "phase": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "artifact": {
+      "type": "object",
+      "required": [
+        "id",
+        "fileName",
+        "phase"
+      ],
+      "properties": {
+        "id": {
+          "description": "Task-scoped artifact id; the backend proxy resolves it against the owning task only.",
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "phase": {
+          "description": "Plot stage: design (PLOTFLOW after design point), power (DRAW_MAP_MISSION after power scan), final (DRAW_MAP_MISSION after the full scan).",
+          "enum": [
+            "design",
+            "power",
+            "final",
+            "other"
+          ]
+        },
+        "source": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "structuredError": {
+      "type": "object",
+      "required": [
+        "stage",
+        "message"
+      ],
+      "properties": {
+        "stage": {
+          "description": "Pipeline stage that failed, e.g. validate / prepare / execute-node / collect / project.",
+          "type": "string"
+        },
+        "originPath": {
+          "description": "Localization path to the nested scene node that failed.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "sourceNodeId": {
+          "type": "string"
+        },
+        "exceptionType": {
+          "type": "string"
+        },
+        "exceptionIdentifier": {
+          "description": "MATLAB/Julia exception identifier (e.g. engine:FlowTopology, MATLAB:UndefinedFunction).",
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

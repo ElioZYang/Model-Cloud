@@ -32,7 +32,7 @@ spring:
     
     # MongoDB配置（JAR包部署：连接Docker容器外部端口）
     mongodb:
-      uri: mongodb://${MONGO_USERNAME:}${MONGO_USERNAME:+:}${MONGO_PASSWORD}${MONGO_PASSWORD:+@}${MONGO_HOST:localhost}:${MONGO_PORT:27018}/${MONGO_DB:model_cloud}?authSource=${MONGO_AUTH_DB:admin}
+      uri: ${MONGODB_URI}
       database: ${MONGO_DB:model_cloud}
   
   # 文件上传配置
@@ -59,7 +59,7 @@ logging:
 model-cloud:
   # JWT配置（使用环境变量）
   jwt:
-    secret: ${JWT_SECRET:model-cloud-secret-key-2025-secure-long-string-32bytes}
+    secret: ${JWT_SECRET}
     expiration: ${JWT_EXPIRATION:86400000}  # 24小时
     header: Authorization
     token-prefix: Bearer 
@@ -78,8 +78,11 @@ model-cloud:
   gitea:
     url: ${GITEA_URL:http://localhost:3030}
     token: ${GITEA_TOKEN}
-    username: ${GITEA_USERNAME:yangxz}
+    username: ${GITEA_USERNAME:modelcloud}
     password: ${GITEA_PASSWORD}
+
+  matlab-config:
+    simulation-task-root: ${MATLAB_TASK_WORK_DIR:/home/model-cloud/runtime/matlab_simulations/}
   
   # 安全配置
   security:
@@ -90,7 +93,6 @@ model-cloud:
       - /auth/captcha
       - /auth/register
       - /public/**
-
 
 
 

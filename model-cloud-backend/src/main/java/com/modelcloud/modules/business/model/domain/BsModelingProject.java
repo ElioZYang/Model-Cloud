@@ -48,6 +48,11 @@ public class BsModelingProject implements Serializable {
      * 生成的Modelica代码
      */
     private String modelicaCode;
+
+    /**
+     * 项目类型：MODELICA 或 JULIA_MATLAB。数据库默认值保持旧项目兼容。
+     */
+    private String projectType;
     
     /**
      * 创建时间
@@ -64,4 +69,3 @@ public class BsModelingProject implements Serializable {
      */
     private Integer isDel;
 }
-

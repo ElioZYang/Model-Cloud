@@ -1,0 +1,54 @@
+{
+  "id": "engine.configuration.design-point",
+  "name": "设计点模型",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "subsystem",
+  "functionName": "",
+  "description": "由发动机组装、设计条件设置和设计点平衡求解组成",
+  "category": "构型构件",
+  "sourceRelativePath": "",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "flight_speed_mps",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "mach",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "altitude_m",
+      "type": "number",
+      "required": true
+    },
+    {
+      "name": "generator_power_kw",
+      "type": "array",
+      "required": true,
+      "unit": "kW",
+      "dynamicLength": {
+        "source": "shaftGroups",
+        "defaultValue": 0
+      },
+      "description": "各轴设计功率，按轴组顺序输入"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "DP",
+      "type": "engine.dp",
+      "required": true
+    },
+    {
+      "name": "XD",
+      "type": "engine.design_unknowns",
+      "required": true
+    }
+  ],
+  "resources": []
+}

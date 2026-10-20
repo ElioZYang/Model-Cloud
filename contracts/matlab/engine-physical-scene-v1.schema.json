@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modelcloud.local/contracts/matlab/engine-physical-scene-v1.schema.json",
+  "title": "Engine physical scene (v1 runtime contract)",
+  "description": "The pure physical-assembly structure the backend hands to MATLAB. Java only flattens physical subsystems, remaps ids and preserves relation types; it must NOT compute engine semantics (F/SHAFT/EXT/NS/NW/WA_extraction). Those are derived exclusively by MATLAB ENGINE_SCENE_ASSEMBLY, which is the single engine-semantics implementation.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "sceneId",
+    "nodes",
+    "edges"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "engine.physical-scene.v1"
+    },
+    "sceneId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "configuration": {
+      "description": "Optional legacy preset name (e.g. 'turboshaft') for diagnostics.",
+      "type": "string"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/componentInstance"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relationEdge"
+      }
+    },
+    "relationGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relationGroup"
+      }
+    },
+    "assemblyDefaults": {
+      "description": "Configuration-level parameters (type, THRUST, WA, E_motor, ...).",
+      "type": "object"
+    },
+    "motorBindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "motorNodeId",
+          "shaftGroupId"
+        ],
+        "properties": {
+          "motorNodeId": {
+            "type": "string"
+          },
+          "shaftGroupId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "componentInstance": {
+      "type": "object",
+      "required": [
+        "id",
+        "componentId",
+        "values"
+      ],
+      "properties": {
+        "id": {
+          "description": "Expanded, path-qualified instance id (e.g. root__physical__inlet_1).",
+          "type": "string",
+          "minLength": 1
+        },
+        "componentId": {
+          "type": "string"
+        },
+        "legacyName": {
+          "description": "Component type name in DP.F (e.g. 'inlet', 'outer duct'). Gas-path instances must carry it.",
+          "type": "string"
+        },
+        "legacyOrder": {
+          "description": "Stable ordering aid, used only when the flow topology does not determine a unique order.",
+          "type": "number"
+        },
+        "values": {
+          "type": "object"
+        },
+        "assemblyDefaults": {
+          "type": "object"
+        },
+        "parameters": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "relationEdge": {
+      "type": "object",
+      "required": [
+        "id",
+        "source",
+        "target",
+        "relation"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "sourceHandle": {
+          "type": "string"
+        },
+        "targetHandle": {
+          "type": "string"
+        },
+        "relation": {
+          "description": "flow: directed gas-path relation (defines DP.F order). shaft: same mechanical group. bleed: same bleed group.",
+          "enum": [
+            "flow",
+            "shaft",
+            "bleed"
+          ]
+        },
+        "streamRole": {
+          "description": "Core/bypass stream priority used to break ties in flow topological ordering (bypass first, legacy mixed-turbofan rule).",
+          "enum": [
+            "core",
+            "bypass"
+          ]
+        },
+        "groupId": {
+          "description": "Id of the shaft/bleed relation group this edge belongs to.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "relationGroup": {
+      "type": "object",
+      "required": [
+        "id",
+        "relation",
+        "name",
+        "order",
+        "anchorNodeId"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "relation": {
+          "enum": [
+            "shaft",
+            "bleed"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "anchorNodeId": {
+          "type": "string"
+        },
+        "parameters": {
+          "description": "Group parameters such as E_mech for shaft groups.",
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

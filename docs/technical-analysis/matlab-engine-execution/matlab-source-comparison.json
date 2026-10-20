@@ -1,0 +1,1788 @@
+[
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/components/AFTERBURN.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\AFTERBURN.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\AFTERBURN.m"
+    ],
+    "status": "字节一致",
+    "lines": 32,
+    "sha256": "456232e28c5c66af60be27c1d8d31c79299e5f853eef2d461a6955e00d462a7d",
+    "originalSha256": "456232e28c5c66af60be27c1d8d31c79299e5f853eef2d461a6955e00d462a7d",
+    "functions": [
+      "[ OUTPUT ] = AFTERBURN(INPUT)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/components/BURN.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\BURN.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\BURN.m"
+    ],
+    "status": "字节一致",
+    "lines": 41,
+    "sha256": "9f938aeef0cedffe57858ce24cf0a7018ac889660083f096f97d31d39a05024d",
+    "originalSha256": "9f938aeef0cedffe57858ce24cf0a7018ac889660083f096f97d31d39a05024d",
+    "functions": [
+      "[OUTPUT]=BURN(INPUT)",
+      "[H_fuel]=Hso(TIT)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/components/COMPRESSOR.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\COMPRESSOR.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\COMPRESSOR.m"
+    ],
+    "status": "字节一致",
+    "lines": 74,
+    "sha256": "b57d84297ee1d86cf0b91aa5f827d70c0c983b149f4d92d4b932c2010678043c",
+    "originalSha256": "b57d84297ee1d86cf0b91aa5f827d70c0c983b149f4d92d4b932c2010678043c",
+    "functions": [
+      "[OUTPUT] = COMPRESSOR(INPUT)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/components/DUCT.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\DUCT.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\DUCT.m"
+    ],
+    "status": "字节一致",
+    "lines": 23,
+    "sha256": "992e9a11ee520b7553745877997b8c12e5abb07d6d49eba358a2dbbd9523e7f9",
+    "originalSha256": "992e9a11ee520b7553745877997b8c12e5abb07d6d49eba358a2dbbd9523e7f9",
+    "functions": [
+      "[OUTPUT]=DUCT(INPUT)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/components/INLET.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\INLET.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\INLET.m"
+    ],
+    "status": "字节一致",
+    "lines": 37,
+    "sha256": "ff38270b916819138a83b6d373ea8cb7c17f4f47e1ff7395743b8f58cd1b212f",
+    "originalSha256": "ff38270b916819138a83b6d373ea8cb7c17f4f47e1ff7395743b8f58cd1b212f",
+    "functions": [
+      "[OUTPUT]=INLET(INPUT)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/components/MIXER.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\MIXER.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\MIXER.m"
+    ],
+    "status": "同名内容不同",
+    "lines": 119,
+    "sha256": "043d360ae33a86df3c4ff6562377070d21a944e06d582db0c6025444625f3233",
+    "originalSha256": "4dedc4f075de36289903a68092060dcb5eef16317d828cb7c8785adfdb370c6b",
+    "functions": [
+      "[OUTPUT]=MIXER(INPUT,INPUT1)",
+      "[DW,AN,AN1,M,M1,P2]=MIXER_BALANCE_DESIGN(Ps,M2)",
+      "[DW,DPs,P2]=MIXER_BALANCE_OFFDESIGN(M2)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/components/MOTOR.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\MOTOR.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\MOTOR.m"
+    ],
+    "status": "字节一致",
+    "lines": 111,
+    "sha256": "cc02339b788be28193ac9b975b935aec32239e248084b20e6fe72529805932c5",
+    "originalSha256": "cc02339b788be28193ac9b975b935aec32239e248084b20e6fe72529805932c5",
+    "functions": [
+      "[OUTPUT]=MOTOR(INPUT)",
+      "[pw,eff,torque_ref]=electric_machine_efficiency(MAP,n,r,eff0)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/components/NOZZLE.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\NOZZLE.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\NOZZLE.m"
+    ],
+    "status": "字节一致",
+    "lines": 119,
+    "sha256": "8ec7e5517874c5b07364802d82814610e27fd7189a370c565634b65345b9ef50",
+    "originalSha256": "8ec7e5517874c5b07364802d82814610e27fd7189a370c565634b65345b9ef50",
+    "functions": [
+      "[OUTPUT]=NOZZLE(INPUT)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/components/TURBINE.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TURBINE.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TURBINE.m"
+    ],
+    "status": "字节一致",
+    "lines": 68,
+    "sha256": "0127244e79382da59a6acd00352c7ba26f0c33cec70e5e90f5742b7d1de3f062",
+    "originalSha256": "0127244e79382da59a6acd00352c7ba26f0c33cec70e5e90f5742b7d1de3f062",
+    "functions": [
+      "[OUTPUT] = TURBINE(INPUT)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Input/ENGINE_SCENE_ASSEMBLY.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 461,
+    "sha256": "508337a769a420d02001e74de1fe1e3ef263a5ec029a7c513dcd0e59054fd804",
+    "originalSha256": null,
+    "functions": [
+      "assembly = ENGINE_SCENE_ASSEMBLY(configuration)",
+      "labels = engine_scene_group_labels(groups)",
+      "groups = engine_scene_order_groups(groups)",
+      "members = engine_scene_group_members(group, edges, relation)",
+      "assembly = engine_scene_set_axis_parameters(assembly, shaft_nodes)",
+      "records = engine_scene_normalize_records(records)",
+      "nodes = engine_scene_order(nodes)",
+      "nodes = engine_scene_order_flow(nodes, physical)",
+      "values = engine_scene_component_vector(nodes, name)",
+      "indices = engine_scene_parameter_indices(F, name)",
+      "missing = engine_scene_missing_parameter_records(nodes, indices, name)",
+      "values = engine_scene_indexed_values(nodes, indices, name)",
+      "index = engine_scene_node_index(nodes, node_id)",
+      "[found, value] = engine_scene_first_node_value(nodes, name)",
+      "[found, value] = engine_scene_node_value(node, name)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Input/INPUT_DESIGN_PARAMETERS.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Input\\INPUT_DESIGN_PARAMETERS.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Input\\INPUT_DESIGN_PARAMETERS.m"
+    ],
+    "status": "字节一致",
+    "lines": 33,
+    "sha256": "80c1d692792215a99a7066d138d5f7ce137ae6607c58893487cec35bbdf591e7",
+    "originalSha256": "80c1d692792215a99a7066d138d5f7ce137ae6607c58893487cec35bbdf591e7",
+    "functions": [
+      "[DP] = INPUT_DESIGN_PARAMETERS(DP)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Input/INPUT_ELECTRIC.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Input\\INPUT_ELECTRIC.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Input\\INPUT_ELECTRIC.m"
+    ],
+    "status": "字节一致",
+    "lines": 43,
+    "sha256": "e26f4193269576abb24fd4eeef3d46a43baa54fd4abf2f210b1b659fc24dc5c6",
+    "originalSha256": "e26f4193269576abb24fd4eeef3d46a43baa54fd4abf2f210b1b659fc24dc5c6",
+    "functions": [
+      "[pmsm_input]=INPUT_ELECTRIC"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Input/INPUT_TURBO.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Input\\INPUT_TURBO.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Input\\INPUT_TURBO.m"
+    ],
+    "status": "同名内容不同",
+    "lines": 736,
+    "sha256": "d64b11f2da311eb93e4d45f22f55b384b00a56ff24449fb8cb1d03f72c68a4e5",
+    "originalSha256": "bc984347a08088abd2c0110196edf8cf9b060dcb30758ea4fce82d9db1552a6d",
+    "functions": [
+      "[DP]=INPUT_TURBO(DP)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Input/INPUT_TURBO_COMMON_HEAD.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 10,
+    "sha256": "e63cf82042a8b991b9e2fe8ab44ff3f20de557d068e65208cd07920cc4af78c5",
+    "originalSha256": null,
+    "functions": [
+      "DP = INPUT_TURBO_COMMON_HEAD(DP)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Input/INPUT_TURBO_COMMON_TAIL.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 41,
+    "sha256": "eeeb97fed8eb43f73b6e1a2f0d91477658f726ebd3c1c463708afb9d3d4e1d49",
+    "originalSha256": null,
+    "functions": [
+      "DP = INPUT_TURBO_COMMON_TAIL(DP, NS, NW, NF)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Input/INPUT_TURBO_CUSTOM.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 46,
+    "sha256": "71dfcf86140191224c9e739a59707e775ce571e6c78147af893bf1ef5fbceb91",
+    "originalSha256": null,
+    "functions": [
+      "DP = INPUT_TURBO_CUSTOM(DP, assembly)",
+      "out = engine_merge_struct(base, overlay)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Input/READ_COMPONENT.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Input\\READ_COMPONENT.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Input\\READ_COMPONENT.m"
+    ],
+    "status": "同名内容不同",
+    "lines": 114,
+    "sha256": "2f5973e9334b1da0426ee2cd93d5166fae6702f9bd2526b29f77a59430de9351",
+    "originalSha256": "9075cde73dbc42880c2e7f2f6cd110b1acb7503e114961ae294f41868d089cb6",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Input/READ_MOTOR.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Input\\READ_MOTOR.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Input\\READ_MOTOR.m"
+    ],
+    "status": "同名内容不同",
+    "lines": 70,
+    "sha256": "287b752e6e17b0acdcdcee481a39fb8afc1d6d8df16f2835fd2816dda4fba3fa",
+    "originalSha256": "c6ebeb8961d4b8b2c07f7b8e43e71a5eb0af8336f1c596f5b70bdda29441630f",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Input/READMAP.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Input\\READMAP.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Input\\READMAP.m"
+    ],
+    "status": "字节一致",
+    "lines": 4,
+    "sha256": "35b8578c3b4cdf8c12614a70488b8263bf53afaeea43cbdd74132af7e818a0cf",
+    "originalSha256": "35b8578c3b4cdf8c12614a70488b8263bf53afaeea43cbdd74132af7e818a0cf",
+    "functions": [
+      "[MAP]=READMAP(DP)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mainprogram-v1/BALANCE_FUNCTION_DESIGN.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mainprogram-v1\\BALANCE_FUNCTION_DESIGN.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mainprogram-v1\\BALANCE_FUNCTION_DESIGN.m"
+    ],
+    "status": "同名内容不同",
+    "lines": 93,
+    "sha256": "abb2041f84cf71d9deb92e3e095d81718b963a2a657caed969217e9a2fb82ad6",
+    "originalSha256": "75ab38344da48c0f022975bc31bd166c07c39d48f60c6ed18d886ba093462014",
+    "functions": [
+      "[DP,XD,diagnostics]=BALANCE_FUNCTION_DESIGN( DP,XD)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mainprogram-v1/BALANCE_FUNCTION_OFFDESIGN.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mainprogram-v1\\BALANCE_FUNCTION_OFFDESIGN.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mainprogram-v1\\BALANCE_FUNCTION_OFFDESIGN.m"
+    ],
+    "status": "同名内容不同",
+    "lines": 86,
+    "sha256": "72daf599e765babde352690361a417e79db258437220c057a180a078215d3742",
+    "originalSha256": "1b97f6ca67ca4d6b7e71881f5815b9e4d8874072f2d7c4a93f0417f2d669508f",
+    "functions": [
+      "[OP,X,DX,diagnostics]=BALANCE_FUNCTION_OFFDESIGN(DP,OP,X0)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mainprogram-v1/DESIGN.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mainprogram-v1\\DESIGN.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mainprogram-v1\\DESIGN.m"
+    ],
+    "status": "字节一致",
+    "lines": 394,
+    "sha256": "b8a32ec6e67b35375ff93e436df4320f2c5acb2a7fb221ec60b0e5845692b478",
+    "originalSha256": "b8a32ec6e67b35375ff93e436df4320f2c5acb2a7fb221ec60b0e5845692b478",
+    "functions": [
+      "[YD,DP]=DESIGN(XD,DP)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mainprogram-v1/OFFDESIGN.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mainprogram-v1\\OFFDESIGN.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mainprogram-v1\\OFFDESIGN.m"
+    ],
+    "status": "字节一致",
+    "lines": 518,
+    "sha256": "95911397a341c1f3be9d27f14ec1f3192f7ebd9e80162c59d70679b27102c533",
+    "originalSha256": "95911397a341c1f3be9d27f14ec1f3192f7ebd9e80162c59d70679b27102c533",
+    "functions": [
+      "[YO,OP]=OFFDESIGN(XO,DP,OP)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/COMPRESSOR/COMPRESSOR_EXTENSION.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\COMPRESSOR\\COMPRESSOR_EXTENSION.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\COMPRESSOR\\COMPRESSOR_EXTENSION.m"
+    ],
+    "status": "字节一致",
+    "lines": 154,
+    "sha256": "01cb43e66da729fd539a0ffebee909c97eeeb9bed11f1d97621e6717c9a099cc",
+    "originalSha256": "01cb43e66da729fd539a0ffebee909c97eeeb9bed11f1d97621e6717c9a099cc",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/COMPRESSOR/COMPRESSOR_NN.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\COMPRESSOR\\COMPRESSOR_NN.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\COMPRESSOR\\COMPRESSOR_NN.m"
+    ],
+    "status": "字节一致",
+    "lines": 33,
+    "sha256": "f60cec81307cea714053198ddd0536479ffaf39947ec63a1349b87ce03cb3889",
+    "originalSha256": "f60cec81307cea714053198ddd0536479ffaf39947ec63a1349b87ce03cb3889",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/COMPRESSOR/MAP2TABLE_C.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\COMPRESSOR\\MAP2TABLE_C.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MAP2TABLE_C.m",
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\COMPRESSOR\\MAP2TABLE_C.m"
+    ],
+    "status": "字节一致",
+    "lines": 58,
+    "sha256": "952ffd6d6d2f3882cc341a49eca287ed8065ab16e752165b587d2b4a16adeab4",
+    "originalSha256": "952ffd6d6d2f3882cc341a49eca287ed8065ab16e752165b587d2b4a16adeab4",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/MAP2TABLE_C.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MAP2TABLE_C.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MAP2TABLE_C.m",
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\COMPRESSOR\\MAP2TABLE_C.m"
+    ],
+    "status": "字节一致",
+    "lines": 58,
+    "sha256": "0451817f9b4ce4addcf31c356f1053c0d535dde433cff42ee11bf5bf2ab4f38f",
+    "originalSha256": "0451817f9b4ce4addcf31c356f1053c0d535dde433cff42ee11bf5bf2ab4f38f",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/MAP2TABLE_M.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MAP2TABLE_M.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MAP2TABLE_M.m",
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MOTOR\\MAP2TABLE_M.m"
+    ],
+    "status": "字节一致",
+    "lines": 58,
+    "sha256": "5c9c64e67fa56c44a28bd2b0676db79e58a568400271b9ef03529e9a9cc1f550",
+    "originalSha256": "5c9c64e67fa56c44a28bd2b0676db79e58a568400271b9ef03529e9a9cc1f550",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/MAP2TABLE_P.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MAP2TABLE_P.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MAP2TABLE_P.m",
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\PROPELLER\\MAP2TABLE_P.m"
+    ],
+    "status": "字节一致",
+    "lines": 58,
+    "sha256": "5c9c64e67fa56c44a28bd2b0676db79e58a568400271b9ef03529e9a9cc1f550",
+    "originalSha256": "5c9c64e67fa56c44a28bd2b0676db79e58a568400271b9ef03529e9a9cc1f550",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/MAP2TABLE_T.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MAP2TABLE_T.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MAP2TABLE_T.m",
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\TURBINE\\MAP2TABLE_T.m"
+    ],
+    "status": "字节一致",
+    "lines": 58,
+    "sha256": "ad830dd0bbc3833e8e37e315d52e4df4d570aabe0c04493ebb5872daa90adf6f",
+    "originalSha256": "ad830dd0bbc3833e8e37e315d52e4df4d570aabe0c04493ebb5872daa90adf6f",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/MOTOR/MAP2TABLE_M.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MOTOR\\MAP2TABLE_M.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MAP2TABLE_M.m",
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MOTOR\\MAP2TABLE_M.m"
+    ],
+    "status": "字节一致",
+    "lines": 47,
+    "sha256": "01dd3a0fafe9c9c497de0a6bed118d8c4b005a73f7ae2e0ce39dd1f7efc7e755",
+    "originalSha256": "01dd3a0fafe9c9c497de0a6bed118d8c4b005a73f7ae2e0ce39dd1f7efc7e755",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/PROPELLER/MAP2TABLE_P.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\PROPELLER\\MAP2TABLE_P.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MAP2TABLE_P.m",
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\PROPELLER\\MAP2TABLE_P.m"
+    ],
+    "status": "字节一致",
+    "lines": 54,
+    "sha256": "fbe02f577e916be953a48c74fa96de7d58f25b2e21573870e26c19e9e6ed468e",
+    "originalSha256": "fbe02f577e916be953a48c74fa96de7d58f25b2e21573870e26c19e9e6ed468e",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/TURBINE/MAP2TABLE_T.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\TURBINE\\MAP2TABLE_T.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\MAP2TABLE_T.m",
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\TURBINE\\MAP2TABLE_T.m"
+    ],
+    "status": "字节一致",
+    "lines": 64,
+    "sha256": "90f13119ca453bb1ec2fd5f0a648da19fb87c58001cfdd06ef327e6213bbf67e",
+    "originalSha256": "90f13119ca453bb1ec2fd5f0a648da19fb87c58001cfdd06ef327e6213bbf67e",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/TURBINE/TURBINE_EXTENSION.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\TURBINE\\TURBINE_EXTENSION.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\TURBINE\\TURBINE_EXTENSION.m"
+    ],
+    "status": "字节一致",
+    "lines": 197,
+    "sha256": "94662720e5dadf2ca6acdb7a04fca8f8af9bc77a1191b2400581f27b7cd0f4a5",
+    "originalSha256": "94662720e5dadf2ca6acdb7a04fca8f8af9bc77a1191b2400581f27b7cd0f4a5",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/TURBINE/TURBINE_NN.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\TURBINE\\TURBINE_NN.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\TURBINE\\TURBINE_NN.m"
+    ],
+    "status": "字节一致",
+    "lines": 41,
+    "sha256": "5b8a7067afb82f31c8db364c46843e4dfe83fba9b497fdb3f617d7df6753a90e",
+    "originalSha256": "5b8a7067afb82f31c8db364c46843e4dfe83fba9b497fdb3f617d7df6753a90e",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Map Collection/TURBINE/TURBINE_WRITE.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\TURBINE\\TURBINE_WRITE.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Map Collection\\TURBINE\\TURBINE_WRITE.m"
+    ],
+    "status": "字节一致",
+    "lines": 41,
+    "sha256": "4194bdbd97e26bb4fe588c486a2d45feeaea75d378dfe754c7111e7d324ee2c4",
+    "originalSha256": "4194bdbd97e26bb4fe588c486a2d45feeaea75d378dfe754c7111e7d324ee2c4",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/DRAW_MAP_MISSION.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\DRAW_MAP_MISSION.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\DRAW_MAP_MISSION.m"
+    ],
+    "status": "字节一致",
+    "lines": 66,
+    "sha256": "bb41bba93bc8a33046456b6f9fd178d4955ff0491446cf1d22456d36559a4ee5",
+    "originalSha256": "bb41bba93bc8a33046456b6f9fd178d4955ff0491446cf1d22456d36559a4ee5",
+    "functions": [
+      "DRAW_MAP_MISSION(MISSION)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/GENERATOR_MAP.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\GENERATOR_MAP.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\GENERATOR_MAP.m"
+    ],
+    "status": "字节一致",
+    "lines": 75,
+    "sha256": "23ddad9e94cd413f55e1be7fb13db05e7f388df1e638786bd9786f02b4fa6ea9",
+    "originalSha256": "23ddad9e94cd413f55e1be7fb13db05e7f388df1e638786bd9786f02b4fa6ea9",
+    "functions": [
+      "[MAP]=GENERATOR_MAP(DP,MAP)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/GET_PROP_MAP.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\GET_PROP_MAP.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\GET_PROP_MAP.m"
+    ],
+    "status": "字节一致",
+    "lines": 43,
+    "sha256": "416e05dd99dbcdb5702b233d71ef8a168d9153b903ed1919c6756b09b88cc79a",
+    "originalSha256": "416e05dd99dbcdb5702b233d71ef8a168d9153b903ed1919c6756b09b88cc79a",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/MAP_1.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_1.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_1.m"
+    ],
+    "status": "字节一致",
+    "lines": 100,
+    "sha256": "cd285d2a8dffb085b21abe4eefec1d78c58b410260fede26bf51a30d824178cd",
+    "originalSha256": "cd285d2a8dffb085b21abe4eefec1d78c58b410260fede26bf51a30d824178cd",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/MAP_2.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_2.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_2.m"
+    ],
+    "status": "字节一致",
+    "lines": 42,
+    "sha256": "dd7f743c109d03922594e1403eaf0b3d8ffedc61bf8490ef1fbd1d5e9afd6f1f",
+    "originalSha256": "dd7f743c109d03922594e1403eaf0b3d8ffedc61bf8490ef1fbd1d5e9afd6f1f",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/MAP_3.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_3.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_3.m"
+    ],
+    "status": "字节一致",
+    "lines": 37,
+    "sha256": "c2d02ded10a32014e415b60b988ff4ec5096c0fe7bad4a2929ddf6c3f78f4204",
+    "originalSha256": "c2d02ded10a32014e415b60b988ff4ec5096c0fe7bad4a2929ddf6c3f78f4204",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/MAP_4.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_4.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_4.m"
+    ],
+    "status": "字节一致",
+    "lines": 18,
+    "sha256": "035f54365cff494dfe9c003be75f28d1615574892570c0d3a5f272edc6ed2c22",
+    "originalSha256": "035f54365cff494dfe9c003be75f28d1615574892570c0d3a5f272edc6ed2c22",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/MAP_EXTENSION.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_EXTENSION.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_EXTENSION.m"
+    ],
+    "status": "字节一致",
+    "lines": 50,
+    "sha256": "104721b55780a3b37a3b9581d4a79b78a999d4facb4a69e67104dc2fa0b231a2",
+    "originalSha256": "104721b55780a3b37a3b9581d4a79b78a999d4facb4a69e67104dc2fa0b231a2",
+    "functions": [
+      "[MAP]=MAP_EXTENSION(MAP)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/MAP_RESET.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_RESET.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_RESET.m"
+    ],
+    "status": "字节一致",
+    "lines": 15,
+    "sha256": "5462313085b4f0ff89db52439519b1b375640a99dc1ecaedad5d858fb56b0be2",
+    "originalSha256": "5462313085b4f0ff89db52439519b1b375640a99dc1ecaedad5d858fb56b0be2",
+    "functions": [
+      "[MAP]=MAP_RESET(MAP)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/MAP_SCALING.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_SCALING.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAP_SCALING.m"
+    ],
+    "status": "字节一致",
+    "lines": 46,
+    "sha256": "358dcceab629e1f17c30b04fccd7f19de112c76f034aad75ad529feb61bccae9",
+    "originalSha256": "358dcceab629e1f17c30b04fccd7f19de112c76f034aad75ad529feb61bccae9",
+    "functions": [
+      "[MAP1]=MAP_SCALING(MAP0,PR1)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/MAPPING.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAPPING.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\MAPPING.m"
+    ],
+    "status": "字节一致",
+    "lines": 184,
+    "sha256": "b0c4a37e66452fbdfb756ad22513672ce74794c9f43ce5327f3e455296b2cecf",
+    "originalSha256": "b0c4a37e66452fbdfb756ad22513672ce74794c9f43ce5327f3e455296b2cecf",
+    "functions": [
+      "[ O ] = MAPPING(mode,MAP,X,Y,PRC0)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/plotComponentMap.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\plotComponentMap.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\plotComponentMap.m"
+    ],
+    "status": "字节一致",
+    "lines": 86,
+    "sha256": "6f873eada416241162fc973d07cd28d8578d0e13be8f3dd4e2ab14093cd24bd6",
+    "originalSha256": "6f873eada416241162fc973d07cd28d8578d0e13be8f3dd4e2ab14093cd24bd6",
+    "functions": [
+      "plotComponentMap(map,effScale,varargin)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/PLOTFLOW.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mainprogram-v1\\PLOTFLOW.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mainprogram-v1\\PLOTFLOW.m"
+    ],
+    "status": "字节一致",
+    "lines": 40,
+    "sha256": "5bccd5030555f5ebd85a0a9d45649f8cb8797a7543b87fbbf984a23dd6236f80",
+    "originalSha256": "5bccd5030555f5ebd85a0a9d45649f8cb8797a7543b87fbbf984a23dd6236f80",
+    "functions": [
+      "PLOTFLOW(INPUT)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/plotMotorMap.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\plotMotorMap.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\plotMotorMap.m"
+    ],
+    "status": "字节一致",
+    "lines": 55,
+    "sha256": "d3d7eb4cc66aed308896e567a52bf02700ce617fe909dea1ff896f8944b299d0",
+    "originalSha256": "d3d7eb4cc66aed308896e567a52bf02700ce617fe909dea1ff896f8944b299d0",
+    "functions": [
+      "plotMotorMap(map,effScale,varargin)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/RESHAPEMAP.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\RESHAPEMAP.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\RESHAPEMAP.m"
+    ],
+    "status": "字节一致",
+    "lines": 143,
+    "sha256": "e263d692c90cfdc286668f92f039c305bd4147cea2eb9deb49ffaa8269eae15c",
+    "originalSha256": "e263d692c90cfdc286668f92f039c305bd4147cea2eb9deb49ffaa8269eae15c",
+    "functions": [
+      "[DP]=RESHAPEMAP(DP)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/SAVEMAP.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\SAVEMAP.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\SAVEMAP.m"
+    ],
+    "status": "字节一致",
+    "lines": 7,
+    "sha256": "fde4dba5208f8787d83037aa7f75603484cc991d4bbc569680509f9fbc288749",
+    "originalSha256": "fde4dba5208f8787d83037aa7f75603484cc991d4bbc569680509f9fbc288749",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mapping/TURBO_GENERATOR_MAP.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\TURBO_GENERATOR_MAP.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mapping\\TURBO_GENERATOR_MAP.m"
+    ],
+    "status": "字节一致",
+    "lines": 75,
+    "sha256": "a8b80d19f9e966bd22326d97cedbe0f56a7ac3d9abd91980f90779125ac02cff",
+    "originalSha256": "a8b80d19f9e966bd22326d97cedbe0f56a7ac3d9abd91980f90779125ac02cff",
+    "functions": [
+      "[MAP]=TURBO_GENERATOR_MAP(DP,MAP)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mathematics-v1/EFS.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mathematics-v1\\EFS.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mathematics-v1\\EFS.m"
+    ],
+    "status": "字节一致",
+    "lines": 42,
+    "sha256": "13866b48123215da8adadc36846581ff761cf8e913bc48d00b76fd55b8fa3ff4",
+    "originalSha256": "13866b48123215da8adadc36846581ff761cf8e913bc48d00b76fd55b8fa3ff4",
+    "functions": [
+      "R=EFS(X)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mathematics-v1/MC.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mathematics-v1\\MC.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mathematics-v1\\MC.m"
+    ],
+    "status": "字节一致",
+    "lines": 39,
+    "sha256": "7df6e387899b02c765acfd8ea15da8672c9061663aadcdf1ca7fe2fb9b4a5246",
+    "originalSha256": "7df6e387899b02c765acfd8ea15da8672c9061663aadcdf1ca7fe2fb9b4a5246",
+    "functions": [
+      "stop = END(~, optimValues, ~)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Mathematics-v1/NIFS.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mathematics-v1\\NIFS.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Mathematics-v1\\NIFS.m"
+    ],
+    "status": "字节一致",
+    "lines": 55,
+    "sha256": "e4df9a385e58a4f6464d0aea4f4a6003d5d7865043e1d8adfa632d3105bd02e9",
+    "originalSha256": "e4df9a385e58a4f6464d0aea4f4a6003d5d7865043e1d8adfa632d3105bd02e9",
+    "functions": [
+      "[X,k,I,E] = NIFS(F,x0,el,MAX,DX)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/tests/component_engine_backend_scene_tests.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 443,
+    "sha256": "35438d99a673c82d7503c6484475dd8d4c4cf791f326a3be6bb56ad36bb637a6",
+    "originalSha256": null,
+    "functions": [
+      "report = component_engine_backend_scene_tests(include_plot_regression, include_numerical_regression)",
+      "engine_assert_arbitrary_shaft_count()",
+      "engine_assert_hand_built_component_parameters()",
+      "engine_assert_power_requires_shaft()",
+      "engine_assert_raw_mixed_topology(fixture)",
+      "capture = engine_capture_envelope(DP, power_points, speed_points, altitude_points)",
+      "fixture = engine_backend_scene_fixture(configuration)",
+      "node = engine_scene_node(id, legacy_name, order, defaults)",
+      "group = engine_scene_group(id, relation, anchor, efficiency)",
+      "edge = engine_scene_edge(id, source, source_handle, target, target_handle, relation, group_id)",
+      "value = engine_typed(payload, type_name, shape)",
+      "engine_assert_initialization_match(actual, expected)",
+      "engine_assert_numeric_match(actual, expected, tolerance)",
+      "engine_remove_output(output_directory)",
+      "engine_remove_outputs(output_directories)",
+      "engine_assert_plot_manifest(result, phase, source)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/tests/component_engine_entry_tests.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 53,
+    "sha256": "6c1dfb050cc09701e83fd7b73abaa8c186bfc78e158bd7f9a29cc572a34c173a",
+    "originalSha256": null,
+    "functions": [
+      "report = component_engine_entry_tests()"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/tests/engine_compatibility_smoke.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 41,
+    "sha256": "0a65d75d28831cc933bf2df64dfb33fc28e1ee0b91ab2416af4b9242d9176726",
+    "originalSha256": null,
+    "functions": [
+      "report = engine_compatibility_smoke(reference_root)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/tests/engine_full_scan_regression.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 50,
+    "sha256": "b74e5afc41c119d4f414de020ba834bd2394f01450297690f1217d7083aed865",
+    "originalSha256": null,
+    "functions": [
+      "report = engine_full_scan_regression(reference_root)",
+      "engine_assert_equal_numbers(actual, expected)",
+      "maximum = engine_max_finite_error(actual, expected)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/tests/engine_legacy_baseline.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 90,
+    "sha256": "a3bd4ddf474d49215d734d9c883eae5feaf1182011d8363638db8c2c1c427c03",
+    "originalSha256": null,
+    "functions": [
+      "baseline = engine_legacy_baseline(reference_root, configuration, n_power, n_speed, n_altitude)",
+      "[records, OP, X0] = engine_baseline_scan(DP, OP, X0, count, stage)",
+      "records = engine_append_baseline_record(records, OP, X0, k)",
+      "engine_restore_baseline(old_directory, old_path)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/tests/engine_physical_scene_v1_regression.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 138,
+    "sha256": "4483ad0fbcde23713beaf8a000e8d1f36493605dacb66876cc76c51a6b4580c9",
+    "originalSha256": null,
+    "functions": [
+      "report = engine_physical_scene_v1_regression()",
+      "capture = engine_capture_envelope(DP, power_points, speed_points, altitude_points)",
+      "engine_compare_common_fields(actual, expected)",
+      "engine_compare_numeric(actual, expected, tolerance)",
+      "restore_environment(old_directory, old_path)",
+      "value = engine_first_element(list)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/tests/engine_plot_image_regression.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 75,
+    "sha256": "e8adda4b20cf0e61c2661c59b4172c30aad0444dbe5a801f7a8658ec05936c0f",
+    "originalSha256": null,
+    "functions": [
+      "report = engine_plot_image_regression(reference_root)",
+      "engine_plot_test_restore(old_directory, old_path, old_visible, directories)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/AE.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\AE.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\AE.m"
+    ],
+    "status": "字节一致",
+    "lines": 11,
+    "sha256": "e858667a50b34e25c347b5759016884f1abd2bcda6770203e94f40cc3e2e6265",
+    "originalSha256": "e858667a50b34e25c347b5759016884f1abd2bcda6770203e94f40cc3e2e6265",
+    "functions": [
+      "[ K ] = AE(T,FAR,D)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/AFP.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\AFP.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\AFP.m"
+    ],
+    "status": "字节一致",
+    "lines": 13,
+    "sha256": "503790482ee24653645ec2a5c63e094746bd584096045a9db3d39e5ebaa42a99",
+    "originalSha256": "503790482ee24653645ec2a5c63e094746bd584096045a9db3d39e5ebaa42a99",
+    "functions": [
+      "[ PL ] = AFP( VC,K )"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/AFT.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\AFT.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\AFT.m"
+    ],
+    "status": "字节一致",
+    "lines": 13,
+    "sha256": "dee5a27bf26c881afd13e9105185aa4da7c3cf5444357b8d05ac874b037766fc",
+    "originalSha256": "dee5a27bf26c881afd13e9105185aa4da7c3cf5444357b8d05ac874b037766fc",
+    "functions": [
+      "[ TL ] = AFT( VC,K )"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/AIRFLOW_ESTIMATE.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\AIRFLOW_ESTIMATE.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\AIRFLOW_ESTIMATE.m"
+    ],
+    "status": "字节一致",
+    "lines": 38,
+    "sha256": "0d994808054133ab6bd1b255a354069dde9fa4e8e53d1f234ffa561f6f7fb7a2",
+    "originalSha256": "0d994808054133ab6bd1b255a354069dde9fa4e8e53d1f234ffa561f6f7fb7a2",
+    "functions": [
+      "[OUTPUT]=AIRFLOW_ESTIMATE(INPUT)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/ASP.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\ASP.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\ASP.m"
+    ],
+    "status": "字节一致",
+    "lines": 35,
+    "sha256": "9d36f844e5ff1b7b24bb7579cab171c85534b392234433437309979283473a83",
+    "originalSha256": "9d36f844e5ff1b7b24bb7579cab171c85534b392234433437309979283473a83",
+    "functions": [
+      "[ Ts,Ps,rhos,sv,mu ] = ASP( H,DT,QP)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/CFD_NOZZLE.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\CFD_NOZZLE.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\CFD_NOZZLE.m"
+    ],
+    "status": "字节一致",
+    "lines": 103,
+    "sha256": "3b67f66308c8540905ce9d878eca86490cef2a4184fa3f1ba7abfe80b9b7e07b",
+    "originalSha256": "3b67f66308c8540905ce9d878eca86490cef2a4184fa3f1ba7abfe80b9b7e07b",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/COMP_OPT.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\COMP_OPT.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\COMP_OPT.m"
+    ],
+    "status": "字节一致",
+    "lines": 6,
+    "sha256": "dcee4ee194993d57a111eb8808fc8024970ff6029d5662976fd9f7122df9bba6",
+    "originalSha256": "dcee4ee194993d57a111eb8808fc8024970ff6029d5662976fd9f7122df9bba6",
+    "functions": [
+      "[pr_optimal]=COMP_OPT(T0,T4,KP)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/CPSH.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\CPSH.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\CPSH.m"
+    ],
+    "status": "字节一致",
+    "lines": 34,
+    "sha256": "63965b2f1a115d1186b61c04417dad36b8bc1ba60dbd9725ac7c5a39f315a2ea",
+    "originalSha256": "63965b2f1a115d1186b61c04417dad36b8bc1ba60dbd9725ac7c5a39f315a2ea",
+    "functions": [
+      "[ Cp ] = CPSH(T,FAR)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/DEP_FAN.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\DEP_FAN.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\DEP_FAN.m"
+    ],
+    "status": "字节一致",
+    "lines": 69,
+    "sha256": "853cb066e44daedfd616c8b57d9f0113bf82a1952841952618f464c0630d2aee",
+    "originalSha256": "853cb066e44daedfd616c8b57d9f0113bf82a1952841952618f464c0630d2aee",
+    "functions": [
+      "[OUTPUT]=DEP_FAN(INPUT)",
+      "dT=FAN_BALANCE(n,INPUT)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/DUCTED_FAN.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\DUCTED_FAN.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\DUCTED_FAN.m"
+    ],
+    "status": "字节一致",
+    "lines": 21,
+    "sha256": "dc002b8f6bf32df6cc4b24f48e94fa45cc41d668a2cf7f11cd994909db7927d5",
+    "originalSha256": "dc002b8f6bf32df6cc4b24f48e94fa45cc41d668a2cf7f11cd994909db7927d5",
+    "functions": [
+      "[OUTPUT]=DUCTED_FAN(INPUT)",
+      "[DW]=FLOW_BALANCE(R,INPUT)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/E.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\E.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\E.m"
+    ],
+    "status": "字节一致",
+    "lines": 29,
+    "sha256": "91efe50c3944e9cd1c1ddaaa2165ca1773d9b3707361de528517738f9e924d50",
+    "originalSha256": "91efe50c3944e9cd1c1ddaaa2165ca1773d9b3707361de528517738f9e924d50",
+    "functions": [
+      "[ S ] = E( T,P,FAR ,D)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/FAN.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\FAN.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\FAN.m"
+    ],
+    "status": "字节一致",
+    "lines": 42,
+    "sha256": "fb760692c1f9df3a29953ae21d173a03f5c895b1dc2932df1f4de11fb70b60fb",
+    "originalSha256": "fb760692c1f9df3a29953ae21d173a03f5c895b1dc2932df1f4de11fb70b60fb",
+    "functions": [
+      "[OUTPUT]=FAN(INPUT)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/FARAB.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\FARAB.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\FARAB.m"
+    ],
+    "status": "字节一致",
+    "lines": 19,
+    "sha256": "6ee355b0080a57a76323c950c2ffa6e4434c8362ace12b9b485a674bfba7ad89",
+    "originalSha256": "6ee355b0080a57a76323c950c2ffa6e4434c8362ace12b9b485a674bfba7ad89",
+    "functions": [
+      "[ far ] = FARAB( T_in,T_out,far_in,eb,hf)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/FARC.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\FARC.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\FARC.m"
+    ],
+    "status": "字节一致",
+    "lines": 15,
+    "sha256": "82f19d453609f3d7e401fe4bd4f760c97a41d73045c46b484124a012b0506453",
+    "originalSha256": "82f19d453609f3d7e401fe4bd4f760c97a41d73045c46b484124a012b0506453",
+    "functions": [
+      "[ FAR ] = FARC( T1,T2,Eb,Hu)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/FC.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\FC.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\FC.m"
+    ],
+    "status": "字节一致",
+    "lines": 13,
+    "sha256": "528cff0e2702de3a44cf47ae707e987ce407fbe7c2f176defb6d5749fdd2f368",
+    "originalSha256": "528cff0e2702de3a44cf47ae707e987ce407fbe7c2f176defb6d5749fdd2f368",
+    "functions": [
+      "[ Q ] = FC( VC,K,FAR,D )"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/GC.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\GC.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\GC.m"
+    ],
+    "status": "字节一致",
+    "lines": 13,
+    "sha256": "f16586109ca107005a02905dd2933034a51f6da51a74b1c100d619576a89576b",
+    "originalSha256": "f16586109ca107005a02905dd2933034a51f6da51a74b1c100d619576a89576b",
+    "functions": [
+      "[ R ] = GC( far,d )"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/IF.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\IF.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\IF.m"
+    ],
+    "status": "字节一致",
+    "lines": 15,
+    "sha256": "908b36dbf8e08b181f32ab2cdaca36b89c16948baf551177cd10674b39175b12",
+    "originalSha256": "908b36dbf8e08b181f32ab2cdaca36b89c16948baf551177cd10674b39175b12",
+    "functions": [
+      "[ I ] = IF( W,K,VC,T,FAR )"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/LAMBDA.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\LAMBDA.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\LAMBDA.m"
+    ],
+    "status": "字节一致",
+    "lines": 8,
+    "sha256": "c5fd34ba6ff30f28f752ce17e0e1f388c3f780112bea103bf5f91506c10217d9",
+    "originalSha256": "c5fd34ba6ff30f28f752ce17e0e1f388c3f780112bea103bf5f91506c10217d9",
+    "functions": [
+      "[O]=LAMBDA(I,K,mode)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/MACH_NUMBER.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\MACH_NUMBER.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\MACH_NUMBER.m"
+    ],
+    "status": "字节一致",
+    "lines": 30,
+    "sha256": "d670d115df2b57b7c297c81264f161b21f36a023ef8eadbfd008b19d4b070f7e",
+    "originalSha256": "d670d115df2b57b7c297c81264f161b21f36a023ef8eadbfd008b19d4b070f7e",
+    "functions": [
+      "[M,K,V]=MACH_NUMBER(A,W,T,P,FAR,D)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/MM.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\MM.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\MM.m"
+    ],
+    "status": "字节一致",
+    "lines": 9,
+    "sha256": "199427b8df9aeb149dcfea25f597240b498ca70251a942186afb939420ffa23b",
+    "originalSha256": "199427b8df9aeb149dcfea25f597240b498ca70251a942186afb939420ffa23b",
+    "functions": [
+      "[ M ] = MM( far )"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/MU.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\MU.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\MU.m"
+    ],
+    "status": "字节一致",
+    "lines": 3,
+    "sha256": "93cce499fbc69186ea25e70fea4ae991ddb0928fea7487ee755dffa9dc8dd6cc",
+    "originalSha256": "93cce499fbc69186ea25e70fea4ae991ddb0928fea7487ee755dffa9dc8dd6cc",
+    "functions": [
+      "[mu]=MU(Ts)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/PRO.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\PRO.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\PRO.m"
+    ],
+    "status": "字节一致",
+    "lines": 27,
+    "sha256": "495a3c24620516af06f9fb91cdbeef2a562c290100fa8d7a8425116bed57a6bb",
+    "originalSha256": "495a3c24620516af06f9fb91cdbeef2a562c290100fa8d7a8425116bed57a6bb",
+    "functions": [
+      "PROPERTY=PRO(T,obj,fun)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/QF.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\QF.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\QF.m"
+    ],
+    "status": "字节一致",
+    "lines": 4,
+    "sha256": "5457128fe2b5f592430104330c8bb4ad7518fdc2282583fe15c33ae0de5293be",
+    "originalSha256": "5457128fe2b5f592430104330c8bb4ad7518fdc2282583fe15c33ae0de5293be",
+    "functions": [
+      "[Q] = QF(VC,K)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/SE.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\SE.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\SE.m"
+    ],
+    "status": "字节一致",
+    "lines": 22,
+    "sha256": "3bb63f91864d2c9d119083ba54e0955df9ca1bd4bc7233f5d3730bca13cc3b54",
+    "originalSha256": "3bb63f91864d2c9d119083ba54e0955df9ca1bd4bc7233f5d3730bca13cc3b54",
+    "functions": [
+      "[ h ] = SE( T,far )"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/STAGNATION_CAL.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\STAGNATION_CAL.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\STAGNATION_CAL.m"
+    ],
+    "status": "字节一致",
+    "lines": 10,
+    "sha256": "06d3dc749f84719eb096718359f7824f4eb9432323531551e28a182d4d531671",
+    "originalSha256": "06d3dc749f84719eb096718359f7824f4eb9432323531551e28a182d4d531671",
+    "functions": [
+      "[Ps,Ts,P0,T0]=STAGNATION_CAL(H,V,M,DT,QP)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/SV.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\SV.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\SV.m"
+    ],
+    "status": "字节一致",
+    "lines": 10,
+    "sha256": "d3b747123c7273289426ccb6ac7d23702ebc86ecad8db369f5c30830cad78068",
+    "originalSha256": "d3b747123c7273289426ccb6ac7d23702ebc86ecad8db369f5c30830cad78068",
+    "functions": [
+      "[ V ] = SV(Ts,FAR,D)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/TAB.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TAB.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TAB.m"
+    ],
+    "status": "字节一致",
+    "lines": 15,
+    "sha256": "4d8167202ef2b9c504daa4f447c0d03c0159ef63212401854b5d10b0b3cb8c28",
+    "originalSha256": "4d8167202ef2b9c504daa4f447c0d03c0159ef63212401854b5d10b0b3cb8c28",
+    "functions": [
+      "[ T ] = TAB( T_in,farab,far_in,eb,hf)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/TEMP.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TEMP.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TEMP.m"
+    ],
+    "status": "字节一致",
+    "lines": 17,
+    "sha256": "18ff319c0f54ae4683175df9ffbba3f355aafb3b1b605b9eea2d511053e4fb84",
+    "originalSha256": "18ff319c0f54ae4683175df9ffbba3f355aafb3b1b605b9eea2d511053e4fb84",
+    "functions": [
+      "[ T ] = TEMP( h,far )"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/TOTAL_PRESSURE.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TOTAL_PRESSURE.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TOTAL_PRESSURE.m"
+    ],
+    "status": "字节一致",
+    "lines": 4,
+    "sha256": "6d41914cb6ec13cc02794e9119267380f406237983f826f8e6f786ed2538ce13",
+    "originalSha256": "6d41914cb6ec13cc02794e9119267380f406237983f826f8e6f786ed2538ce13",
+    "functions": [
+      "[O]=TOTAL_PRESSURE(M,K)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/TOTAL_TEMP.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TOTAL_TEMP.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TOTAL_TEMP.m"
+    ],
+    "status": "字节一致",
+    "lines": 3,
+    "sha256": "3a030060572c8d4cd350197107a3873f1475a3aa90795861b3dc82c2630c22bb",
+    "originalSha256": "3a030060572c8d4cd350197107a3873f1475a3aa90795861b3dc82c2630c22bb",
+    "functions": [
+      "[O]=TOTAL_TEMP(M,K)"
+    ],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/TP.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TP.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TP.m"
+    ],
+    "status": "字节一致",
+    "lines": 28,
+    "sha256": "1cfb193a5a2f661bbc766c74973d82cdfb5b17fc3a67d90c63a182a9f791e239",
+    "originalSha256": "1cfb193a5a2f661bbc766c74973d82cdfb5b17fc3a67d90c63a182a9f791e239",
+    "functions": [
+      "[ P ] = TP( T,S,FAR)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/TPE.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TPE.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TPE.m"
+    ],
+    "status": "字节一致",
+    "lines": 27,
+    "sha256": "89aa90e8192e7abaff5a687a0ccea40e87f215cab6548ad5c8e88cdce8e7e4be",
+    "originalSha256": "89aa90e8192e7abaff5a687a0ccea40e87f215cab6548ad5c8e88cdce8e7e4be",
+    "functions": [
+      "[ T2,P2] = TPE( DHs,Es,T1,P1,FAR )"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/TT.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TT.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TT.m"
+    ],
+    "status": "字节一致",
+    "lines": 24,
+    "sha256": "3e5696bde54635b47587b9b6495ce2878b5b1a590be73cd632149863641e82de",
+    "originalSha256": "3e5696bde54635b47587b9b6495ce2878b5b1a590be73cd632149863641e82de",
+    "functions": [
+      "[ T1 ] = TT( Hs,FAR )"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/TURBINE_ITERATION.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TURBINE_ITERATION.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\TURBINE_ITERATION.m"
+    ],
+    "status": "字节一致",
+    "lines": 27,
+    "sha256": "d51c177ca98eadb73fb212ba6e9b8d023ce9d83f0480c683cb127ef5597fa596",
+    "originalSha256": "d51c177ca98eadb73fb212ba6e9b8d023ce9d83f0480c683cb127ef5597fa596",
+    "functions": [],
+    "encoding": "utf-8-sig",
+    "originalEncoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/Thermodynamics-v1/VC.m",
+    "original": "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\VC.m",
+    "candidates": [
+      "C:\\Users\\xiong\\Documents\\ENGINE+GENERATOR（demo）\\Thermodynamics-v1\\VC.m"
+    ],
+    "status": "字节一致",
+    "lines": 27,
+    "sha256": "5126e2321bf598ea8c874dba7ff55e1c8a36171a3aa35701e7be3ccb233df2b1",
+    "originalSha256": "5126e2321bf598ea8c874dba7ff55e1c8a36171a3aa35701e7be3ccb233df2b1",
+    "functions": [
+      "[ VC ] = VC( K,FAR,A,Pt,Tt,W,D)"
+    ],
+    "encoding": "gb18030",
+    "originalEncoding": "gb18030"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_apply_design_conditions.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 12,
+    "sha256": "54eafc93a3b72b55a013fe63b42b73b0f0f0425987e49332fb5092cce533275d",
+    "originalSha256": null,
+    "functions": [
+      "DP = component_engine_apply_design_conditions(DP, thrust, WA, PWG)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_envelope_altitude.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 23,
+    "sha256": "8037036004b8fa98f91fa38f490694db62d7702520186b4b6f339ede52f7c670",
+    "originalSha256": null,
+    "functions": [
+      "scan_state = component_engine_envelope_altitude(scan_state, altitude_points)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_envelope_append_point.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 8,
+    "sha256": "08411d6ede611d6b81af6a5b6b05f1e429035390a282942cb9bf40793a829fb4",
+    "originalSha256": null,
+    "functions": [
+      "scan_state = component_engine_envelope_append_point(scan_state, OP)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_envelope_finalize.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 17,
+    "sha256": "7fa0ccdabf3784800023c0ddb879356d291041fe66247cd174595849ab0b399d",
+    "originalSha256": null,
+    "functions": [
+      "[MISSION, THRUST_ARRAY, TIT_ARRAY, COMP_WP, TURB_WP, MOTOR_WP, OP, X0, DX] = component_engine_envelope_finalize(scan_state)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_envelope_initialize.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 24,
+    "sha256": "561f26c5bd03629c4467c22876b0cf9f029f74862a331be3f61b2f016c472be1",
+    "originalSha256": null,
+    "functions": [
+      "scan_state = component_engine_envelope_initialize(DP)",
+      "scan_state = component_engine_envelope_empty_state(DP, MAP)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_envelope_mission.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 7,
+    "sha256": "6b377520ba89e5480a85308159b884b510428f8b28d5f745616679f5ee3591ef",
+    "originalSha256": null,
+    "functions": [
+      "MISSION = component_engine_envelope_mission(scan_state)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_envelope_power.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 25,
+    "sha256": "e8a79727182d8f38180a52e57f00718c3235f0c6480f87f0f3b51a53f57344ea",
+    "originalSha256": null,
+    "functions": [
+      "[scan_state, MISSION_power] = component_engine_envelope_power(scan_state, power_points)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_envelope_scope.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 14,
+    "sha256": "c449bf80a9c081d27ce7c99b3aa06b05ccbb8679ec6f863f2480aeaa6e6b4b86",
+    "originalSha256": null,
+    "functions": [
+      "cleanup = component_engine_envelope_scope()",
+      "component_engine_envelope_restore(old_directory, old_path)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_envelope_speed.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 23,
+    "sha256": "fa5ef6f96ec8cd541391045bd67d3d5787115b4138d32fd5e93b871593731b6b",
+    "originalSha256": null,
+    "functions": [
+      "scan_state = component_engine_envelope_speed(scan_state, speed_points)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_envelope_speed_initialize.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 17,
+    "sha256": "15f9f86d435f8a9a4fe352c9e7f50d8d8720376dfe6f5bf95ded1f62eaf5ce3f",
+    "originalSha256": null,
+    "functions": [
+      "scan_state = component_engine_envelope_speed_initialize(scan_state)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_envelope_validate_count.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 7,
+    "sha256": "74c27ea27e44f7b11bfc5b37bec96faeebe015d2e73d9c1451804895f1056f78",
+    "originalSha256": null,
+    "functions": [
+      "component_engine_envelope_validate_count(value, name)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_envelope_validate_state.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 11,
+    "sha256": "23d93ef4d858dc5fadf15c110e34ec9038ff27382c363bb708d5b2699d85b9ec",
+    "originalSha256": null,
+    "functions": [
+      "component_engine_envelope_validate_state(scan_state)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_initialize_configuration.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 203,
+    "sha256": "c7052751734a85a4d935cf6bc5eecf0a5107525dea37b0e8f9cd3b0c36ea9b34",
+    "originalSha256": null,
+    "functions": [
+      "DP = component_engine_initialize_configuration(assembly_json, V, M, H)",
+      "assembly = engine_decode_assembly(input_value)",
+      "engine_restore_environment(old_directory, old_path)",
+      "value = engine_decode_value(value)",
+      "value = engine_cast_value(value, type_value)",
+      "assembly = engine_collect_instance_parameters(assembly)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_plot_flow.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 83,
+    "sha256": "357da2c8af6ed9a771fc04decbec2a765c361a3a6a5b3e508aaa796784f80d25",
+    "originalSha256": null,
+    "functions": [
+      "result = component_engine_plot_flow(DP, output_directory, phase)",
+      "engine_plot_prepare_directory(output_directory)",
+      "engine_plot_validate_phase(phase)",
+      "names = engine_plot_files(output_directory)",
+      "files = engine_plot_file_difference(old_files, new_files)",
+      "manifest = engine_plot_manifest(names, phase, output_directory, source)",
+      "engine_plot_restore(old_directory, old_path, old_visible, old_figures)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_plot_map_mission.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 97,
+    "sha256": "cb326e7e2ffe3db78c9b1995368f88e4809fa6c5d04bb7f55c6068d97358c978",
+    "originalSha256": null,
+    "functions": [
+      "result = component_engine_plot_map_mission(MISSION, output_directory, phase)",
+      "defaults = engine_plot_defaults()",
+      "engine_plot_prepare_directory(output_directory)",
+      "engine_plot_validate_phase(phase)",
+      "names = engine_plot_files(output_directory)",
+      "files = engine_plot_file_difference(old_files, new_files)",
+      "manifest = engine_plot_manifest(names, phase, output_directory, source)",
+      "engine_plot_restore(old_directory, old_path, old_defaults, old_figures)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_engine_solve_design_point.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 15,
+    "sha256": "25f214651a0ecbf17d3c5f760b53876b5ef2e006e221f941674b80caa74e2b8d",
+    "originalSha256": null,
+    "functions": [
+      "[DP, XD] = component_engine_solve_design_point(DP)",
+      "engine_restore_environment(old_directory, old_path)"
+    ],
+    "encoding": "utf-8-sig"
+  },
+  {
+    "path": "model-cloud-backend/src/main/resources/static/matlab_component_source/engine/src/workflows/component_run_engine_envelope.m",
+    "original": null,
+    "candidates": [],
+    "status": "无原项目同名文件",
+    "lines": 18,
+    "sha256": "84516dcd4443d77d5ce753c50a5c4bcc6a0ff4db0ac8a39cd8a23bb3d330dd0d",
+    "originalSha256": null,
+    "functions": [
+      "[MISSION, THRUST_ARRAY, TIT_ARRAY, COMP_WP, TURB_WP, MOTOR_WP, OP, X0, DX] = component_run_engine_envelope(DP, power_points, speed_points, altitude_points)"
+    ],
+    "encoding": "utf-8-sig"
+  }
+]

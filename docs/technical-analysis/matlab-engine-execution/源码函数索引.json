@@ -1,0 +1,1257 @@
+[
+  {
+    "file": "[matlab-model-deploy.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/api/matlab-model-deploy.ts:1>) (185)",
+    "role": "组件/端口/值/结果类型及 MATLAB 目录、配置、图片 API",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[model-deploy.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/api/model-deploy.ts:1>) (230)",
+    "role": "通用工程与仿真任务 API；提交、查询、保存、删除",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[request.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/api/request.ts:1>) (109)",
+    "role": "Axios 实例、认证请求和响应处理，共用 HTTP 基础设施",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[MatlabArrayTable.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabArrayTable.vue:1>) (223)",
+    "role": "完整数组表格展示",
+    "declarations": [
+      "[tableWidth](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabArrayTable.vue:114>)",
+      "[isScalar](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabArrayTable.vue:118>)",
+      "[visit](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabArrayTable.vue:120>)",
+      "[shapeOf](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabArrayTable.vue:124>)",
+      "[getMatrixCell](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabArrayTable.vue:176>)",
+      "[formatCell](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabArrayTable.vue:177>)",
+      "[openFullView](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabArrayTable.vue:186>)",
+      "[copyCurrentTable](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabArrayTable.vue:191>)"
+    ]
+  },
+  {
+    "file": "[MatlabBoundaryNode.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabBoundaryNode.vue:1>) (33)",
+    "role": "In/Out 接口声明节点的图形、方向与缩放",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[MatlabBranchedEdge.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabBranchedEdge.vue:1>) (96)",
+    "role": "分支连线显示组件；是否被某 Scene 使用以 edge.type 为准",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[MatlabBusEditor.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabBusEditor.vue:1>) (152)",
+    "role": "Bus 字段、选取路径和相关参数编辑",
+    "declarations": [
+      "[emitConfig](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabBusEditor.vue:92>)",
+      "[markManual](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabBusEditor.vue:108>)",
+      "[restoreAutoName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabBusEditor.vue:117>)",
+      "[addField](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabBusEditor.vue:124>)",
+      "[removeField](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabBusEditor.vue:141>)"
+    ]
+  },
+  {
+    "file": "[MatlabBusNode.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabBusNode.vue:1>) (128)",
+    "role": "Bus 节点和输入输出端口显示",
+    "declarations": [
+      "[portStyle](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabBusNode.vue:97>)",
+      "[displayPortName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabBusNode.vue:105>)",
+      "[portTooltip](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabBusNode.vue:106>)"
+    ]
+  },
+  {
+    "file": "[MatlabComponentNode.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabComponentNode.vue:1>) (141)",
+    "role": "普通 MATLAB/物理组件卡片、数据/物理端口、最小尺寸和用户缩放",
+    "declarations": [
+      "[portLabel](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabComponentNode.vue:100>)"
+    ]
+  },
+  {
+    "file": "[MatlabCompositeNode.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabCompositeNode.vue:1>) (79)",
+    "role": "可展开节点、子系统边界端口和尺寸展示",
+    "declarations": [
+      "[physicalPorts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabCompositeNode.vue:49>)"
+    ]
+  },
+  {
+    "file": "[MatlabElkEdge.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabElkEdge.vue:1>) (112)",
+    "role": "ELK 路径显示、线型、标签与关系透视",
+    "declarations": [
+      "[appendPoint](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabElkEdge.vue:30>)"
+    ]
+  },
+  {
+    "file": "[MatlabNodeResizeHandles.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabNodeResizeHandles.vue:1>) (154)",
+    "role": "八方向节点缩放及 presentationSize 更新",
+    "declarations": [
+      "[refreshInternals](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabNodeResizeHandles.vue:48>)",
+      "[applyResize](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabNodeResizeHandles.vue:52>)",
+      "[resize](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabNodeResizeHandles.vue:80>)",
+      "[finishResize](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabNodeResizeHandles.vue:92>)",
+      "[handleBlur](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabNodeResizeHandles.vue:114>)",
+      "[startResize](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabNodeResizeHandles.vue:116>)"
+    ]
+  },
+  {
+    "file": "[MatlabPhysicalLensToolbar.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalLensToolbar.vue:1>) (32)",
+    "role": "物理关系透视工具栏",
+    "declarations": [
+      "[onChange](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalLensToolbar.vue:21>)"
+    ]
+  },
+  {
+    "file": "[MatlabPhysicalProperties.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:1>) (231)",
+    "role": "部件表单、气路角色、轴组/引气组和构型参数编辑",
+    "declarations": [
+      "[relationGroupMembers](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:138>)",
+      "[sortedRelationGroups](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:140>)",
+      "[activeGroupParameter](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:176>)",
+      "[parameterDefinition](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:198>)",
+      "[sceneParameterValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:199>)",
+      "[physicalParameterDefinition](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:200>)",
+      "[formatNumberList](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:203>)",
+      "[isNumericList](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:204>)",
+      "[parseNumberList](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:205>)",
+      "[formatValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:211>)",
+      "[optionalNumber](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:212>)",
+      "[parseValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:213>)",
+      "[parameterValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:216>)",
+      "[isNumberParameter](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:217>)",
+      "[isBooleanParameter](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:218>)",
+      "[isComplexParameter](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabPhysicalProperties.vue:219>)"
+    ]
+  },
+  {
+    "file": "[MatlabResultsDialog.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:1>) (1105)",
+    "role": "数值结果弹窗及数据、图表、图片页面组合",
+    "declarations": [
+      "[disposeArrayChart](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:260>)",
+      "[disposeArrayCharts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:268>)",
+      "[setArrayChartElement](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:273>)",
+      "[renderArrayCharts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:284>)",
+      "[handleResultDialogOpened](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:345>)",
+      "[renderChart](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:352>)",
+      "[handleDownloadChart](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:429>)",
+      "[handleDownloadArrayChart](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:444>)",
+      "[stopResultResize](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:461>)",
+      "[handleResultResizeMove](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:471>)",
+      "[startResultResize](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:486>)",
+      "[resetResultSidebarWidth](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:508>)",
+      "[handleDownloadResultCsv](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultsDialog.vue:517>)"
+    ]
+  },
+  {
+    "file": "[MatlabResultStructureTable.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultStructureTable.vue:1>) (163)",
+    "role": "递归结构体浏览",
+    "declarations": [
+      "[isPlainObject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultStructureTable.vue:72>)",
+      "[getArrayShape](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultStructureTable.vue:76>)",
+      "[getValueType](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultStructureTable.vue:86>)",
+      "[buildRows](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultStructureTable.vue:100>)",
+      "[createRow](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultStructureTable.vue:107>)",
+      "[flattenRows](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultStructureTable.vue:128>)",
+      "[setAllExpanded](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultStructureTable.vue:133>)",
+      "[formatValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultStructureTable.vue:139>)",
+      "[getRowClassName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/components/model/MatlabResultStructureTable.vue:148>)"
+    ]
+  },
+  {
+    "file": "[useMatlabCanvasLayout.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabCanvasLayout.ts:1>) (246)",
+    "role": "画布布局协调及节点展示尺寸",
+    "declarations": [
+      "[useMatlabCanvasLayout](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabCanvasLayout.ts:25>)",
+      "[handleManualLayout](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabCanvasLayout.ts:156>)",
+      "[cancelLayout](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabCanvasLayout.ts:166>)"
+    ]
+  },
+  {
+    "file": "[useMatlabConfigWorkbook.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabConfigWorkbook.ts:1>) (184)",
+    "role": "工作簿上传、schema/配置选择、节点资源绑定",
+    "declarations": [
+      "[useMatlabConfigWorkbook](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabConfigWorkbook.ts:9>)",
+      "[handleDownloadConfigTemplate](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabConfigWorkbook.ts:27>)",
+      "[formatFileSize](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabConfigWorkbook.ts:41>)",
+      "[openConfigFilePicker](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabConfigWorkbook.ts:44>)",
+      "[parseConfigWorkbook](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabConfigWorkbook.ts:57>)",
+      "[handleConfigFileSelected](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabConfigWorkbook.ts:105>)",
+      "[cancelConfigPreview](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabConfigWorkbook.ts:123>)",
+      "[updateSelectedConfig](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabConfigWorkbook.ts:131>)",
+      "[confirmConfigUpload](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabConfigWorkbook.ts:147>)",
+      "[handleRestoreDefaultConfig](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabConfigWorkbook.ts:167>)",
+      "[handleViewCurrentConfig](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabConfigWorkbook.ts:172>)"
+    ]
+  },
+  {
+    "file": "[useMatlabElkLayout.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:1>) (452)",
+    "role": "ELK 节点布局与线路路由、Scene 版本和异步任务隔离",
+    "declarations": [
+      "[inputPortId](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:32>)",
+      "[outputPortId](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:33>)",
+      "[validPorts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:35>)",
+      "[estimatedHeight](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:41>)",
+      "[presentationDimension](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:50>)",
+      "[measuredDimension](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:55>)",
+      "[buildElkGraph](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:97>)",
+      "[flattenSections](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:159>)",
+      "[routingNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:188>)",
+      "[compactPoints](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:255>)",
+      "[routeCurrentLayout](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:309>)",
+      "[useMatlabElkLayout](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:336>)",
+      "[clearActiveRequest](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:342>)",
+      "[terminateEngine](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:348>)",
+      "[createEngine](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:358>)",
+      "[ensureEngine](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:381>)",
+      "[dispose](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabElkLayout.ts:447>)"
+    ]
+  },
+  {
+    "file": "[useMatlabExecution.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabExecution.ts:1>) (137)",
+    "role": "提交快照、任务状态、定时轮询、原始结果与错误生命周期",
+    "declarations": [
+      "[useMatlabExecution](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabExecution.ts:35>)",
+      "[stopPolling](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabExecution.ts:41>)",
+      "[pollTask](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabExecution.ts:48>)",
+      "[fetchStatus](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabExecution.ts:51>)",
+      "[handleStartCalculation](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabExecution.ts:89>)",
+      "[collectSubmittedNodes](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabExecution.ts:97>)"
+    ]
+  },
+  {
+    "file": "[useMatlabPhysicalLens.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabPhysicalLens.ts:1>) (33)",
+    "role": "总览/气路/轴系/引气显示透视与淡化规则",
+    "declarations": [
+      "[useMatlabPhysicalLens](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabPhysicalLens.ts:16>)",
+      "[isNodeFocused](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabPhysicalLens.ts:24>)",
+      "[isEdgeFocused](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabPhysicalLens.ts:25>)",
+      "[injectMatlabPhysicalLens](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabPhysicalLens.ts:31>)"
+    ]
+  },
+  {
+    "file": "[useMatlabProject.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabProject.ts:1>) (96)",
+    "role": "工程列表、保存弹窗和 API 操作",
+    "declarations": [
+      "[useMatlabProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabProject.ts:7>)",
+      "[loadProjectList](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabProject.ts:22>)",
+      "[handleOpenProjectDialog](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabProject.ts:34>)",
+      "[handleSaveProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabProject.ts:39>)",
+      "[handleConfirmSaveProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabProject.ts:45>)",
+      "[handleDeleteProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabProject.ts:77>)"
+    ]
+  },
+  {
+    "file": "[useMatlabResults.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabResults.ts:1>) (248)",
+    "role": "结果弹窗、数组图表/数据浏览、导出协调",
+    "declarations": [
+      "[useMatlabResults](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabResults.ts:9>)",
+      "[rank](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabResults.ts:60>)",
+      "[artifactPhaseLabel](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabResults.ts:65>)",
+      "[handleResultNodeSelect](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabResults.ts:149>)",
+      "[handleResultPortSelect](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabResults.ts:154>)",
+      "[applyGraphResult](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabResults.ts:158>)",
+      "[applyCalculationResult](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabResults.ts:209>)",
+      "[handleOpenLatestResult](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabResults.ts:213>)",
+      "[copyGeneratedJuliaCode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabResults.ts:222>)",
+      "[resetResultData](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/composables/useMatlabResults.ts:231>)"
+    ]
+  },
+  {
+    "file": "[MatlabArtifactGallery.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/components/MatlabArtifactGallery.vue:1>) (115)",
+    "role": "按阶段展示任务 PNG、Blob 预览和下载，清理对象 URL",
+    "declarations": [
+      "[fetchArtifactBlob](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/components/MatlabArtifactGallery.vue:31>)",
+      "[handlePreviewArtifact](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/components/MatlabArtifactGallery.vue:49>)",
+      "[handleDownloadArtifact](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/components/MatlabArtifactGallery.vue:60>)"
+    ]
+  },
+  {
+    "file": "[MatlabBreadcrumb.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/components/MatlabBreadcrumb.vue:1>) (25)",
+    "role": "递归层级面包屑",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[MatlabCatalogPanel.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/components/MatlabCatalogPanel.vue:1>) (225)",
+    "role": "组件目录树、搜索和拖动来源",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[MatlabFailureDialog.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/components/MatlabFailureDialog.vue:1>) (96)",
+    "role": "结构化失败详情显示",
+    "declarations": [
+      "[stageLabel](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/components/MatlabFailureDialog.vue:11>)"
+    ]
+  },
+  {
+    "file": "[useMatlabNodeSelection.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabNodeSelection.ts:1>) (18)",
+    "role": "节点和边选择状态，普通与物理编辑上下文",
+    "declarations": [
+      "[useMatlabNodeSelection](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabNodeSelection.ts:5>)",
+      "[captureNodeSelection](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabNodeSelection.ts:7>)",
+      "[applyAdditiveSelection](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabNodeSelection.ts:10>)"
+    ]
+  },
+  {
+    "file": "[useMatlabPhysicalAssemblyEditor.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:1>) (303)",
+    "role": "气路/轴系/引气关系编辑、组维护和装配上下文",
+    "declarations": [
+      "[useMatlabPhysicalAssemblyEditor](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:21>)",
+      "[assemblyForGroup](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:45>)",
+      "[assemblyForNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:61>)",
+      "[mutateAssembly](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:64>)",
+      "[ensureAssemblyForNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:74>)",
+      "[setPhysicalLensMode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:84>)",
+      "[nextGroup](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:95>)",
+      "[createSelectedRelationGroup](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:109>)",
+      "[addSelectedNodeToGroup](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:127>)",
+      "[removeSelectedNodeFromGroup](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:148>)",
+      "[updateActiveRelationGroup](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:161>)",
+      "[deleteActiveRelationGroup](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:176>)",
+      "[updatePhysicalNodeParameter](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:188>)",
+      "[connectGroup](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabPhysicalAssemblyEditor.ts:251>)"
+    ]
+  },
+  {
+    "file": "[useMatlabSubmissionValidation.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabSubmissionValidation.ts:1>) (93)",
+    "role": "提交前端点、重复输入、DAG 和未解析数据校验",
+    "declarations": [
+      "[useMatlabSubmissionValidation](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabSubmissionValidation.ts:9>)",
+      "[validateSceneStructure](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabSubmissionValidation.ts:15>)",
+      "[sourceSummary](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabSubmissionValidation.ts:31>)",
+      "[validateInputs](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabSubmissionValidation.ts:72>)"
+    ]
+  },
+  {
+    "file": "[useMatlabSubsystemNavigation.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabSubsystemNavigation.ts:1>) (71)",
+    "role": "进入/返回递归 Scene，viewport、当前图同步及切层时序",
+    "declarations": [
+      "[useMatlabSubsystemNavigation](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabSubsystemNavigation.ts:10>)",
+      "[hydrateActiveScene](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabSubsystemNavigation.ts:26>)",
+      "[handleSceneBreadcrumbClick](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabSubsystemNavigation.ts:51>)",
+      "[handleViewportChange](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabSubsystemNavigation.ts:56>)",
+      "[handleNodeDoubleClick](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabSubsystemNavigation.ts:62>)"
+    ]
+  },
+  {
+    "file": "[useMatlabTemplateOperations.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabTemplateOperations.ts:1>) (93)",
+    "role": "模板拖入实例化并重建运行时节点/数据边",
+    "declarations": [
+      "[useMatlabTemplateOperations](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabTemplateOperations.ts:19>)",
+      "[instantiateTemplateComponent](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/composables/useMatlabTemplateOperations.ts:31>)"
+    ]
+  },
+  {
+    "file": "[assemblyCommands.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyCommands.ts:1>) (210)",
+    "role": "装配关系创建、成员归属及可见连接驱动的初始化器绑定协调",
+    "declarations": [
+      "[removeAssemblyMembers](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyCommands.ts:6>)",
+      "[createAssemblyRelation](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyCommands.ts:19>)",
+      "[collectMembers](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyCommands.ts:35>)",
+      "[resolveAssemblyInitializer](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyCommands.ts:130>)",
+      "[endpoint](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyCommands.ts:146>)",
+      "[link](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyCommands.ts:147>)",
+      "[synchronizeAssemblyBindings](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyCommands.ts:195>)"
+    ]
+  },
+  {
+    "file": "[assemblyParameterCatalog.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyParameterCatalog.ts:1>) (99)",
+    "role": "构型与部件参数字段、默认值和按轴参数关联",
+    "declarations": [
+      "[physicalComponentParameterDefinitions](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyParameterCatalog.ts:41>)",
+      "[physicalComponentParameterByKey](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyParameterCatalog.ts:45>)",
+      "[assemblyParameterByKey](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyParameterCatalog.ts:82>)",
+      "[assemblyParameterDisplayValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyParameterCatalog.ts:84>)",
+      "[assemblyParameterKeys](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/assemblyParameterCatalog.ts:90>)"
+    ]
+  },
+  {
+    "file": "[boundaryComponents.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/boundaryComponents.ts:1>) (111)",
+    "role": "内置 In/Out 目录、接口协调和子系统边界同步",
+    "declarations": [
+      "[builtinBoundaryComponents](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/boundaryComponents.ts:8>)",
+      "[isBoundaryDeclarationNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/boundaryComponents.ts:23>)",
+      "[boundaryDirection](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/boundaryComponents.ts:29>)",
+      "[synchronizeExplicitBoundaryPorts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/boundaryComponents.ts:37>)"
+    ]
+  },
+  {
+    "file": "[dataEdgeAdapter.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/dataEdgeAdapter.ts:1>) (43)",
+    "role": "持久化数据边到 Vue Flow 的字段适配，保留未解析端点及冲突",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[physicalAssembly.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/physicalAssembly.ts:1>) (203)",
+    "role": "Scene、边界端口、PhysicalAssembly 和物理关系的领域类型",
+    "declarations": [
+      "[emptyPhysicalAssembly](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/physicalAssembly.ts:165>)"
+    ]
+  },
+  {
+    "file": "[physicalView.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/physicalView.ts:1>) (109)",
+    "role": "从工程物理关系生成当前透视的画布投影，不是执行 DAG",
+    "declarations": [
+      "[selectPhysicalLayoutEdges](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/physicalView.ts:14>)",
+      "[resolvePhysicalLeaf](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/physicalView.ts:26>)",
+      "[visiblePhysicalEndpoint](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/physicalView.ts:42>)",
+      "[projectPhysicalEdges](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/physicalView.ts:65>)"
+    ]
+  },
+  {
+    "file": "[portAutoMatcher.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/portAutoMatcher.ts:1>) (49)",
+    "role": "Ctrl 快捷连线的语义评分、兼容性与确定性匹配",
+    "declarations": [
+      "[normalized](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/portAutoMatcher.ts:11>)",
+      "[sameShape](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/portAutoMatcher.ts:12>)",
+      "[portMatchScore](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/portAutoMatcher.ts:15>)"
+    ]
+  },
+  {
+    "file": "[projectCodec.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectCodec.ts:1>) (258)",
+    "role": "V3 工程序列化/反序列化，Scene 与装配保存格式",
+    "declarations": [
+      "[boundaryPortToMatlabPort](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectCodec.ts:31>)",
+      "[makeCompositePortData](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectCodec.ts:43>)",
+      "[numberOr](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectCodec.ts:62>)",
+      "[serializeNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectCodec.ts:84>)",
+      "[serializeEdge](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectCodec.ts:108>)",
+      "[deserializeNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectCodec.ts:137>)",
+      "[deserializeEdge](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectCodec.ts:164>)",
+      "[deserializeScene](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectCodec.ts:187>)",
+      "[parseMatlabProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectCodec.ts:220>)"
+    ]
+  },
+  {
+    "file": "[projectUpgradeV3.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectUpgradeV3.ts:1>) (295)",
+    "role": "V2 到 V3 格式转换；与已删除的自动结构恢复不同",
+    "declarations": [
+      "[isEngineGasPathNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectUpgradeV3.ts:30>)",
+      "[isInitializerNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectUpgradeV3.ts:33>)",
+      "[isWrongPmsmPhysicalScene](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectUpgradeV3.ts:39>)",
+      "[toDataEdge](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectUpgradeV3.ts:51>)",
+      "[edgeNodeCandidates](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectUpgradeV3.ts:67>)",
+      "[resolveEdgeNodeId](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectUpgradeV3.ts:71>)",
+      "[toSceneNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectUpgradeV3.ts:76>)",
+      "[memberNodeIdsFromEdges](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectUpgradeV3.ts:174>)",
+      "[upgradeBoundaryPort](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/projectUpgradeV3.ts:187>)"
+    ]
+  },
+  {
+    "file": "[sceneCommands.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/sceneCommands.ts:1>) (430)",
+    "role": "选区封装/解封装、自动边界推导、映射与跨界边重接",
+    "declarations": [
+      "[scalarDefault](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/sceneCommands.ts:64>)",
+      "[declaredPorts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/sceneCommands.ts:74>)",
+      "[inputs](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/sceneCommands.ts:77>)",
+      "[endpointKey](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/sceneCommands.ts:90>)",
+      "[isPhysicalPartNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/sceneCommands.ts:94>)",
+      "[addCandidate](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/sceneCommands.ts:148>)"
+    ]
+  },
+  {
+    "file": "[structuredError.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/structuredError.ts:1>) (68)",
+    "role": "结构化执行错误、阶段、originPath 的前端解析",
+    "declarations": [
+      "[normalizeStructuredError](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/structuredError.ts:32>)",
+      "[safeJsonParse](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/structuredError.ts:56>)",
+      "[formatOriginPath](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/structuredError.ts:66>)"
+    ]
+  },
+  {
+    "file": "[templateInstantiation.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/templateInstantiation.ts:1>) (289)",
+    "role": "模板深复制及 Scene/节点/关系/装配/映射 ID 重映射",
+    "declarations": [
+      "[remapEndpoint](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/templateInstantiation.ts:251>)",
+      "[initialNumericValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/templateInstantiation.ts:276>)",
+      "[finiteMetadataNumber](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/domain/templateInstantiation.ts:283>)"
+    ]
+  },
+  {
+    "file": "[executionPayloadCompiler.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/infrastructure/executionPayloadCompiler.ts:1>) (149)",
+    "role": "编辑工程快照转换为 V2 候选载荷；消除 In/Out 声明；保留层级",
+    "declarations": [
+      "[executionBoundaryPorts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/infrastructure/executionPayloadCompiler.ts:55>)",
+      "[toExecutionNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/infrastructure/executionPayloadCompiler.ts:79>)",
+      "[toExecutionEdges](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/infrastructure/executionPayloadCompiler.ts:115>)"
+    ]
+  },
+  {
+    "file": "[useMatlabEditorStore.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/stores/useMatlabEditorStore.ts:1>) (155)",
+    "role": "工程 Scene、当前层级和 physicalAssemblies 单一编辑数据源",
+    "declarations": [
+      "[defaultRootScene](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/features/matlab-modeling/stores/useMatlabEditorStore.ts:8>)"
+    ]
+  },
+  {
+    "file": "[matlabBus.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabBus.ts:1>) (274)",
+    "role": "Bus Creator/Selector 内置定义、结构字段和端口辅助",
+    "declarations": [
+      "[busFieldsForType](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabBus.ts:188>)",
+      "[isBusComponentId](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabBus.ts:192>)",
+      "[isBusNodeKind](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabBus.ts:196>)",
+      "[validBusPath](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabBus.ts:200>)",
+      "[normalizeSignalName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabBus.ts:205>)",
+      "[nextSignalName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabBus.ts:212>)",
+      "[cloneBusFields](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabBus.ts:219>)",
+      "[builtinBusComponents](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabBus.ts:243>)"
+    ]
+  },
+  {
+    "file": "[matlabProjectData.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabProjectData.ts:1>) (7)",
+    "role": "工程节点/边重建、默认值与目录解析",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[matlabResultData.ts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:1>) (253)",
+    "role": "结果类型、结构体/数组分类、形状、单位和 CSV 数据处理",
+    "declarations": [
+      "[inferResultUnit](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:13>)",
+      "[isNumericLeaf](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:41>)",
+      "[isNumericArray](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:43>)",
+      "[getArrayShape](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:48>)",
+      "[classifyArray](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:58>)",
+      "[formatArrayShape](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:66>)",
+      "[toPlotValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:98>)",
+      "[highDimensionalRows](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:100>)",
+      "[visit](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:102>)",
+      "[toCsvCell](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:114>)",
+      "[flattenArrayForCsv](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:119>)",
+      "[parseResult](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:197>)",
+      "[normalizePlotArtifacts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:209>)",
+      "[displayResultOriginPath](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:224>)",
+      "[publicOutputEntries](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/utils/matlabResultData.ts:234>)"
+    ]
+  },
+  {
+    "file": "[MatlabModelDeploy.vue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1>) (3474)",
+    "role": "页面组合与跨模块协调；目录拖入、画布事件、保存加载和提交入口",
+    "declarations": [
+      "[scenePathTitle](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:639>)",
+      "[updateSelectedEdgeStreamRole](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:682>)",
+      "[updatePhysicalSceneParameter](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:703>)",
+      "[isValidPort](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:777>)",
+      "[getValidPorts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:784>)",
+      "[isBusNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:801>)",
+      "[formatLibrary](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:909>)",
+      "[formatCategory](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:911>)",
+      "[resolveComponentCover](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:937>)",
+      "[formatPortLabel](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:941>)",
+      "[formatInputRange](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:945>)",
+      "[normalizeInstanceName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:952>)",
+      "[names](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:954>)",
+      "[nextInstanceName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:958>)",
+      "[toScalarNumber](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:972>)",
+      "[addLog](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:978>)",
+      "[finiteMetadataNumber](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:989>)",
+      "[isNumericArray](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1023>)",
+      "[initialNumericValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1045>)",
+      "[initialLiteralValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1052>)",
+      "[isNumericArrayLiteral](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1061>)",
+      "[isMatlabLiteral](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1069>)",
+      "[isNodeSelected](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1075>)",
+      "[loadComponents](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1077>)",
+      "[handleComponentDragStart](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1099>)",
+      "[handleDrop](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1111>)",
+      "[isCompatiblePortType](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1208>)",
+      "[addBusNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1214>)",
+      "[makeField](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1224>)",
+      "[addBoundaryNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1300>)",
+      "[boundarySignalSummary](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1326>)",
+      "[selectNodeById](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1338>)",
+      "[clearNodeSelection](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1372>)",
+      "[handleCreateAssemblyRelation](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1381>)",
+      "[handleEncapsulateSelection](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1422>)",
+      "[handleUnencapsulateSelection](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1458>)",
+      "[busPortsForNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1482>)",
+      "[syncBusNodePorts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1516>)",
+      "[updateSelectedBusConfig](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1563>)",
+      "[updateSelectedSelectorConfig](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1623>)",
+      "[clearAutoConnectSource](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1682>)",
+      "[nodeDisplayName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1692>)",
+      "[handleNodeClick](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1696>)",
+      "[handleEdgeClick](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1715>)",
+      "[handleDeleteSelectedEdge](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1729>)",
+      "[handlePaneClick](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1752>)",
+      "[handleNodeNameChange](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1762>)",
+      "[handleInputChange](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1777>)",
+      "[numericMatrixInput](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1796>)",
+      "[collect](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1808>)",
+      "[numericAxisLabel](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1824>)",
+      "[arrayDimensionWarning](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1826>)",
+      "[handleArrayInputChange](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1834>)",
+      "[getInputConnection](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1844>)",
+      "[getInputConnectionLabel](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1850>)",
+      "[findNodePort](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1858>)",
+      "[getTopologicalOrder](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1893>)",
+      "[inferBusFieldFromConnection](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1915>)",
+      "[inferAcceptedBusContracts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:1959>)",
+      "[handleAutoConnectNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2006>)",
+      "[handleConnect](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2093>)",
+      "[resetResultData](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2156>)",
+      "[handleDeleteNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2161>)",
+      "[handleBoundaryPortNameChange](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2176>)",
+      "[handleClearCanvas](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2197>)",
+      "[buildExecutionPayload](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2225>)",
+      "[buildJuliaPreview](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2243>)",
+      "[handlePreviewPayload](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2270>)",
+      "[synchronizeSubsystemInterfaces](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2281>)",
+      "[buildProjectData](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2295>)",
+      "[resolveSavedComponent](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2301>)",
+      "[ports](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2378>)",
+      "[restoreProjectConfigRecords](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2686>)",
+      "[handleNewProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2715>)",
+      "[handleLoadProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2739>)",
+      "[handleCopyPayload](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2817>)",
+      "[handleOpenCalculationDialog](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2826>)",
+      "[handleGlobalKeydown](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-frontend/src/views/business/MatlabModelDeploy.vue:2831>)"
+    ]
+  },
+  {
+    "file": "[ModelDeployController.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:1>) (293)",
+    "role": "MATLAB 目录、工程、仿真提交/查询/图片的 HTTP 入口",
+    "declarations": [
+      "[getComponents](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:50>)",
+      "[getComponentsPaged](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:66>)",
+      "[getComponentDetailByClassName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:85>)",
+      "[getComponentMetaDebugByClassName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:100>)",
+      "[getMatlabComponents](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:115>)",
+      "[downloadMatlabConfigTemplate](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:125>)",
+      "[getMatlabConfigSchema](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:139>)",
+      "[uploadMatlabConfig](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:144>)",
+      "[listMyMatlabConfigs](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:151>)",
+      "[getMatlabConfig](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:156>)",
+      "[deleteMatlabConfig](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:161>)",
+      "[saveProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:170>)",
+      "[updateProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:184>)",
+      "[getProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:198>)",
+      "[deleteProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:213>)",
+      "[getUserProjects](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:227>)",
+      "[submitSimulation](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:244>)",
+      "[getSimulationStatus](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:258>)",
+      "[getSimulationArtifact](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:273>)",
+      "[getUserSimulationTasks](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/controller/ModelDeployController.java:282>)"
+    ]
+  },
+  {
+    "file": "[BsMatlabConfigMapper.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/mapper/BsMatlabConfigMapper.java:1>) (9)",
+    "role": "MATLAB 配置表数据访问",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[BsModelingProjectMapper.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/mapper/BsModelingProjectMapper.java:1>) (15)",
+    "role": "工程表数据访问",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[BsSimulationTaskMapper.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/mapper/BsSimulationTaskMapper.java:1>) (15)",
+    "role": "任务表数据访问",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[BsMatlabConfig.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/model/domain/BsMatlabConfig.java:1>) (34)",
+    "role": "MATLAB 配置工作簿元信息与归属",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[BsModelingProject.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/model/domain/BsModelingProject.java:1>) (71)",
+    "role": "用户工程记录及 projectData",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[BsSimulationTask.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/model/domain/BsSimulationTask.java:1>) (105)",
+    "role": "仿真任务数据库记录、状态和结果字段",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[MatlabComponentVO.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/model/dto/MatlabComponentVO.java:1>) (112)",
+    "role": "可信组件目录、函数调用、端口、模板与资源描述 DTO",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[MatlabConfigVO.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/model/dto/MatlabConfigVO.java:1>) (24)",
+    "role": "上传配置的返回信息 DTO",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[ModelingProjectRequest.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/model/request/ModelingProjectRequest.java:1>) (37)",
+    "role": "工程名、类型和 projectData 请求字段",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[SimulationRequest.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/model/request/SimulationRequest.java:1>) (70)",
+    "role": "前端提交的模型名、配置/候选 graph 等请求字段",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[EngineAssemblyCompiler.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:1>) (481)",
+    "role": "唯一物理描述生成器，验证可见绑定，生成 engine.physical-scene.v1 并注入初始化器",
+    "declarations": [
+      "[applyAssemblies](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:52>)",
+      "[validateAssemblyDescriptor](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:110>)",
+      "[resolveInitializerFromDataGraph](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:152>)",
+      "[isWorkflowWrapper](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:248>)",
+      "[boundaryPorts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:256>)",
+      "[boundaryMappings](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:264>)",
+      "[endpoint](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:273>)",
+      "[link](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:274>)",
+      "[collectSceneNodeIds](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:278>)",
+      "[buildPhysicalScene](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:294>)",
+      "[convertGroups](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:415>)",
+      "[validateMemberCapability](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:452>)",
+      "[validateFlowPort](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/EngineAssemblyCompiler.java:473>)"
+    ]
+  },
+  {
+    "file": "[MatlabGraphSupport.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:1>) (166)",
+    "role": "图字段读取、复制、数值与 ID 等编译器共用工具",
+    "declarations": [
+      "[normalizedKind](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:25>)",
+      "[resolveChildSceneId](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:31>)",
+      "[isWorkflowSubsystem](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:44>)",
+      "[originSegment](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:50>)",
+      "[firstMap](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:55>)",
+      "[mergeMap](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:60>)",
+      "[boundaryPorts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:67>)",
+      "[normalizeBoundary](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:86>)",
+      "[boundaryPortId](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:98>)",
+      "[boundaryDirection](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:103>)",
+      "[boundaryPortAlias](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:109>)",
+      "[listValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:118>)",
+      "[first](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:122>)",
+      "[stringValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:127>)",
+      "[safeId](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:131>)",
+      "[append](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:136>)",
+      "[asObject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:143>)",
+      "[copyMap](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:149>)",
+      "[copyValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabGraphSupport.java:157>)"
+    ]
+  },
+  {
+    "file": "[MatlabHierarchyCompiler.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:1>) (577)",
+    "role": "通用子系统递归展开、边界输入扇出/值注入、公开结果与 originPath",
+    "declarations": [
+      "[expand](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:47>)",
+      "[readScenes](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:126>)",
+      "[expandScene](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:172>)",
+      "[addNode](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:320>)",
+      "[addEdge](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:325>)",
+      "[merge](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:329>)",
+      "[resolveOutputEndpoint](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:337>)",
+      "[resolveInputEndpoints](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:345>)",
+      "[addBoundaryMappings](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:353>)",
+      "[resolveMappedEndpoint](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:400>)",
+      "[resolveMappedEndpoints](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:406>)",
+      "[boundaryMappings](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:428>)",
+      "[injectBoundaryValues](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:442>)",
+      "[addSceneBoundaryMappings](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:470>)",
+      "[originFor](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:500>)",
+      "[addRootSubsystemOutputs](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:512>)",
+      "[addRootPublicOutput](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:548>)",
+      "[declaredOutputNames](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabHierarchyCompiler.java:561>)"
+    ]
+  },
+  {
+    "file": "[MatlabTrustedGraphCompiler.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:1>) (684)",
+    "role": "基于服务端目录生成可信 MATLAB DAG；参数、端口、类型、必填及拓扑排序",
+    "declarations": [
+      "[mapValue](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:295>)",
+      "[graphString](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:299>)",
+      "[matlabIdentifier](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:308>)",
+      "[matlabFieldPath](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:312>)",
+      "[matlabBusType](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:316>)",
+      "[isNamedMatlabBusType](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:326>)",
+      "[matlabPortTypesCompatible](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:330>)",
+      "[sanitizeBusConfig](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:342>)",
+      "[sanitizeSelectorConfig](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:406>)",
+      "[buildBuiltinBusComponent](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:457>)",
+      "[validateMatlabResources](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:525>)",
+      "[validateMatlabValues](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:557>)",
+      "[validateNumericArray](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:610>)",
+      "[validateNumericRow](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:636>)",
+      "[finiteArrayNumber](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:642>)",
+      "[buildTrustedPortDefinitions](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/MatlabTrustedGraphCompiler.java:649>)"
+    ]
+  },
+  {
+    "file": "[ModelDeployServiceImpl.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:1>) (1267)",
+    "role": "加载可信目录、编译候选图、资源固化、落任务库、Python 提交及状态/图片代理",
+    "declarations": [
+      "[MatlabComponentCatalog](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:80>)",
+      "[getComponents](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:120>)",
+      "[getMatlabComponents](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:171>)",
+      "[normalizeMatlabSourcePath](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:214>)",
+      "[getMatlabComponent](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:220>)",
+      "[validateMatlabComponentDefinition](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:227>)",
+      "[validatePortDefinitions](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:324>)",
+      "[validateInvocationBinding](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:336>)",
+      "[matlabIdentifier](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:355>)",
+      "[matlabFieldPath](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:359>)",
+      "[buildTrustedMatlabGraph](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:363>)",
+      "[materializeMatlabResources](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:368>)",
+      "[getComponentsPaged](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:391>)",
+      "[loadComponentsFromMongo](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:416>)",
+      "[isSupportedClassName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:458>)",
+      "[toComponentVOFromMeta](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:466>)",
+      "[buildComponentVO](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:500>)",
+      "[extractDescriptionFromMo](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:529>)",
+      "[matchesFilter](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:541>)",
+      "[resolveComponentIconUrl](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:554>)",
+      "[getComponentDetailByClassName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:569>)",
+      "[omcMetaByClassName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:763>)",
+      "[getComponentMetaDebugByClassName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:772>)",
+      "[createDefaultConnectors](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:813>)",
+      "[extractModuleFromClassName](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:826>)",
+      "[getModuleIconFileNames](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:837>)",
+      "[loadModuleIconFileNames](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:846>)",
+      "[normalizeRelativePath](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:876>)",
+      "[buildStaticIconUrl](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:880>)",
+      "[encodePath](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:887>)",
+      "[saveProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:901>)",
+      "[updateProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:931>)",
+      "[getProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:966>)",
+      "[deleteProject](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:992>)",
+      "[getUserProjects](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:1012>)",
+      "[normalizeProjectType](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:1045>)",
+      "[submitSimulation](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:1055>)",
+      "[getSimulationTask](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:1117>)",
+      "[getSimulationArtifact](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:1136>)",
+      "[getUserSimulationTasks](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:1174>)",
+      "[submitToSimulationService](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:1187>)",
+      "[syncTaskStatusFromSimulation](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/ModelDeployServiceImpl.java:1220>)"
+    ]
+  },
+  {
+    "file": "[RecursiveExecutionGraphExpander.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/RecursiveExecutionGraphExpander.java:1>) (22)",
+    "role": "保留的其他/历史递归展开实现；当前可信编译主入口使用 MatlabHierarchyCompiler",
+    "declarations": [
+      "[expand](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/impl/RecursiveExecutionGraphExpander.java:15>)"
+    ]
+  },
+  {
+    "file": "[MatlabConfigService.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:1>) (374)",
+    "role": "配置工作簿/schema、归属与存储、下载和执行资源快照",
+    "declarations": [
+      "[templateBytes](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:66>)",
+      "[schema](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:74>)",
+      "[upload](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:83>)",
+      "[listMine](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:148>)",
+      "[getMine](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:157>)",
+      "[softDelete](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:161>)",
+      "[materializeTaskSnapshot](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:169>)",
+      "[validateWorkbook](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:201>)",
+      "[headerIndexes](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:283>)",
+      "[requireFiniteNumeric](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:293>)",
+      "[optionalNumeric](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:299>)",
+      "[requireOwned](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:321>)",
+      "[requireUserId](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:334>)",
+      "[toVO](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:340>)",
+      "[stripExtension](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:356>)",
+      "[sha256](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:361>)",
+      "[WorkbookSummary](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/MatlabConfigService.java:369>)"
+    ]
+  },
+  {
+    "file": "[ModelDeployService.java](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/java/com/modelcloud/modules/business/service/ModelDeployService.java:1>) (134)",
+    "role": "后端建模、仿真与工程服务契约",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[artifacts.py](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/artifacts.py:1>) (182)",
+    "role": "任务 PNG 收集/拷贝、私有相对路径登记与公开图片清单",
+    "declarations": [
+      "[_walk_png_references](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/artifacts.py:14>)",
+      "[_phase_for_artifact](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/artifacts.py:49>)",
+      "[collect_artifacts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/artifacts.py:65>)",
+      "[project_result_data](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/artifacts.py:159>)",
+      "[project](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/artifacts.py:161>)"
+    ]
+  },
+  {
+    "file": "[config.py](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/config.py:1>) (113)",
+    "role": "环境配置：Julia 路径、组件根目录、任务目录、会话并发和超时",
+    "declarations": [
+      "[parse_cors_origins](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/config.py:64>)",
+      "[get_cors_origins_list](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/config.py:77>)"
+    ]
+  },
+  {
+    "file": "[julia_matlab_graph_executor.py](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:1>) (615)",
+    "role": "可信协议校验、资源校验、Julia 子进程执行、日志/超时/结果读取",
+    "declarations": [
+      "[resolve_max_concurrent_sessions](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:29>)",
+      "[__init__](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:40>)",
+      "[__enter__](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:47>)",
+      "[__exit__](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:51>)",
+      "[structured](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:63>)",
+      "[resolve_matlab_component_root](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:81>)",
+      "[execute](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:98>)",
+      "[completed_result](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:170>)",
+      "[_build_execution_error](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:195>)",
+      "[_validate_payload](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:214>)",
+      "[_port_types_compatible](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:331>)",
+      "[_validate_builtin_bus_node](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:340>)",
+      "[_validate_bus_field](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:404>)",
+      "[_validate_invocation](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:416>)",
+      "[_validate_literal](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:488>)",
+      "[_validate_ports](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:510>)",
+      "[_port_types](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:523>)",
+      "[_prepare_resources](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:526>)",
+      "[_validate_source_files](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:557>)",
+      "[_build_command](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:578>)",
+      "[collect_non_finite_paths](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/executors/julia_matlab_graph_executor.py:594>)"
+    ]
+  },
+  {
+    "file": "[main.py](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:1>) (401)",
+    "role": "FastAPI 提交/查询/图片入口、异步任务调度与结果封装",
+    "declarations": [
+      "[validate_engine_payload](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:78>)",
+      "[_collect_matlab_artifacts](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:93>)",
+      "[_set_task](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:105>)",
+      "[_get_task](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:113>)",
+      "[_build_mos_script](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:152>)",
+      "[_extract_model_name](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:170>)",
+      "[_run_openmodelica](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:180>)",
+      "[_execute_task](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:253>)",
+      "[root](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:310>)",
+      "[health_check](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:320>)",
+      "[submit_simulation](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:329>)",
+      "[get_simulation_task](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:357>)",
+      "[get_simulation_artifact](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/main.py:369>)"
+    ]
+  },
+  {
+    "file": "[task_state.py](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/task_state.py:1>) (30)",
+    "role": "任务快照原子持久化、进程重启后的状态恢复",
+    "declarations": [
+      "[task_directory](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/task_state.py:8>)",
+      "[save_task](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/task_state.py:14>)",
+      "[load_task](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/app/task_state.py:22>)"
+    ]
+  },
+  {
+    "file": "[run_matlab_graph.jl](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:1>) (540)",
+    "role": "生成 Julia 工作流；MATLAB 会话引用、函数调用、Bus、异常哨兵和输出 JSON 序列化",
+    "declarations": [
+      "[matlab_eval_checked](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:30>)",
+      "[native_value](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:90>)",
+      "[write_json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:98>)",
+      "[matlab_string_literal](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:104>)",
+      "[matlab_literal](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:108>)",
+      "[output](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:134>)",
+      "[resolve_input_expression](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:140>)",
+      "[ensure_object_path!](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:152>)",
+      "[binding_expression](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:164>)",
+      "[execute_node!](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:186>)",
+      "[execute_bus_creator!](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:265>)",
+      "[execute_bus_selector!](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:304>)",
+      "[json_safe_matlab_value](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:324>)",
+      "[julia_variable_name](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:343>)",
+      "[generate_graph_code](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:349>)",
+      "[validate_graph](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:399>)",
+      "[execute_graph](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/julia/run_matlab_graph.jl:411>)"
+    ]
+  },
+  {
+    "file": "[requirements.txt](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-simulation/requirements.txt:1>) (31)",
+    "role": "Python 执行服务依赖",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[application.yml](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/application.yml:1>) (141)",
+    "role": "Spring Boot 数据库/服务/组件路径等配置；本文不复制凭据",
+    "declarations": [
+      "类型/元数据/组件声明，无可提取函数声明"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.afterburn.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.afterburn.json:1>) (72)",
+    "role": "航空发动机组件定义：加力燃烧室（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.burn.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.burn.json:1>) (72)",
+    "role": "航空发动机组件定义：主燃烧室（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.duct.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.duct.json:1>) (66)",
+    "role": "航空发动机组件定义：管道（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.fan.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.fan.json:1>) (104)",
+    "role": "航空发动机组件定义：风扇（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.hpc.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.hpc.json:1>) (75)",
+    "role": "航空发动机组件定义：高压压气机（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.hpt.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.hpt.json:1>) (75)",
+    "role": "航空发动机组件定义：高压涡轮（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.inlet.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.inlet.json:1>) (66)",
+    "role": "航空发动机组件定义：进气道（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.ipc.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.ipc.json:1>) (74)",
+    "role": "航空发动机组件定义：中压压气机（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.ipt.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.ipt.json:1>) (75)",
+    "role": "航空发动机组件定义：中压涡轮（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.lpc.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.lpc.json:1>) (74)",
+    "role": "航空发动机组件定义：低压压气机（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.lpt.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.lpt.json:1>) (75)",
+    "role": "航空发动机组件定义：低压涡轮（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.mixer.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.mixer.json:1>) (81)",
+    "role": "航空发动机组件定义：混合器（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.nozzle.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.nozzle.json:1>) (66)",
+    "role": "航空发动机组件定义：喷管（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.outer-duct.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.outer-duct.json:1>) (66)",
+    "role": "航空发动机组件定义：外涵管道（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.gas-path.pmsm-0d.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/physical/engine.gas-path.pmsm-0d.json:1>) (67)",
+    "role": "航空发动机组件定义：零维电机/发电机（气路组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.plot.flow.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/stages/engine.plot.flow.json:1>) (54)",
+    "role": "航空发动机组件定义：设计点气路图（绘图组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.plot.map-mission.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/stages/engine.plot.map-mission.json:1>) (54)",
+    "role": "航空发动机组件定义：工况特性图（绘图组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.stage.apply-design-conditions.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/stages/engine.stage.apply-design-conditions.json:1>) (80)",
+    "role": "航空发动机组件定义：设计条件设置（设计点组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.stage.envelope-altitude.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/stages/engine.stage.envelope-altitude.json:1>) (54)",
+    "role": "航空发动机组件定义：高度扫描（工况扫描组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.stage.envelope-finalize.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/stages/engine.stage.envelope-finalize.json:1>) (124)",
+    "role": "航空发动机组件定义：扫描结果汇总（工况扫描组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.stage.envelope-initialize.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/stages/engine.stage.envelope-initialize.json:1>) (44)",
+    "role": "航空发动机组件定义：非设计点初始化（工况扫描组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.stage.envelope-power.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/stages/engine.stage.envelope-power.json:1>) (64)",
+    "role": "航空发动机组件定义：功率扫描（工况扫描组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.stage.envelope-speed-initialize.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/stages/engine.stage.envelope-speed-initialize.json:1>) (44)",
+    "role": "航空发动机组件定义：速度扫描重置（工况扫描组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.stage.envelope-speed.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/stages/engine.stage.envelope-speed.json:1>) (54)",
+    "role": "航空发动机组件定义：速度扫描（工况扫描组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.stage.initialize-configuration.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/stages/engine.stage.initialize-configuration.json:1>) (74)",
+    "role": "航空发动机组件定义：DP 组装（发动机组装组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.stage.solve-design-point.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/stages/engine.stage.solve-design-point.json:1>) (54)",
+    "role": "航空发动机组件定义：设计点平衡求解（设计点组件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.workflow.envelope-scan.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/workflows/engine.workflow.envelope-scan.json:1>) (160)",
+    "role": "航空发动机组件定义：整段工况扫描（构型构件）",
+    "declarations": [
+      "组件 ID、端口、参数及执行/模板元数据"
+    ]
+  },
+  {
+    "file": "[engine.configuration.2-spool-mixed-turbofan.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/configurations/engine.configuration.2-spool-mixed-turbofan.json:1>) (1654)",
+    "role": "航空发动机构型目录定义：双轴混排涡扇，含公开接口和完整画布工程",
+    "declarations": [
+      "模型库元数据、公开接口及完整画布工程"
+    ]
+  },
+  {
+    "file": "[engine.configuration.2-spool-separated-turbofan.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/configurations/engine.configuration.2-spool-separated-turbofan.json:1>) (1648)",
+    "role": "航空发动机构型目录定义：双轴分排涡扇，含公开接口和完整画布工程",
+    "declarations": [
+      "模型库元数据、公开接口及完整画布工程"
+    ]
+  },
+  {
+    "file": "[engine.configuration.2-spool-turboshaft.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/configurations/engine.configuration.2-spool-turboshaft.json:1>) (1603)",
+    "role": "航空发动机构型目录定义：双轴涡轴发动机，含公开接口和完整画布工程",
+    "declarations": [
+      "模型库元数据、公开接口及完整画布工程"
+    ]
+  },
+  {
+    "file": "[engine.configuration.cfm56.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/configurations/engine.configuration.cfm56.json:1>) (1684)",
+    "role": "航空发动机构型目录定义：CFM56，含公开接口和完整画布工程",
+    "declarations": [
+      "模型库元数据、公开接口及完整画布工程"
+    ]
+  },
+  {
+    "file": "[engine.configuration.ducted-fan.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/configurations/engine.configuration.ducted-fan.json:1>) (1319)",
+    "role": "航空发动机构型目录定义：涵道风扇，含公开接口和完整画布工程",
+    "declarations": [
+      "模型库元数据、公开接口及完整画布工程"
+    ]
+  },
+  {
+    "file": "[engine.configuration.free-turbine-turboshaft.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/configurations/engine.configuration.free-turbine-turboshaft.json:1>) (1569)",
+    "role": "航空发动机构型目录定义：自由涡轮涡轴发动机，含公开接口和完整画布工程",
+    "declarations": [
+      "模型库元数据、公开接口及完整画布工程"
+    ]
+  },
+  {
+    "file": "[engine.configuration.mixed-turbofan.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/configurations/engine.configuration.mixed-turbofan.json:1>) (1556)",
+    "role": "航空发动机构型目录定义：混排涡扇，含公开接口和完整画布工程",
+    "declarations": [
+      "模型库元数据、公开接口及完整画布工程"
+    ]
+  },
+  {
+    "file": "[engine.configuration.separated-turbofan.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/configurations/engine.configuration.separated-turbofan.json:1>) (1530)",
+    "role": "航空发动机构型目录定义：分排涡扇，含公开接口和完整画布工程",
+    "declarations": [
+      "模型库元数据、公开接口及完整画布工程"
+    ]
+  },
+  {
+    "file": "[engine.configuration.turboshaft.json](<C:/Users/xiong/Documents/Model-Cloud-ExtendML/model-cloud-backend/src/main/resources/matlab-components/engine/configurations/engine.configuration.turboshaft.json:1>) (1415)",
+    "role": "航空发动机构型目录定义：涡轴发动机，含公开接口和完整画布工程",
+    "declarations": [
+      "模型库元数据、公开接口及完整画布工程"
+    ]
+  }
+]

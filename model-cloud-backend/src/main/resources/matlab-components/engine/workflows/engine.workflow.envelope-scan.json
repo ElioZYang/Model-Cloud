@@ -1,0 +1,160 @@
+{
+  "id": "engine.workflow.envelope-scan",
+  "name": "整段工况扫描",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "workflow",
+  "functionName": "component_run_engine_envelope",
+  "description": "对发动机设计点执行功率、速度和高度稳态工况扫描",
+  "category": "构型构件",
+  "sourceRelativePath": "workflows/component_run_engine_envelope.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "DP",
+      "type": "engine.dp",
+      "required": true,
+      "description": "求解后的原始设计点结构体"
+    },
+    {
+      "name": "power_points",
+      "type": "number",
+      "required": true,
+      "defaultValue": 20,
+      "description": "功率扫描点数"
+    },
+    {
+      "name": "speed_points",
+      "type": "number",
+      "required": true,
+      "defaultValue": 100,
+      "description": "速度扫描点数"
+    },
+    {
+      "name": "altitude_points",
+      "type": "number",
+      "required": true,
+      "defaultValue": 100,
+      "description": "高度扫描点数"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "MISSION",
+      "type": "engine.mission",
+      "required": true
+    },
+    {
+      "name": "THRUST_ARRAY",
+      "type": "array",
+      "unit": "kN",
+      "required": true
+    },
+    {
+      "name": "TIT_ARRAY",
+      "type": "array",
+      "unit": "K",
+      "required": true
+    },
+    {
+      "name": "COMP_WP",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "TURB_WP",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "MOTOR_WP",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "OP",
+      "type": "engine.op",
+      "required": true
+    },
+    {
+      "name": "X0",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "DX",
+      "type": "array",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "component_run_engine_envelope",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "DP"
+      },
+      {
+        "source": "input",
+        "name": "power_points"
+      },
+      {
+        "source": "input",
+        "name": "speed_points"
+      },
+      {
+        "source": "input",
+        "name": "altitude_points"
+      }
+    ],
+    "returns": [
+      {
+        "output": "MISSION",
+        "returnIndex": 0,
+        "path": ""
+      },
+      {
+        "output": "THRUST_ARRAY",
+        "returnIndex": 1,
+        "path": ""
+      },
+      {
+        "output": "TIT_ARRAY",
+        "returnIndex": 2,
+        "path": ""
+      },
+      {
+        "output": "COMP_WP",
+        "returnIndex": 3,
+        "path": ""
+      },
+      {
+        "output": "TURB_WP",
+        "returnIndex": 4,
+        "path": ""
+      },
+      {
+        "output": "MOTOR_WP",
+        "returnIndex": 5,
+        "path": ""
+      },
+      {
+        "output": "OP",
+        "returnIndex": 6,
+        "path": ""
+      },
+      {
+        "output": "X0",
+        "returnIndex": 7,
+        "path": ""
+      },
+      {
+        "output": "DX",
+        "returnIndex": 8,
+        "path": ""
+      }
+    ]
+  }
+}

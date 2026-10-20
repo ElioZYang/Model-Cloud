@@ -1,0 +1,38 @@
+function[OUTPUT]=AIRFLOW_ESTIMATE(INPUT)
+% 计算满足推力需求的空气流量
+OUTPUT=INPUT;
+H=INPUT.H;
+V0=INPUT.V;
+D=INPUT.D;
+DT=INPUT.DT;
+QP=INPUT.QP;
+PRC=INPUT.PRC;
+PRT=INPUT.PRT;
+TO=INPUT.TO;
+THRUST=INPUT.THRUST;
+TPR=INPUT.TPR;
+[Ts,Ps,rhos,sv]=ASP(H,DT,QP);
+k=CPSH(Ts,0);
+M0=V0/sv;
+P0=Ps*(1+(k-1)/2*M0^2)^(k/(k-1));
+PRT_cr=PRC*TPR*P0/Ps;
+if PRT>=PRT_cr
+    disp("涡轮膨胀比过大！\n")
+else
+    T2=T0*PRC^((k-1)/k);
+    I_burn.TO=TO;
+    I_burn.T=T2;
+    I_burn.HU=INPUT.HU;
+    I_burn.EB=INPUT.EB;
+    O_burn=BURN(I_burn);
+    FAR=O_burn.FAR;
+    PRN=PRC*TPR/PRT;
+    P9=P0*PRN;
+    T9=TO*PRT^(-(k-1)/k);
+    R=GC(FAR,D);
+    k=CPSH(T9,FAR);
+    WA=THRUST*1000/(1+FAR);
+    WA=WA/((2*k/(k-1)*R*T9*(1-PRN^(-(k-1)/k)))^0.5-V0);
+    OUTPUT.WA=WA;
+end
+end

@@ -1,0 +1,67 @@
+{
+  "id": "engine.gas-path.pmsm-0d",
+  "legacyName": "pmsm 0d",
+  "assemblyDefaults": {
+    "E_motor": 0.97
+  },
+  "name": "零维电机/发电机",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "calculation",
+  "functionName": "MOTOR",
+  "description": "pmsm 0d；计算零维电机或发电机的机械功率、电功率、效率和热耗散",
+  "category": "气路组件",
+  "sourceRelativePath": "components/MOTOR.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "INPUT",
+      "type": "bus",
+      "required": true,
+      "description": "电机/发电机工况、额定参数及可选效率图谱"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "OUTPUT",
+      "type": "bus",
+      "required": true,
+      "description": "电机/发电机功率、效率和热耗散结果"
+    }
+  ],
+  "resources": [],
+  "physicalCapabilities": {
+    "assemblyMember": true,
+    "flow": {
+      "inputs": [
+        {
+          "id": "INPUT",
+          "role": "main"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "OUTPUT",
+          "role": "main"
+        }
+      ]
+    }
+  },
+  "invocation": {
+    "function": "MOTOR",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "INPUT"
+      }
+    ],
+    "returns": [
+      {
+        "output": "OUTPUT",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  }
+}

@@ -1,0 +1,530 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modelcloud.local/contracts/matlab/matlab-project-v3.schema.json",
+  "title": "MATLAB modeling project document (V3: generic subsystems + capability-based physical assemblies)",
+  "description": "V3 removes the physical Scene / physicalSubsystem semantics. Scenes are generic: they contain MATLAB/PMSM nodes, engine gas-path components, generic subsystem nodes and DATA edges only. Engine physics is expressed by (a) physicalCapabilities on engine gas-path catalog components, (b) project-level PhysicalAssembly definitions owning flow relations and shaft/bleed groups, and (c) an explicit initializer binding. Physical relations never live on data edges.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "engineType",
+    "rootSceneId",
+    "scenes",
+    "physicalAssemblies"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 3
+    },
+    "engineType": {
+      "const": "matlab"
+    },
+    "rootSceneId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scenes": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/scene"
+      }
+    },
+    "physicalAssemblies": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/physicalAssembly"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "scene": {
+      "type": "object",
+      "description": "A generic scene. No kind field: physicality is a property of components and assemblies, never of scenes.",
+      "required": [
+        "id",
+        "title",
+        "nodes",
+        "dataEdges",
+        "boundaryPorts",
+        "viewport"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parentSceneId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sceneNode"
+          }
+        },
+        "dataEdges": {
+          "type": "array",
+          "description": "Pure execution/data edges. Must not carry relation/streamRole/groupId.",
+          "items": {
+            "$ref": "#/$defs/dataEdge"
+          }
+        },
+        "boundaryPorts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/boundaryPort"
+          }
+        },
+        "viewport": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            },
+            "zoom": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": [
+            "x",
+            "y",
+            "zoom"
+          ]
+        },
+        "kind": false,
+        "relationGroups": false,
+        "assemblyDefaults": false
+      },
+      "additionalProperties": true
+    },
+    "sceneNode": {
+      "type": "object",
+      "required": [
+        "id",
+        "componentId",
+        "nodeKind",
+        "values",
+        "resources"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "componentId": {
+          "type": "string"
+        },
+        "nodeKind": {
+          "description": "Project-node kind. 'subsystem' is the only recursive kind; physicalComponent/workflowSubsystem from V2 are converted on import.",
+          "type": "string"
+        },
+        "physicalAssemblyId": {
+          "description": "Stable ID of a compile-time engine assembly descriptor node.",
+          "type": "string"
+        },
+        "childSceneId": {
+          "type": "string"
+        },
+        "activeModes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["design", "offdesign", "thermal"] }
+        },
+        "instanceName": {
+          "type": "string"
+        },
+        "functionName": {
+          "type": "string"
+        },
+        "executionKind": {
+          "type": "string"
+        },
+        "boundaryDirection": {
+          "enum": [
+            "input",
+            "output"
+          ]
+        },
+        "values": {
+          "type": "object"
+        },
+        "resources": {
+          "type": "object"
+        },
+        "legacyOrder": {
+          "type": "number"
+        },
+        "legacyName": {
+          "type": "string"
+        },
+        "assemblyDefaults": {
+          "type": "object"
+        },
+        "busConfig": {
+          "type": "object"
+        },
+        "selectorConfig": {
+          "type": "object"
+        },
+        "boundaryPorts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/boundaryPort"
+          }
+        },
+        "position": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y"
+          ]
+        },
+        "unresolved": {
+          "type": "boolean"
+        },
+        "modelEntrypoints": {
+          "type": "object",
+          "required": [
+            "design",
+            "offdesign",
+            "thermal"
+          ],
+          "properties": {
+            "design": {
+              "type": "string",
+              "minLength": 1
+            },
+            "offdesign": {
+              "type": "string",
+              "minLength": 1
+            },
+            "thermal": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": true
+    },
+    "dataEdge": {
+      "type": "object",
+      "required": [
+        "id",
+        "sourceNodeId",
+        "sourcePort",
+        "targetNodeId",
+        "targetPort"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceNodeId": {
+          "type": "string"
+        },
+        "sourcePort": {
+          "type": "string"
+        },
+        "targetNodeId": {
+          "type": "string"
+        },
+        "targetPort": {
+          "type": "string"
+        },
+        "unresolved": {
+          "type": "boolean"
+        },
+        "relation": false,
+        "streamRole": false,
+        "groupId": false
+      },
+      "additionalProperties": true
+    },
+    "boundaryPort": {
+      "type": "object",
+      "description": "kind=data|flow are directional; kind=shaft|bleed express group membership across the boundary and carry no compute direction.",
+      "required": [
+        "id",
+        "name",
+        "kind"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "data",
+            "flow",
+            "shaft",
+            "bleed"
+          ]
+        },
+        "direction": {
+          "enum": [
+            "input",
+            "output"
+          ]
+        },
+        "dataType": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "shape": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "defaultValue": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "array"
+          ]
+        },
+        "mapping": {
+          "type": "object",
+          "properties": {
+            "childNodeId": {
+              "type": "string"
+            },
+            "childPortId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "childNodeId",
+            "childPortId"
+          ]
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "childNodeId": {
+                "type": "string"
+              },
+              "childPortId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "childNodeId",
+              "childPortId"
+            ]
+          }
+        },
+        "semanticKey": {
+          "type": "string"
+        },
+        "interfaceNodeId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "physicalAssembly": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "domain",
+        "memberNodeIds",
+        "flowRelations",
+        "shaftGroups",
+        "bleedGroups",
+        "initializerBinding",
+        "defaults"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "domain": {
+          "description": "Physical domain of the assembly. Only aircraft-engine is defined; components without matching capabilities cannot join.",
+          "enum": [
+            "aircraft-engine"
+          ]
+        },
+        "memberNodeIds": {
+          "type": "array",
+          "description": "Project-unique scene node ids. Encapsulation moves nodes between scenes without changing ids, so membership is hierarchy-independent.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "flowRelations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "kind",
+              "sourceNodeId",
+              "sourcePortId",
+              "targetNodeId",
+              "targetPortId"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "flow"
+              },
+              "sourceNodeId": {
+                "type": "string"
+              },
+              "sourcePortId": {
+                "type": "string"
+              },
+              "targetNodeId": {
+                "type": "string"
+              },
+              "targetPortId": {
+                "type": "string"
+              },
+              "streamRole": {
+                "enum": [
+                  "core",
+                  "bypass"
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "shaftGroups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relationGroup"
+          }
+        },
+        "bleedGroups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relationGroup"
+          }
+        },
+        "initializerBinding": {
+          "type": "object",
+          "description": "Explicit binding of the configuration initialization node; never inferred from node names.",
+          "required": [
+            "nodeId",
+            "inputPort"
+          ],
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "inputPort": {
+              "const": "assembly_json"
+            }
+          },
+          "additionalProperties": false
+        },
+        "defaults": {
+          "description": "Configuration-level parameters (type, THRUST, WA, E_motor, TPRM, ...).",
+          "type": "object"
+        },
+        "motorBindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "motorNodeId",
+              "shaftGroupId"
+            ],
+            "properties": {
+              "motorNodeId": {
+                "type": "string"
+              },
+              "shaftGroupId": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "relationGroup": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "name",
+        "order",
+        "memberNodeIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "shaft",
+            "bleed"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "memberNodeIds": {
+          "type": "array",
+          "description": "Single-member groups are legal.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "parameters": {
+          "type": "object",
+          "description": "shaft groups carry E_mech/E_motor; bleed groups carry per-component WA_extraction on components."
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

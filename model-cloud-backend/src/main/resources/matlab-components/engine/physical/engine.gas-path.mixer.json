@@ -1,0 +1,81 @@
+{
+  "id": "engine.gas-path.mixer",
+  "legacyName": "mixer",
+  "assemblyDefaults": {
+    "TPR": 1,
+    "TPRM": 0.8
+  },
+  "name": "混合器",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "calculation",
+  "functionName": "MIXER",
+  "description": "mixer；混合内外涵两股气流并计算混合出口状态",
+  "category": "气路组件",
+  "sourceRelativePath": "components/MIXER.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "INPUT",
+      "type": "bus",
+      "required": true,
+      "description": "内涵气流及混合器参数"
+    },
+    {
+      "name": "INPUT1",
+      "type": "bus",
+      "required": true,
+      "description": "外涵气流状态"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "OUTPUT",
+      "type": "bus",
+      "required": true,
+      "description": "混合后的出口气流状态"
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "MIXER",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "INPUT"
+      },
+      {
+        "source": "input",
+        "name": "INPUT1"
+      }
+    ],
+    "returns": [
+      {
+        "output": "OUTPUT",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  },
+  "physicalCapabilities": {
+    "flow": {
+      "inputs": [
+        {
+          "id": "INPUT",
+          "role": "core"
+        },
+        {
+          "id": "INPUT1",
+          "role": "bypass"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "OUTPUT",
+          "role": "main"
+        }
+      ]
+    }
+  }
+}

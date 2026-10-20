@@ -1,0 +1,74 @@
+function [OUTPUT] = mc_pmsm_COMPRESSOR(INPUT)
+%根据压比，效率，进口温度与压力考虑变比热影响计算压缩过程
+%膨胀过程也可用此计算，但是压比及效率应输入为膨胀比和涡轮效率的倒数
+%Total Paremeters of Compression 
+%输入参数
+% PR    压缩比
+% ES    等熵效率
+% T1    进口温度
+% P1    进口压力
+% FAR   油气比
+%输出参数
+% T2    出口温度
+% P2    出口压力
+switch INPUT.mode
+    case 'design'
+OUTPUT=INPUT;
+H1=mc_pmsm_SE(INPUT.T,INPUT.FAR);
+S1=mc_pmsm_E(INPUT.T,INPUT.P,INPUT.FAR,INPUT.D);
+OUTPUT.P=INPUT.P*INPUT.PR;
+%计算出口总温初值
+T2S=INPUT.T*INPUT.PR^0.28572;
+fun=@(T2S) mc_pmsm_E(T2S,OUTPUT.P,OUTPUT.FAR,OUTPUT.D)/S1-1;
+T2S=fzero(fun,T2S);
+H2S=mc_pmsm_SE(T2S,INPUT.FAR);
+H2=H1+(H2S-H1)/OUTPUT.EFF;
+T2=mc_pmsm_TT(H2,OUTPUT.FAR);
+OUTPUT.T=T2;
+OUTPUT.PWC=(H2-H1)*OUTPUT.WA/1000;
+OUTPUT.WAC=OUTPUT.WA*sqrt(INPUT.T)/INPUT.P;
+OUTPUT.NC0=OUTPUT.N/sqrt(INPUT.T);
+    case 'offdesign'
+OUTPUT=INPUT;
+R=INPUT.R;
+MAP=INPUT.MAP;
+% WAC=INPUT.WA*sqrt(INPUT.T)/INPUT.P;
+NCOR=INPUT.N/sqrt(INPUT.T);
+NCOR_ref=NCOR/INPUT.NC0;
+% GET WCOR,PR,EFF VIA MAP INTERPOLATION
+O=MAPPING('comp',MAP,NCOR_ref,R,INPUT.PRC0);
+OUTPUT.surge=O.surge;
+OUTPUT.choke=O.choke;
+OUTPUT.overload=O.overload;
+OUTPUT.NCOR=NCOR;
+OUTPUT.NCOR_ref=NCOR_ref;
+OUTPUT.WAC_ref=O.WAC;
+OUTPUT.WAC=O.WAC*INPUT.WAC0;
+WA1=OUTPUT.WAC*INPUT.P/sqrt(INPUT.T);
+OUTPUT.WA_sol=WA1;
+OUTPUT.PR_ref=O.PR;
+OUTPUT.PR=O.PR*(INPUT.PRC0-1)+1;
+% OUTPUT.PR=O.PR*INPUT.PRC0;
+OUTPUT.EFF=O.EFF*INPUT.EFFC0;
+OUTPUT.PR=max(OUTPUT.PR,0.5);
+OUTPUT.EFF=max(0.1,OUTPUT.EFF);
+%% offdesign point calculate
+H1=mc_pmsm_SE(INPUT.T,INPUT.FAR);
+S1=mc_pmsm_E(INPUT.T,INPUT.P,INPUT.FAR,INPUT.D);
+OUTPUT.P=INPUT.P*OUTPUT.PR;
+%计算出口总温初值
+T2S=INPUT.T*OUTPUT.PR^0.28572;
+fun=@(T2S) mc_pmsm_E(T2S,OUTPUT.P,OUTPUT.FAR,OUTPUT.D)/S1-1;
+T2S=fzero(fun,T2S);
+H2S=mc_pmsm_SE(T2S,0);
+H2=H1+(H2S-H1)/OUTPUT.EFF;
+T2=mc_pmsm_TT(H2,OUTPUT.FAR);
+OUTPUT.T=T2;
+OUTPUT.DW=WA1/INPUT.WA-1;
+OUTPUT.WA=WA1;
+OUTPUT.PWC=(H2-H1)*OUTPUT.WA/1000;
+end
+OUTPUT.WA=OUTPUT.WA*(1-INPUT.WA_extraction);% 考虑放气
+OUTPUT.W=OUTPUT.WA*(1+INPUT.FAR);
+end
+

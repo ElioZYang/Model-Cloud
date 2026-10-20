@@ -1,0 +1,124 @@
+{
+  "id": "engine.stage.envelope-finalize",
+  "name": "扫描结果汇总",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "workflow",
+  "functionName": "component_engine_envelope_finalize",
+  "description": "汇总功率、速度和高度扫描的原始结果",
+  "category": "工况扫描组件",
+  "sourceRelativePath": "workflows/component_engine_envelope_finalize.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "scan_state",
+      "type": "engine.scan_state",
+      "required": true
+    }
+  ],
+  "outputs": [
+    {
+      "name": "MISSION_final",
+      "type": "engine.mission",
+      "required": true
+    },
+    {
+      "name": "THRUST_ARRAY",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "TIT_ARRAY",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "COMP_WP",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "TURB_WP",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "MOTOR_WP",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "OP",
+      "type": "engine.op",
+      "required": true
+    },
+    {
+      "name": "X0",
+      "type": "array",
+      "required": true
+    },
+    {
+      "name": "DX",
+      "type": "array",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "component_engine_envelope_finalize",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "scan_state"
+      }
+    ],
+    "returns": [
+      {
+        "output": "MISSION_final",
+        "returnIndex": 0,
+        "path": ""
+      },
+      {
+        "output": "THRUST_ARRAY",
+        "returnIndex": 1,
+        "path": ""
+      },
+      {
+        "output": "TIT_ARRAY",
+        "returnIndex": 2,
+        "path": ""
+      },
+      {
+        "output": "COMP_WP",
+        "returnIndex": 3,
+        "path": ""
+      },
+      {
+        "output": "TURB_WP",
+        "returnIndex": 4,
+        "path": ""
+      },
+      {
+        "output": "MOTOR_WP",
+        "returnIndex": 5,
+        "path": ""
+      },
+      {
+        "output": "OP",
+        "returnIndex": 6,
+        "path": ""
+      },
+      {
+        "output": "X0",
+        "returnIndex": 7,
+        "path": ""
+      },
+      {
+        "output": "DX",
+        "returnIndex": 8,
+        "path": ""
+      }
+    ]
+  }
+}

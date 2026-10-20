@@ -1,0 +1,54 @@
+{
+  "id": "engine.plot.map-mission",
+  "name": "工况特性图",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "workflow",
+  "functionName": "component_engine_plot_map_mission",
+  "description": "调用原 DRAW_MAP_MISSION 绘制部件工作点并返回 PNG 图片清单",
+  "category": "绘图组件",
+  "sourceRelativePath": "workflows/component_engine_plot_map_mission.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "MISSION",
+      "type": "engine.mission",
+      "required": true
+    },
+    {
+      "name": "phase",
+      "type": "string",
+      "required": false,
+      "defaultValue": "final"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "plot_result",
+      "type": "engine.plot_artifact",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "component_engine_plot_map_mission",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "MISSION"
+      },
+      {
+        "source": "input",
+        "name": "phase"
+      }
+    ],
+    "returns": [
+      {
+        "output": "plot_result",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  }
+}

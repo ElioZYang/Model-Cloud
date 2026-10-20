@@ -1,0 +1,21 @@
+function[OUTPUT]=mc_pmsm_DUCTED_FAN(INPUT)
+[OUTPUT] = mc_pmsm_INLET(INPUT);% 计算来流参数
+V0=OUTPUT.V;
+if strcmpi(INPUT.mode,"offdesign")
+R=fzero(@(R) FLOW_BALANCE(R,OUTPUT),INPUT.R);
+OUTPUT.R=R;
+end
+[OUTPUT] = mc_pmsm_COMPRESSOR(OUTPUT);% 计算功率(kW)
+[OUTPUT] = mc_pmsm_NOZZLE(OUTPUT);% 计算推力(kN)
+OUTPUT.THRUST=OUTPUT.THRUST-V0*OUTPUT.WA/1000;
+V1=OUTPUT.V;
+OUTPUT.V=V0;
+OUTPUT.EFFP=(V1^2-V0^2)/2/1000/OUTPUT.PWC;
+end
+function[DW]=FLOW_BALANCE(R,INPUT)
+INPUT.R=R;
+[OUTPUT] = mc_pmsm_COMPRESSOR(INPUT);% 计算功率(kW)
+OUTPUT.WA=OUTPUT.WA_sol;
+[OUTPUT] = mc_pmsm_NOZZLE(OUTPUT);% 计算推力(kN)
+DW=OUTPUT.DW;
+end

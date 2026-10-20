@@ -1,14 +1,19 @@
 # 开发环境配置
 spring:
   datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3307/model_cloud?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
+
   data:
     redis:
       host: localhost
       port: 6379
+
     mongodb:
-      # 本地 Docker Mongo 已开启认证：admin / 123456
-      uri: mongodb://admin:123456@localhost:27017/model_cloud?authSource=admin
+      uri: ${MONGODB_URI}
+      database: model_cloud
 
 logging:
   level:

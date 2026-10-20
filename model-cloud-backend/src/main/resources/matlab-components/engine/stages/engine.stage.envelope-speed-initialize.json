@@ -1,0 +1,44 @@
+{
+  "id": "engine.stage.envelope-speed-initialize",
+  "name": "速度扫描重置",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "workflow",
+  "functionName": "component_engine_envelope_speed_initialize",
+  "description": "在速度扫描前按原主脚本重置非设计点状态",
+  "category": "工况扫描组件",
+  "sourceRelativePath": "workflows/component_engine_envelope_speed_initialize.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "scan_state",
+      "type": "engine.scan_state",
+      "required": true
+    }
+  ],
+  "outputs": [
+    {
+      "name": "scan_state",
+      "type": "engine.scan_state",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "component_engine_envelope_speed_initialize",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "scan_state"
+      }
+    ],
+    "returns": [
+      {
+        "output": "scan_state",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  }
+}

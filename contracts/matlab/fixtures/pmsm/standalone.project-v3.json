@@ -1,0 +1,4548 @@
+{
+  "schemaVersion": 3,
+  "engineType": "matlab",
+  "rootSceneId": "standalone",
+  "scenes": {
+    "design_instance_main": {
+      "id": "design_instance_main",
+      "title": "PMSM完整计算流程",
+      "nodes": [
+        {
+          "id": "design_instance_caller_input",
+          "componentId": "pmsm.program.input",
+          "instanceName": "调用工况输入",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 280
+          }
+        },
+        {
+          "id": "design_instance_request",
+          "componentId": "pmsm.c.request",
+          "instanceName": "工况与配置输入",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 360,
+            "y": 280
+          }
+        },
+        {
+          "id": "design_instance_electromagnetic_design",
+          "componentId": "project.subsystem.design",
+          "instanceName": "电磁设计",
+          "nodeKind": "subsystem",
+          "executionKind": "subsystem",
+          "childSceneId": "design_instance_design",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 800,
+            "y": 0
+          },
+          "activeModes": [
+            "design"
+          ]
+        },
+        {
+          "id": "design_instance_operating_update",
+          "componentId": "project.subsystem.offdesign",
+          "instanceName": "非设计点更新",
+          "nodeKind": "subsystem",
+          "executionKind": "subsystem",
+          "childSceneId": "design_instance_offdesign",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 800,
+            "y": 380
+          },
+          "activeModes": [
+            "offdesign"
+          ]
+        },
+        {
+          "id": "design_instance_existing_model",
+          "componentId": "pmsm.c.existing-model",
+          "instanceName": "已有电机模型",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 800,
+            "y": 760
+          },
+          "activeModes": [
+            "thermal"
+          ]
+        },
+        {
+          "id": "design_instance_model_merge",
+          "componentId": "pmsm.c.merge",
+          "instanceName": "电机模型合流",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1230,
+            "y": 280
+          }
+        },
+        {
+          "id": "design_instance_thermal_analysis",
+          "componentId": "project.subsystem.thermal",
+          "instanceName": "热分析",
+          "nodeKind": "subsystem",
+          "executionKind": "subsystem",
+          "childSceneId": "design_instance_thermal",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1620,
+            "y": 280
+          }
+        },
+        {
+          "id": "design_instance_final_output",
+          "componentId": "pmsm.c.output",
+          "instanceName": "功率与最终结果",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 2100,
+            "y": 280
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "design_instance_e0",
+          "sourceNodeId": "design_instance_caller_input",
+          "sourcePort": "INPUT",
+          "targetNodeId": "design_instance_request",
+          "targetPort": "INPUT"
+        },
+        {
+          "id": "design_instance_e1",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "configuration",
+          "targetNodeId": "design_instance_electromagnetic_design",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "design_instance_e2",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "power_kw",
+          "targetNodeId": "design_instance_electromagnetic_design",
+          "targetPort": "power_kw"
+        },
+        {
+          "id": "design_instance_e3",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "speed_rpm",
+          "targetNodeId": "design_instance_electromagnetic_design",
+          "targetPort": "speed_rpm"
+        },
+        {
+          "id": "design_instance_e4",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "designModel",
+          "targetNodeId": "design_instance_operating_update",
+          "targetPort": "designModel"
+        },
+        {
+          "id": "design_instance_e5",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "power_kw",
+          "targetNodeId": "design_instance_operating_update",
+          "targetPort": "power_kw"
+        },
+        {
+          "id": "design_instance_e6",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "speed_rpm",
+          "targetNodeId": "design_instance_operating_update",
+          "targetPort": "speed_rpm"
+        },
+        {
+          "id": "design_instance_e7",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "designModel",
+          "targetNodeId": "design_instance_existing_model",
+          "targetPort": "designModel"
+        },
+        {
+          "id": "design_instance_e8",
+          "sourceNodeId": "design_instance_electromagnetic_design",
+          "sourcePort": "motorModel",
+          "targetNodeId": "design_instance_model_merge",
+          "targetPort": "designModel"
+        },
+        {
+          "id": "design_instance_e9",
+          "sourceNodeId": "design_instance_operating_update",
+          "sourcePort": "motorModel",
+          "targetNodeId": "design_instance_model_merge",
+          "targetPort": "offdesignModel"
+        },
+        {
+          "id": "design_instance_e10",
+          "sourceNodeId": "design_instance_existing_model",
+          "sourcePort": "motorModel",
+          "targetNodeId": "design_instance_model_merge",
+          "targetPort": "existingModel"
+        },
+        {
+          "id": "design_instance_e11",
+          "sourceNodeId": "design_instance_model_merge",
+          "sourcePort": "motorModel",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "motorModel"
+        },
+        {
+          "id": "design_instance_e12",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "T",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "T"
+        },
+        {
+          "id": "design_instance_e13",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "P",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "P"
+        },
+        {
+          "id": "design_instance_e14",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "WA",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "WA"
+        },
+        {
+          "id": "design_instance_e15",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "FAR",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "FAR"
+        },
+        {
+          "id": "design_instance_e16",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "D",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "D"
+        },
+        {
+          "id": "design_instance_e17",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "EFFH",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "EFFH"
+        },
+        {
+          "id": "design_instance_e18",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "temp_Fe",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "temp_Fe"
+        },
+        {
+          "id": "design_instance_e19",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "temp_Cu",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "temp_Cu"
+        },
+        {
+          "id": "design_instance_e20",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "free_temperature_mask",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "free_temperature_mask"
+        },
+        {
+          "id": "design_instance_e21",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "thermalMode",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "mode"
+        },
+        {
+          "id": "design_instance_e22",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "TPR_ref",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "TPR_ref"
+        },
+        {
+          "id": "design_instance_e23",
+          "sourceNodeId": "design_instance_request",
+          "sourcePort": "WCOR_ref",
+          "targetNodeId": "design_instance_thermal_analysis",
+          "targetPort": "WCOR_ref"
+        },
+        {
+          "id": "design_instance_e24",
+          "sourceNodeId": "design_instance_caller_input",
+          "sourcePort": "INPUT",
+          "targetNodeId": "design_instance_final_output",
+          "targetPort": "INPUT"
+        },
+        {
+          "id": "design_instance_e25",
+          "sourceNodeId": "design_instance_thermal_analysis",
+          "sourcePort": "motorModel",
+          "targetNodeId": "design_instance_final_output",
+          "targetPort": "motorModel"
+        },
+        {
+          "id": "design_instance_e26",
+          "sourceNodeId": "design_instance_thermal_analysis",
+          "sourcePort": "outletFlow",
+          "targetNodeId": "design_instance_final_output",
+          "targetPort": "outletFlow"
+        }
+      ],
+      "boundaryPorts": [
+        {
+          "id": "INPUT",
+          "name": "INPUT",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "bus",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_caller_input",
+            "childPortId": "INPUT"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_caller_input",
+              "childPortId": "INPUT"
+            }
+          ]
+        },
+        {
+          "id": "OUTPUT",
+          "name": "OUTPUT",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "bus",
+          "mapping": {
+            "childNodeId": "design_instance_final_output",
+            "childPortId": "OUTPUT"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "design_instance_design": {
+      "id": "design_instance_design",
+      "title": "电磁设计",
+      "nodes": [
+        {
+          "id": "design_instance_design_prepare",
+          "componentId": "pmsm.c.prepare-design",
+          "instanceName": "设计工况与参数",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_dimensions",
+          "componentId": "pmsm.c.dimensions",
+          "instanceName": "电机主尺寸",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 310,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_stator",
+          "componentId": "pmsm.c.stator",
+          "instanceName": "定子槽形与绕组",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 620,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_rotor",
+          "componentId": "pmsm.c.rotor",
+          "instanceName": "转子与磁钢",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 930,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_mass",
+          "componentId": "pmsm.c.mass",
+          "instanceName": "质量与冷却结构",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1240,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_design_losses",
+          "componentId": "pmsm.c.losses",
+          "instanceName": "设计点损耗",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1550,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_design_performance",
+          "componentId": "pmsm.c.performance",
+          "instanceName": "设计点性能",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1860,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_design_model",
+          "componentId": "pmsm.c.assemble",
+          "instanceName": "组装设计电机模型",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 2170,
+            "y": 100
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "design_instance_e0",
+          "sourceNodeId": "design_instance_design_prepare",
+          "sourcePort": "configuration",
+          "targetNodeId": "design_instance_dimensions",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "design_instance_e1",
+          "sourceNodeId": "design_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "design_instance_dimensions",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "design_instance_e2",
+          "sourceNodeId": "design_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "design_instance_stator",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "design_instance_e3",
+          "sourceNodeId": "design_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "design_instance_stator",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "design_instance_e4",
+          "sourceNodeId": "design_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "design_instance_rotor",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "design_instance_e5",
+          "sourceNodeId": "design_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "design_instance_rotor",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "design_instance_e6",
+          "sourceNodeId": "design_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "design_instance_mass",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "design_instance_e7",
+          "sourceNodeId": "design_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "design_instance_mass",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "design_instance_e8",
+          "sourceNodeId": "design_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "design_instance_design_losses",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "design_instance_e9",
+          "sourceNodeId": "design_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "design_instance_design_losses",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "design_instance_e10",
+          "sourceNodeId": "design_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "design_instance_design_performance",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "design_instance_e11",
+          "sourceNodeId": "design_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "design_instance_design_performance",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "design_instance_e12",
+          "sourceNodeId": "design_instance_dimensions",
+          "sourcePort": "geometry",
+          "targetNodeId": "design_instance_stator",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "design_instance_e13",
+          "sourceNodeId": "design_instance_stator",
+          "sourcePort": "geometry",
+          "targetNodeId": "design_instance_rotor",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "design_instance_e14",
+          "sourceNodeId": "design_instance_rotor",
+          "sourcePort": "geometry",
+          "targetNodeId": "design_instance_mass",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "design_instance_e15",
+          "sourceNodeId": "design_instance_mass",
+          "sourcePort": "geometry",
+          "targetNodeId": "design_instance_design_losses",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "design_instance_e16",
+          "sourceNodeId": "design_instance_mass",
+          "sourcePort": "geometry",
+          "targetNodeId": "design_instance_design_performance",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "design_instance_e17",
+          "sourceNodeId": "design_instance_mass",
+          "sourcePort": "geometry",
+          "targetNodeId": "design_instance_design_model",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "design_instance_e18",
+          "sourceNodeId": "design_instance_stator",
+          "sourcePort": "slot",
+          "targetNodeId": "design_instance_rotor",
+          "targetPort": "slot"
+        },
+        {
+          "id": "design_instance_e19",
+          "sourceNodeId": "design_instance_stator",
+          "sourcePort": "slot",
+          "targetNodeId": "design_instance_mass",
+          "targetPort": "slot"
+        },
+        {
+          "id": "design_instance_e20",
+          "sourceNodeId": "design_instance_stator",
+          "sourcePort": "slot",
+          "targetNodeId": "design_instance_design_losses",
+          "targetPort": "slot"
+        },
+        {
+          "id": "design_instance_e21",
+          "sourceNodeId": "design_instance_stator",
+          "sourcePort": "slot",
+          "targetNodeId": "design_instance_design_model",
+          "targetPort": "slot"
+        },
+        {
+          "id": "design_instance_e22",
+          "sourceNodeId": "design_instance_stator",
+          "sourcePort": "winding",
+          "targetNodeId": "design_instance_mass",
+          "targetPort": "winding"
+        },
+        {
+          "id": "design_instance_e23",
+          "sourceNodeId": "design_instance_stator",
+          "sourcePort": "winding",
+          "targetNodeId": "design_instance_design_losses",
+          "targetPort": "winding"
+        },
+        {
+          "id": "design_instance_e24",
+          "sourceNodeId": "design_instance_stator",
+          "sourcePort": "winding",
+          "targetNodeId": "design_instance_design_performance",
+          "targetPort": "winding"
+        },
+        {
+          "id": "design_instance_e25",
+          "sourceNodeId": "design_instance_stator",
+          "sourcePort": "winding",
+          "targetNodeId": "design_instance_design_model",
+          "targetPort": "winding"
+        },
+        {
+          "id": "design_instance_e26",
+          "sourceNodeId": "design_instance_rotor",
+          "sourcePort": "magnet",
+          "targetNodeId": "design_instance_mass",
+          "targetPort": "magnet"
+        },
+        {
+          "id": "design_instance_e27",
+          "sourceNodeId": "design_instance_rotor",
+          "sourcePort": "magnet",
+          "targetNodeId": "design_instance_design_losses",
+          "targetPort": "magnet"
+        },
+        {
+          "id": "design_instance_e28",
+          "sourceNodeId": "design_instance_rotor",
+          "sourcePort": "magnet",
+          "targetNodeId": "design_instance_design_model",
+          "targetPort": "magnet"
+        },
+        {
+          "id": "design_instance_e29",
+          "sourceNodeId": "design_instance_mass",
+          "sourcePort": "mass",
+          "targetNodeId": "design_instance_design_losses",
+          "targetPort": "mass"
+        },
+        {
+          "id": "design_instance_e30",
+          "sourceNodeId": "design_instance_mass",
+          "sourcePort": "mass",
+          "targetNodeId": "design_instance_design_performance",
+          "targetPort": "mass"
+        },
+        {
+          "id": "design_instance_e31",
+          "sourceNodeId": "design_instance_mass",
+          "sourcePort": "mass",
+          "targetNodeId": "design_instance_design_model",
+          "targetPort": "mass"
+        },
+        {
+          "id": "design_instance_e32",
+          "sourceNodeId": "design_instance_design_losses",
+          "sourcePort": "losses",
+          "targetNodeId": "design_instance_design_performance",
+          "targetPort": "losses"
+        },
+        {
+          "id": "design_instance_e33",
+          "sourceNodeId": "design_instance_design_losses",
+          "sourcePort": "losses",
+          "targetNodeId": "design_instance_design_model",
+          "targetPort": "losses"
+        },
+        {
+          "id": "design_instance_e34",
+          "sourceNodeId": "design_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "design_instance_design_model",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "design_instance_e35",
+          "sourceNodeId": "design_instance_design_performance",
+          "sourcePort": "performance",
+          "targetNodeId": "design_instance_design_model",
+          "targetPort": "performance"
+        }
+      ],
+      "boundaryPorts": [
+        {
+          "id": "configuration",
+          "name": "configuration",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "pmsm.configuration",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_design_prepare",
+            "childPortId": "configuration"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_design_prepare",
+              "childPortId": "configuration"
+            }
+          ]
+        },
+        {
+          "id": "power_kw",
+          "name": "power_kw",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_design_prepare",
+            "childPortId": "power_kw"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_design_prepare",
+              "childPortId": "power_kw"
+            }
+          ]
+        },
+        {
+          "id": "speed_rpm",
+          "name": "speed_rpm",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_design_prepare",
+            "childPortId": "speed_rpm"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_design_prepare",
+              "childPortId": "speed_rpm"
+            }
+          ]
+        },
+        {
+          "id": "motorModel",
+          "name": "motorModel",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.motorModel",
+          "mapping": {
+            "childNodeId": "design_instance_design_model",
+            "childPortId": "motorModel"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "design_instance_offdesign": {
+      "id": "design_instance_offdesign",
+      "title": "非设计点更新",
+      "nodes": [
+        {
+          "id": "design_instance_off_operating",
+          "componentId": "pmsm.c.off-operating",
+          "instanceName": "非设计点工况",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_off_losses",
+          "componentId": "pmsm.c.off-losses",
+          "instanceName": "非设计点损耗",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 310,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_off_performance",
+          "componentId": "pmsm.c.off-performance",
+          "instanceName": "非设计点性能",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 620,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_off_model",
+          "componentId": "pmsm.c.off-assemble",
+          "instanceName": "组装工作点模型",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 930,
+            "y": 100
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "design_instance_e0",
+          "sourceNodeId": "design_instance_off_operating",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "design_instance_off_losses",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "design_instance_e1",
+          "sourceNodeId": "design_instance_off_operating",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "design_instance_off_performance",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "design_instance_e2",
+          "sourceNodeId": "design_instance_off_losses",
+          "sourcePort": "losses",
+          "targetNodeId": "design_instance_off_performance",
+          "targetPort": "losses"
+        },
+        {
+          "id": "design_instance_e3",
+          "sourceNodeId": "design_instance_off_losses",
+          "sourcePort": "losses",
+          "targetNodeId": "design_instance_off_model",
+          "targetPort": "losses"
+        },
+        {
+          "id": "design_instance_e4",
+          "sourceNodeId": "design_instance_off_performance",
+          "sourcePort": "performance",
+          "targetNodeId": "design_instance_off_model",
+          "targetPort": "performance"
+        }
+      ],
+      "boundaryPorts": [
+        {
+          "id": "designModel",
+          "name": "designModel",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "pmsm.motorModel",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_off_operating",
+            "childPortId": "motorModel"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_off_operating",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "design_instance_off_losses",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "design_instance_off_performance",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "design_instance_off_model",
+              "childPortId": "designModel"
+            }
+          ]
+        },
+        {
+          "id": "power_kw",
+          "name": "power_kw",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_off_operating",
+            "childPortId": "power_kw"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_off_operating",
+              "childPortId": "power_kw"
+            }
+          ]
+        },
+        {
+          "id": "speed_rpm",
+          "name": "speed_rpm",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_off_operating",
+            "childPortId": "speed_rpm"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_off_operating",
+              "childPortId": "speed_rpm"
+            }
+          ]
+        },
+        {
+          "id": "motorModel",
+          "name": "motorModel",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.motorModel",
+          "mapping": {
+            "childNodeId": "design_instance_off_model",
+            "childPortId": "motorModel"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "design_instance_thermal": {
+      "id": "design_instance_thermal",
+      "title": "热分析",
+      "nodes": [
+        {
+          "id": "design_instance_thermal_boundary",
+          "componentId": "pmsm.c.boundary",
+          "instanceName": "热边界配置",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_thermal_geometry",
+          "componentId": "pmsm.c.thermal-geometry",
+          "instanceName": "热分析几何",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 310,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_flow_state",
+          "componentId": "pmsm.c.flow",
+          "instanceName": "冷却流动状态",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 620,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_thermal_material",
+          "componentId": "pmsm.c.material",
+          "instanceName": "材料热物性",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 930,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_cooling_network",
+          "componentId": "pmsm.c.network-hpcgv",
+          "instanceName": "HPCGV冷却网络",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1240,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_thermal_solve",
+          "componentId": "pmsm.c.solve",
+          "instanceName": "热平衡求解",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1550,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_outlet",
+          "componentId": "pmsm.c.outlet",
+          "instanceName": "出口状态与压损",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1860,
+            "y": 100
+          }
+        },
+        {
+          "id": "design_instance_thermal_apply",
+          "componentId": "pmsm.c.apply-thermal",
+          "instanceName": "热结果回写",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 2170,
+            "y": 100
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "design_instance_e0",
+          "sourceNodeId": "design_instance_thermal_boundary",
+          "sourcePort": "thermalBoundary",
+          "targetNodeId": "design_instance_flow_state",
+          "targetPort": "thermalBoundary"
+        },
+        {
+          "id": "design_instance_e1",
+          "sourceNodeId": "design_instance_thermal_boundary",
+          "sourcePort": "thermalBoundary",
+          "targetNodeId": "design_instance_cooling_network",
+          "targetPort": "thermalBoundary"
+        },
+        {
+          "id": "design_instance_e2",
+          "sourceNodeId": "design_instance_thermal_boundary",
+          "sourcePort": "thermalBoundary",
+          "targetNodeId": "design_instance_outlet",
+          "targetPort": "thermalBoundary"
+        },
+        {
+          "id": "design_instance_e3",
+          "sourceNodeId": "design_instance_thermal_boundary",
+          "sourcePort": "thermalBoundary",
+          "targetNodeId": "design_instance_thermal_apply",
+          "targetPort": "thermalBoundary"
+        },
+        {
+          "id": "design_instance_e4",
+          "sourceNodeId": "design_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "design_instance_flow_state",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "design_instance_e5",
+          "sourceNodeId": "design_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "design_instance_thermal_material",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "design_instance_e6",
+          "sourceNodeId": "design_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "design_instance_cooling_network",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "design_instance_e7",
+          "sourceNodeId": "design_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "design_instance_outlet",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "design_instance_e8",
+          "sourceNodeId": "design_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "design_instance_thermal_apply",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "design_instance_e9",
+          "sourceNodeId": "design_instance_flow_state",
+          "sourcePort": "flowState",
+          "targetNodeId": "design_instance_cooling_network",
+          "targetPort": "flowState"
+        },
+        {
+          "id": "design_instance_e10",
+          "sourceNodeId": "design_instance_flow_state",
+          "sourcePort": "flowState",
+          "targetNodeId": "design_instance_outlet",
+          "targetPort": "flowState"
+        },
+        {
+          "id": "design_instance_e11",
+          "sourceNodeId": "design_instance_thermal_material",
+          "sourcePort": "materialProperties",
+          "targetNodeId": "design_instance_cooling_network",
+          "targetPort": "materialProperties"
+        },
+        {
+          "id": "design_instance_e12",
+          "sourceNodeId": "design_instance_cooling_network",
+          "sourcePort": "thermalNetwork",
+          "targetNodeId": "design_instance_thermal_solve",
+          "targetPort": "thermalNetwork"
+        },
+        {
+          "id": "design_instance_e13",
+          "sourceNodeId": "design_instance_cooling_network",
+          "sourcePort": "coolingFlow",
+          "targetNodeId": "design_instance_outlet",
+          "targetPort": "coolingFlow"
+        },
+        {
+          "id": "design_instance_e14",
+          "sourceNodeId": "design_instance_cooling_network",
+          "sourcePort": "motorModel",
+          "targetNodeId": "design_instance_outlet",
+          "targetPort": "motorModel"
+        },
+        {
+          "id": "design_instance_e15",
+          "sourceNodeId": "design_instance_cooling_network",
+          "sourcePort": "motorModel",
+          "targetNodeId": "design_instance_thermal_apply",
+          "targetPort": "motorModel"
+        },
+        {
+          "id": "design_instance_e16",
+          "sourceNodeId": "design_instance_thermal_solve",
+          "sourcePort": "thermalResult",
+          "targetNodeId": "design_instance_outlet",
+          "targetPort": "thermalResult"
+        },
+        {
+          "id": "design_instance_e17",
+          "sourceNodeId": "design_instance_thermal_solve",
+          "sourcePort": "thermalResult",
+          "targetNodeId": "design_instance_thermal_apply",
+          "targetPort": "thermalResult"
+        },
+        {
+          "id": "design_instance_e18",
+          "sourceNodeId": "design_instance_outlet",
+          "sourcePort": "outletFlow",
+          "targetNodeId": "design_instance_thermal_apply",
+          "targetPort": "outletFlow"
+        }
+      ],
+      "boundaryPorts": [
+        {
+          "id": "motorModel",
+          "name": "motorModel",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "pmsm.motorModel",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_geometry",
+            "childPortId": "motorModel"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_geometry",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "design_instance_thermal_material",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "design_instance_cooling_network",
+              "childPortId": "motorModel"
+            }
+          ]
+        },
+        {
+          "id": "T",
+          "name": "T",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_boundary",
+            "childPortId": "T"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_boundary",
+              "childPortId": "T"
+            }
+          ]
+        },
+        {
+          "id": "P",
+          "name": "P",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_boundary",
+            "childPortId": "P"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_boundary",
+              "childPortId": "P"
+            }
+          ]
+        },
+        {
+          "id": "WA",
+          "name": "WA",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_boundary",
+            "childPortId": "WA"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_boundary",
+              "childPortId": "WA"
+            }
+          ]
+        },
+        {
+          "id": "FAR",
+          "name": "FAR",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_boundary",
+            "childPortId": "FAR"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_boundary",
+              "childPortId": "FAR"
+            }
+          ]
+        },
+        {
+          "id": "D",
+          "name": "D",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_boundary",
+            "childPortId": "D"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_boundary",
+              "childPortId": "D"
+            }
+          ]
+        },
+        {
+          "id": "EFFH",
+          "name": "EFFH",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_boundary",
+            "childPortId": "EFFH"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_boundary",
+              "childPortId": "EFFH"
+            }
+          ]
+        },
+        {
+          "id": "temp_Fe",
+          "name": "temp_Fe",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_boundary",
+            "childPortId": "temp_Fe"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_boundary",
+              "childPortId": "temp_Fe"
+            }
+          ]
+        },
+        {
+          "id": "temp_Cu",
+          "name": "temp_Cu",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_boundary",
+            "childPortId": "temp_Cu"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_boundary",
+              "childPortId": "temp_Cu"
+            }
+          ]
+        },
+        {
+          "id": "free_temperature_mask",
+          "name": "free_temperature_mask",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "array",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_boundary",
+            "childPortId": "free_temperature_mask"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_boundary",
+              "childPortId": "free_temperature_mask"
+            }
+          ]
+        },
+        {
+          "id": "mode",
+          "name": "mode",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "string",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_boundary",
+            "childPortId": "mode"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_boundary",
+              "childPortId": "mode"
+            }
+          ]
+        },
+        {
+          "id": "TPR_ref",
+          "name": "TPR_ref",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_boundary",
+            "childPortId": "TPR_ref"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_boundary",
+              "childPortId": "TPR_ref"
+            }
+          ]
+        },
+        {
+          "id": "WCOR_ref",
+          "name": "WCOR_ref",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "design_instance_thermal_boundary",
+            "childPortId": "WCOR_ref"
+          },
+          "mappings": [
+            {
+              "childNodeId": "design_instance_thermal_boundary",
+              "childPortId": "WCOR_ref"
+            }
+          ]
+        },
+        {
+          "id": "motorModel",
+          "name": "motorModel",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.motorModel",
+          "mapping": {
+            "childNodeId": "design_instance_thermal_apply",
+            "childPortId": "motorModel"
+          }
+        },
+        {
+          "id": "outletFlow",
+          "name": "outletFlow",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.outletFlow",
+          "mapping": {
+            "childNodeId": "design_instance_outlet",
+            "childPortId": "outletFlow"
+          }
+        },
+        {
+          "id": "thermalResult",
+          "name": "thermalResult",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.thermalResult",
+          "mapping": {
+            "childNodeId": "design_instance_thermal_solve",
+            "childPortId": "thermalResult"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "offdesign_instance_main": {
+      "id": "offdesign_instance_main",
+      "title": "PMSM完整计算流程",
+      "nodes": [
+        {
+          "id": "offdesign_instance_caller_input",
+          "componentId": "pmsm.program.input",
+          "instanceName": "调用工况输入",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 280
+          }
+        },
+        {
+          "id": "offdesign_instance_request",
+          "componentId": "pmsm.c.request",
+          "instanceName": "工况与配置输入",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 360,
+            "y": 280
+          }
+        },
+        {
+          "id": "offdesign_instance_electromagnetic_design",
+          "componentId": "project.subsystem.design",
+          "instanceName": "电磁设计",
+          "nodeKind": "subsystem",
+          "executionKind": "subsystem",
+          "childSceneId": "offdesign_instance_design",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 800,
+            "y": 0
+          },
+          "activeModes": [
+            "design"
+          ]
+        },
+        {
+          "id": "offdesign_instance_operating_update",
+          "componentId": "project.subsystem.offdesign",
+          "instanceName": "非设计点更新",
+          "nodeKind": "subsystem",
+          "executionKind": "subsystem",
+          "childSceneId": "offdesign_instance_offdesign",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 800,
+            "y": 380
+          },
+          "activeModes": [
+            "offdesign"
+          ]
+        },
+        {
+          "id": "offdesign_instance_existing_model",
+          "componentId": "pmsm.c.existing-model",
+          "instanceName": "已有电机模型",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 800,
+            "y": 760
+          },
+          "activeModes": [
+            "thermal"
+          ]
+        },
+        {
+          "id": "offdesign_instance_model_merge",
+          "componentId": "pmsm.c.merge",
+          "instanceName": "电机模型合流",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1230,
+            "y": 280
+          }
+        },
+        {
+          "id": "offdesign_instance_thermal_analysis",
+          "componentId": "project.subsystem.thermal",
+          "instanceName": "热分析",
+          "nodeKind": "subsystem",
+          "executionKind": "subsystem",
+          "childSceneId": "offdesign_instance_thermal",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1620,
+            "y": 280
+          }
+        },
+        {
+          "id": "offdesign_instance_final_output",
+          "componentId": "pmsm.c.output",
+          "instanceName": "功率与最终结果",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 2100,
+            "y": 280
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "offdesign_instance_e0",
+          "sourceNodeId": "offdesign_instance_caller_input",
+          "sourcePort": "INPUT",
+          "targetNodeId": "offdesign_instance_request",
+          "targetPort": "INPUT"
+        },
+        {
+          "id": "offdesign_instance_e1",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "configuration",
+          "targetNodeId": "offdesign_instance_electromagnetic_design",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "offdesign_instance_e2",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "power_kw",
+          "targetNodeId": "offdesign_instance_electromagnetic_design",
+          "targetPort": "power_kw"
+        },
+        {
+          "id": "offdesign_instance_e3",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "speed_rpm",
+          "targetNodeId": "offdesign_instance_electromagnetic_design",
+          "targetPort": "speed_rpm"
+        },
+        {
+          "id": "offdesign_instance_e4",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "designModel",
+          "targetNodeId": "offdesign_instance_operating_update",
+          "targetPort": "designModel"
+        },
+        {
+          "id": "offdesign_instance_e5",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "power_kw",
+          "targetNodeId": "offdesign_instance_operating_update",
+          "targetPort": "power_kw"
+        },
+        {
+          "id": "offdesign_instance_e6",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "speed_rpm",
+          "targetNodeId": "offdesign_instance_operating_update",
+          "targetPort": "speed_rpm"
+        },
+        {
+          "id": "offdesign_instance_e7",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "designModel",
+          "targetNodeId": "offdesign_instance_existing_model",
+          "targetPort": "designModel"
+        },
+        {
+          "id": "offdesign_instance_e8",
+          "sourceNodeId": "offdesign_instance_electromagnetic_design",
+          "sourcePort": "motorModel",
+          "targetNodeId": "offdesign_instance_model_merge",
+          "targetPort": "designModel"
+        },
+        {
+          "id": "offdesign_instance_e9",
+          "sourceNodeId": "offdesign_instance_operating_update",
+          "sourcePort": "motorModel",
+          "targetNodeId": "offdesign_instance_model_merge",
+          "targetPort": "offdesignModel"
+        },
+        {
+          "id": "offdesign_instance_e10",
+          "sourceNodeId": "offdesign_instance_existing_model",
+          "sourcePort": "motorModel",
+          "targetNodeId": "offdesign_instance_model_merge",
+          "targetPort": "existingModel"
+        },
+        {
+          "id": "offdesign_instance_e11",
+          "sourceNodeId": "offdesign_instance_model_merge",
+          "sourcePort": "motorModel",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "motorModel"
+        },
+        {
+          "id": "offdesign_instance_e12",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "T",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "T"
+        },
+        {
+          "id": "offdesign_instance_e13",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "P",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "P"
+        },
+        {
+          "id": "offdesign_instance_e14",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "WA",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "WA"
+        },
+        {
+          "id": "offdesign_instance_e15",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "FAR",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "FAR"
+        },
+        {
+          "id": "offdesign_instance_e16",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "D",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "D"
+        },
+        {
+          "id": "offdesign_instance_e17",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "EFFH",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "EFFH"
+        },
+        {
+          "id": "offdesign_instance_e18",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "temp_Fe",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "temp_Fe"
+        },
+        {
+          "id": "offdesign_instance_e19",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "temp_Cu",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "temp_Cu"
+        },
+        {
+          "id": "offdesign_instance_e20",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "free_temperature_mask",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "free_temperature_mask"
+        },
+        {
+          "id": "offdesign_instance_e21",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "thermalMode",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "mode"
+        },
+        {
+          "id": "offdesign_instance_e22",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "TPR_ref",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "TPR_ref"
+        },
+        {
+          "id": "offdesign_instance_e23",
+          "sourceNodeId": "offdesign_instance_request",
+          "sourcePort": "WCOR_ref",
+          "targetNodeId": "offdesign_instance_thermal_analysis",
+          "targetPort": "WCOR_ref"
+        },
+        {
+          "id": "offdesign_instance_e24",
+          "sourceNodeId": "offdesign_instance_caller_input",
+          "sourcePort": "INPUT",
+          "targetNodeId": "offdesign_instance_final_output",
+          "targetPort": "INPUT"
+        },
+        {
+          "id": "offdesign_instance_e25",
+          "sourceNodeId": "offdesign_instance_thermal_analysis",
+          "sourcePort": "motorModel",
+          "targetNodeId": "offdesign_instance_final_output",
+          "targetPort": "motorModel"
+        },
+        {
+          "id": "offdesign_instance_e26",
+          "sourceNodeId": "offdesign_instance_thermal_analysis",
+          "sourcePort": "outletFlow",
+          "targetNodeId": "offdesign_instance_final_output",
+          "targetPort": "outletFlow"
+        }
+      ],
+      "boundaryPorts": [
+        {
+          "id": "INPUT",
+          "name": "INPUT",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "bus",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_caller_input",
+            "childPortId": "INPUT"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_caller_input",
+              "childPortId": "INPUT"
+            }
+          ]
+        },
+        {
+          "id": "OUTPUT",
+          "name": "OUTPUT",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "bus",
+          "mapping": {
+            "childNodeId": "offdesign_instance_final_output",
+            "childPortId": "OUTPUT"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "offdesign_instance_design": {
+      "id": "offdesign_instance_design",
+      "title": "电磁设计",
+      "nodes": [
+        {
+          "id": "offdesign_instance_design_prepare",
+          "componentId": "pmsm.c.prepare-design",
+          "instanceName": "设计工况与参数",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_dimensions",
+          "componentId": "pmsm.c.dimensions",
+          "instanceName": "电机主尺寸",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 310,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_stator",
+          "componentId": "pmsm.c.stator",
+          "instanceName": "定子槽形与绕组",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 620,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_rotor",
+          "componentId": "pmsm.c.rotor",
+          "instanceName": "转子与磁钢",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 930,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_mass",
+          "componentId": "pmsm.c.mass",
+          "instanceName": "质量与冷却结构",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1240,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_design_losses",
+          "componentId": "pmsm.c.losses",
+          "instanceName": "设计点损耗",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1550,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_design_performance",
+          "componentId": "pmsm.c.performance",
+          "instanceName": "设计点性能",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1860,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_design_model",
+          "componentId": "pmsm.c.assemble",
+          "instanceName": "组装设计电机模型",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 2170,
+            "y": 100
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "offdesign_instance_e0",
+          "sourceNodeId": "offdesign_instance_design_prepare",
+          "sourcePort": "configuration",
+          "targetNodeId": "offdesign_instance_dimensions",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "offdesign_instance_e1",
+          "sourceNodeId": "offdesign_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "offdesign_instance_dimensions",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "offdesign_instance_e2",
+          "sourceNodeId": "offdesign_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "offdesign_instance_stator",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "offdesign_instance_e3",
+          "sourceNodeId": "offdesign_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "offdesign_instance_stator",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "offdesign_instance_e4",
+          "sourceNodeId": "offdesign_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "offdesign_instance_rotor",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "offdesign_instance_e5",
+          "sourceNodeId": "offdesign_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "offdesign_instance_rotor",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "offdesign_instance_e6",
+          "sourceNodeId": "offdesign_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "offdesign_instance_mass",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "offdesign_instance_e7",
+          "sourceNodeId": "offdesign_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "offdesign_instance_mass",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "offdesign_instance_e8",
+          "sourceNodeId": "offdesign_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "offdesign_instance_design_losses",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "offdesign_instance_e9",
+          "sourceNodeId": "offdesign_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "offdesign_instance_design_losses",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "offdesign_instance_e10",
+          "sourceNodeId": "offdesign_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "offdesign_instance_design_performance",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "offdesign_instance_e11",
+          "sourceNodeId": "offdesign_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "offdesign_instance_design_performance",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "offdesign_instance_e12",
+          "sourceNodeId": "offdesign_instance_dimensions",
+          "sourcePort": "geometry",
+          "targetNodeId": "offdesign_instance_stator",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "offdesign_instance_e13",
+          "sourceNodeId": "offdesign_instance_stator",
+          "sourcePort": "geometry",
+          "targetNodeId": "offdesign_instance_rotor",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "offdesign_instance_e14",
+          "sourceNodeId": "offdesign_instance_rotor",
+          "sourcePort": "geometry",
+          "targetNodeId": "offdesign_instance_mass",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "offdesign_instance_e15",
+          "sourceNodeId": "offdesign_instance_mass",
+          "sourcePort": "geometry",
+          "targetNodeId": "offdesign_instance_design_losses",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "offdesign_instance_e16",
+          "sourceNodeId": "offdesign_instance_mass",
+          "sourcePort": "geometry",
+          "targetNodeId": "offdesign_instance_design_performance",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "offdesign_instance_e17",
+          "sourceNodeId": "offdesign_instance_mass",
+          "sourcePort": "geometry",
+          "targetNodeId": "offdesign_instance_design_model",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "offdesign_instance_e18",
+          "sourceNodeId": "offdesign_instance_stator",
+          "sourcePort": "slot",
+          "targetNodeId": "offdesign_instance_rotor",
+          "targetPort": "slot"
+        },
+        {
+          "id": "offdesign_instance_e19",
+          "sourceNodeId": "offdesign_instance_stator",
+          "sourcePort": "slot",
+          "targetNodeId": "offdesign_instance_mass",
+          "targetPort": "slot"
+        },
+        {
+          "id": "offdesign_instance_e20",
+          "sourceNodeId": "offdesign_instance_stator",
+          "sourcePort": "slot",
+          "targetNodeId": "offdesign_instance_design_losses",
+          "targetPort": "slot"
+        },
+        {
+          "id": "offdesign_instance_e21",
+          "sourceNodeId": "offdesign_instance_stator",
+          "sourcePort": "slot",
+          "targetNodeId": "offdesign_instance_design_model",
+          "targetPort": "slot"
+        },
+        {
+          "id": "offdesign_instance_e22",
+          "sourceNodeId": "offdesign_instance_stator",
+          "sourcePort": "winding",
+          "targetNodeId": "offdesign_instance_mass",
+          "targetPort": "winding"
+        },
+        {
+          "id": "offdesign_instance_e23",
+          "sourceNodeId": "offdesign_instance_stator",
+          "sourcePort": "winding",
+          "targetNodeId": "offdesign_instance_design_losses",
+          "targetPort": "winding"
+        },
+        {
+          "id": "offdesign_instance_e24",
+          "sourceNodeId": "offdesign_instance_stator",
+          "sourcePort": "winding",
+          "targetNodeId": "offdesign_instance_design_performance",
+          "targetPort": "winding"
+        },
+        {
+          "id": "offdesign_instance_e25",
+          "sourceNodeId": "offdesign_instance_stator",
+          "sourcePort": "winding",
+          "targetNodeId": "offdesign_instance_design_model",
+          "targetPort": "winding"
+        },
+        {
+          "id": "offdesign_instance_e26",
+          "sourceNodeId": "offdesign_instance_rotor",
+          "sourcePort": "magnet",
+          "targetNodeId": "offdesign_instance_mass",
+          "targetPort": "magnet"
+        },
+        {
+          "id": "offdesign_instance_e27",
+          "sourceNodeId": "offdesign_instance_rotor",
+          "sourcePort": "magnet",
+          "targetNodeId": "offdesign_instance_design_losses",
+          "targetPort": "magnet"
+        },
+        {
+          "id": "offdesign_instance_e28",
+          "sourceNodeId": "offdesign_instance_rotor",
+          "sourcePort": "magnet",
+          "targetNodeId": "offdesign_instance_design_model",
+          "targetPort": "magnet"
+        },
+        {
+          "id": "offdesign_instance_e29",
+          "sourceNodeId": "offdesign_instance_mass",
+          "sourcePort": "mass",
+          "targetNodeId": "offdesign_instance_design_losses",
+          "targetPort": "mass"
+        },
+        {
+          "id": "offdesign_instance_e30",
+          "sourceNodeId": "offdesign_instance_mass",
+          "sourcePort": "mass",
+          "targetNodeId": "offdesign_instance_design_performance",
+          "targetPort": "mass"
+        },
+        {
+          "id": "offdesign_instance_e31",
+          "sourceNodeId": "offdesign_instance_mass",
+          "sourcePort": "mass",
+          "targetNodeId": "offdesign_instance_design_model",
+          "targetPort": "mass"
+        },
+        {
+          "id": "offdesign_instance_e32",
+          "sourceNodeId": "offdesign_instance_design_losses",
+          "sourcePort": "losses",
+          "targetNodeId": "offdesign_instance_design_performance",
+          "targetPort": "losses"
+        },
+        {
+          "id": "offdesign_instance_e33",
+          "sourceNodeId": "offdesign_instance_design_losses",
+          "sourcePort": "losses",
+          "targetNodeId": "offdesign_instance_design_model",
+          "targetPort": "losses"
+        },
+        {
+          "id": "offdesign_instance_e34",
+          "sourceNodeId": "offdesign_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "offdesign_instance_design_model",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "offdesign_instance_e35",
+          "sourceNodeId": "offdesign_instance_design_performance",
+          "sourcePort": "performance",
+          "targetNodeId": "offdesign_instance_design_model",
+          "targetPort": "performance"
+        }
+      ],
+      "boundaryPorts": [
+        {
+          "id": "configuration",
+          "name": "configuration",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "pmsm.configuration",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_design_prepare",
+            "childPortId": "configuration"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_design_prepare",
+              "childPortId": "configuration"
+            }
+          ]
+        },
+        {
+          "id": "power_kw",
+          "name": "power_kw",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_design_prepare",
+            "childPortId": "power_kw"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_design_prepare",
+              "childPortId": "power_kw"
+            }
+          ]
+        },
+        {
+          "id": "speed_rpm",
+          "name": "speed_rpm",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_design_prepare",
+            "childPortId": "speed_rpm"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_design_prepare",
+              "childPortId": "speed_rpm"
+            }
+          ]
+        },
+        {
+          "id": "motorModel",
+          "name": "motorModel",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.motorModel",
+          "mapping": {
+            "childNodeId": "offdesign_instance_design_model",
+            "childPortId": "motorModel"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "offdesign_instance_offdesign": {
+      "id": "offdesign_instance_offdesign",
+      "title": "非设计点更新",
+      "nodes": [
+        {
+          "id": "offdesign_instance_off_operating",
+          "componentId": "pmsm.c.off-operating",
+          "instanceName": "非设计点工况",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_off_losses",
+          "componentId": "pmsm.c.off-losses",
+          "instanceName": "非设计点损耗",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 310,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_off_performance",
+          "componentId": "pmsm.c.off-performance",
+          "instanceName": "非设计点性能",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 620,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_off_model",
+          "componentId": "pmsm.c.off-assemble",
+          "instanceName": "组装工作点模型",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 930,
+            "y": 100
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "offdesign_instance_e0",
+          "sourceNodeId": "offdesign_instance_off_operating",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "offdesign_instance_off_losses",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "offdesign_instance_e1",
+          "sourceNodeId": "offdesign_instance_off_operating",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "offdesign_instance_off_performance",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "offdesign_instance_e2",
+          "sourceNodeId": "offdesign_instance_off_losses",
+          "sourcePort": "losses",
+          "targetNodeId": "offdesign_instance_off_performance",
+          "targetPort": "losses"
+        },
+        {
+          "id": "offdesign_instance_e3",
+          "sourceNodeId": "offdesign_instance_off_losses",
+          "sourcePort": "losses",
+          "targetNodeId": "offdesign_instance_off_model",
+          "targetPort": "losses"
+        },
+        {
+          "id": "offdesign_instance_e4",
+          "sourceNodeId": "offdesign_instance_off_performance",
+          "sourcePort": "performance",
+          "targetNodeId": "offdesign_instance_off_model",
+          "targetPort": "performance"
+        }
+      ],
+      "boundaryPorts": [
+        {
+          "id": "designModel",
+          "name": "designModel",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "pmsm.motorModel",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_off_operating",
+            "childPortId": "motorModel"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_off_operating",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "offdesign_instance_off_losses",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "offdesign_instance_off_performance",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "offdesign_instance_off_model",
+              "childPortId": "designModel"
+            }
+          ]
+        },
+        {
+          "id": "power_kw",
+          "name": "power_kw",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_off_operating",
+            "childPortId": "power_kw"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_off_operating",
+              "childPortId": "power_kw"
+            }
+          ]
+        },
+        {
+          "id": "speed_rpm",
+          "name": "speed_rpm",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_off_operating",
+            "childPortId": "speed_rpm"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_off_operating",
+              "childPortId": "speed_rpm"
+            }
+          ]
+        },
+        {
+          "id": "motorModel",
+          "name": "motorModel",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.motorModel",
+          "mapping": {
+            "childNodeId": "offdesign_instance_off_model",
+            "childPortId": "motorModel"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "offdesign_instance_thermal": {
+      "id": "offdesign_instance_thermal",
+      "title": "热分析",
+      "nodes": [
+        {
+          "id": "offdesign_instance_thermal_boundary",
+          "componentId": "pmsm.c.boundary",
+          "instanceName": "热边界配置",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_thermal_geometry",
+          "componentId": "pmsm.c.thermal-geometry",
+          "instanceName": "热分析几何",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 310,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_flow_state",
+          "componentId": "pmsm.c.flow",
+          "instanceName": "冷却流动状态",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 620,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_thermal_material",
+          "componentId": "pmsm.c.material",
+          "instanceName": "材料热物性",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 930,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_cooling_network",
+          "componentId": "pmsm.c.network-hpcgv",
+          "instanceName": "HPCGV冷却网络",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1240,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_thermal_solve",
+          "componentId": "pmsm.c.solve",
+          "instanceName": "热平衡求解",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1550,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_outlet",
+          "componentId": "pmsm.c.outlet",
+          "instanceName": "出口状态与压损",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1860,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_instance_thermal_apply",
+          "componentId": "pmsm.c.apply-thermal",
+          "instanceName": "热结果回写",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 2170,
+            "y": 100
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "offdesign_instance_e0",
+          "sourceNodeId": "offdesign_instance_thermal_boundary",
+          "sourcePort": "thermalBoundary",
+          "targetNodeId": "offdesign_instance_flow_state",
+          "targetPort": "thermalBoundary"
+        },
+        {
+          "id": "offdesign_instance_e1",
+          "sourceNodeId": "offdesign_instance_thermal_boundary",
+          "sourcePort": "thermalBoundary",
+          "targetNodeId": "offdesign_instance_cooling_network",
+          "targetPort": "thermalBoundary"
+        },
+        {
+          "id": "offdesign_instance_e2",
+          "sourceNodeId": "offdesign_instance_thermal_boundary",
+          "sourcePort": "thermalBoundary",
+          "targetNodeId": "offdesign_instance_outlet",
+          "targetPort": "thermalBoundary"
+        },
+        {
+          "id": "offdesign_instance_e3",
+          "sourceNodeId": "offdesign_instance_thermal_boundary",
+          "sourcePort": "thermalBoundary",
+          "targetNodeId": "offdesign_instance_thermal_apply",
+          "targetPort": "thermalBoundary"
+        },
+        {
+          "id": "offdesign_instance_e4",
+          "sourceNodeId": "offdesign_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "offdesign_instance_flow_state",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "offdesign_instance_e5",
+          "sourceNodeId": "offdesign_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "offdesign_instance_thermal_material",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "offdesign_instance_e6",
+          "sourceNodeId": "offdesign_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "offdesign_instance_cooling_network",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "offdesign_instance_e7",
+          "sourceNodeId": "offdesign_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "offdesign_instance_outlet",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "offdesign_instance_e8",
+          "sourceNodeId": "offdesign_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "offdesign_instance_thermal_apply",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "offdesign_instance_e9",
+          "sourceNodeId": "offdesign_instance_flow_state",
+          "sourcePort": "flowState",
+          "targetNodeId": "offdesign_instance_cooling_network",
+          "targetPort": "flowState"
+        },
+        {
+          "id": "offdesign_instance_e10",
+          "sourceNodeId": "offdesign_instance_flow_state",
+          "sourcePort": "flowState",
+          "targetNodeId": "offdesign_instance_outlet",
+          "targetPort": "flowState"
+        },
+        {
+          "id": "offdesign_instance_e11",
+          "sourceNodeId": "offdesign_instance_thermal_material",
+          "sourcePort": "materialProperties",
+          "targetNodeId": "offdesign_instance_cooling_network",
+          "targetPort": "materialProperties"
+        },
+        {
+          "id": "offdesign_instance_e12",
+          "sourceNodeId": "offdesign_instance_cooling_network",
+          "sourcePort": "thermalNetwork",
+          "targetNodeId": "offdesign_instance_thermal_solve",
+          "targetPort": "thermalNetwork"
+        },
+        {
+          "id": "offdesign_instance_e13",
+          "sourceNodeId": "offdesign_instance_cooling_network",
+          "sourcePort": "coolingFlow",
+          "targetNodeId": "offdesign_instance_outlet",
+          "targetPort": "coolingFlow"
+        },
+        {
+          "id": "offdesign_instance_e14",
+          "sourceNodeId": "offdesign_instance_cooling_network",
+          "sourcePort": "motorModel",
+          "targetNodeId": "offdesign_instance_outlet",
+          "targetPort": "motorModel"
+        },
+        {
+          "id": "offdesign_instance_e15",
+          "sourceNodeId": "offdesign_instance_cooling_network",
+          "sourcePort": "motorModel",
+          "targetNodeId": "offdesign_instance_thermal_apply",
+          "targetPort": "motorModel"
+        },
+        {
+          "id": "offdesign_instance_e16",
+          "sourceNodeId": "offdesign_instance_thermal_solve",
+          "sourcePort": "thermalResult",
+          "targetNodeId": "offdesign_instance_outlet",
+          "targetPort": "thermalResult"
+        },
+        {
+          "id": "offdesign_instance_e17",
+          "sourceNodeId": "offdesign_instance_thermal_solve",
+          "sourcePort": "thermalResult",
+          "targetNodeId": "offdesign_instance_thermal_apply",
+          "targetPort": "thermalResult"
+        },
+        {
+          "id": "offdesign_instance_e18",
+          "sourceNodeId": "offdesign_instance_outlet",
+          "sourcePort": "outletFlow",
+          "targetNodeId": "offdesign_instance_thermal_apply",
+          "targetPort": "outletFlow"
+        }
+      ],
+      "boundaryPorts": [
+        {
+          "id": "motorModel",
+          "name": "motorModel",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "pmsm.motorModel",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_geometry",
+            "childPortId": "motorModel"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_geometry",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "offdesign_instance_thermal_material",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "offdesign_instance_cooling_network",
+              "childPortId": "motorModel"
+            }
+          ]
+        },
+        {
+          "id": "T",
+          "name": "T",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_boundary",
+            "childPortId": "T"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_boundary",
+              "childPortId": "T"
+            }
+          ]
+        },
+        {
+          "id": "P",
+          "name": "P",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_boundary",
+            "childPortId": "P"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_boundary",
+              "childPortId": "P"
+            }
+          ]
+        },
+        {
+          "id": "WA",
+          "name": "WA",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_boundary",
+            "childPortId": "WA"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_boundary",
+              "childPortId": "WA"
+            }
+          ]
+        },
+        {
+          "id": "FAR",
+          "name": "FAR",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_boundary",
+            "childPortId": "FAR"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_boundary",
+              "childPortId": "FAR"
+            }
+          ]
+        },
+        {
+          "id": "D",
+          "name": "D",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_boundary",
+            "childPortId": "D"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_boundary",
+              "childPortId": "D"
+            }
+          ]
+        },
+        {
+          "id": "EFFH",
+          "name": "EFFH",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_boundary",
+            "childPortId": "EFFH"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_boundary",
+              "childPortId": "EFFH"
+            }
+          ]
+        },
+        {
+          "id": "temp_Fe",
+          "name": "temp_Fe",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_boundary",
+            "childPortId": "temp_Fe"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_boundary",
+              "childPortId": "temp_Fe"
+            }
+          ]
+        },
+        {
+          "id": "temp_Cu",
+          "name": "temp_Cu",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_boundary",
+            "childPortId": "temp_Cu"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_boundary",
+              "childPortId": "temp_Cu"
+            }
+          ]
+        },
+        {
+          "id": "free_temperature_mask",
+          "name": "free_temperature_mask",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "array",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_boundary",
+            "childPortId": "free_temperature_mask"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_boundary",
+              "childPortId": "free_temperature_mask"
+            }
+          ]
+        },
+        {
+          "id": "mode",
+          "name": "mode",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "string",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_boundary",
+            "childPortId": "mode"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_boundary",
+              "childPortId": "mode"
+            }
+          ]
+        },
+        {
+          "id": "TPR_ref",
+          "name": "TPR_ref",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_boundary",
+            "childPortId": "TPR_ref"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_boundary",
+              "childPortId": "TPR_ref"
+            }
+          ]
+        },
+        {
+          "id": "WCOR_ref",
+          "name": "WCOR_ref",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_boundary",
+            "childPortId": "WCOR_ref"
+          },
+          "mappings": [
+            {
+              "childNodeId": "offdesign_instance_thermal_boundary",
+              "childPortId": "WCOR_ref"
+            }
+          ]
+        },
+        {
+          "id": "motorModel",
+          "name": "motorModel",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.motorModel",
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_apply",
+            "childPortId": "motorModel"
+          }
+        },
+        {
+          "id": "outletFlow",
+          "name": "outletFlow",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.outletFlow",
+          "mapping": {
+            "childNodeId": "offdesign_instance_outlet",
+            "childPortId": "outletFlow"
+          }
+        },
+        {
+          "id": "thermalResult",
+          "name": "thermalResult",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.thermalResult",
+          "mapping": {
+            "childNodeId": "offdesign_instance_thermal_solve",
+            "childPortId": "thermalResult"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "thermal_instance_main": {
+      "id": "thermal_instance_main",
+      "title": "PMSM完整计算流程",
+      "nodes": [
+        {
+          "id": "thermal_instance_caller_input",
+          "componentId": "pmsm.program.input",
+          "instanceName": "调用工况输入",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 280
+          }
+        },
+        {
+          "id": "thermal_instance_request",
+          "componentId": "pmsm.c.request",
+          "instanceName": "工况与配置输入",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 360,
+            "y": 280
+          }
+        },
+        {
+          "id": "thermal_instance_electromagnetic_design",
+          "componentId": "project.subsystem.design",
+          "instanceName": "电磁设计",
+          "nodeKind": "subsystem",
+          "executionKind": "subsystem",
+          "childSceneId": "thermal_instance_design",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 800,
+            "y": 0
+          },
+          "activeModes": [
+            "design"
+          ]
+        },
+        {
+          "id": "thermal_instance_operating_update",
+          "componentId": "project.subsystem.offdesign",
+          "instanceName": "非设计点更新",
+          "nodeKind": "subsystem",
+          "executionKind": "subsystem",
+          "childSceneId": "thermal_instance_offdesign",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 800,
+            "y": 380
+          },
+          "activeModes": [
+            "offdesign"
+          ]
+        },
+        {
+          "id": "thermal_instance_existing_model",
+          "componentId": "pmsm.c.existing-model",
+          "instanceName": "已有电机模型",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 800,
+            "y": 760
+          },
+          "activeModes": [
+            "thermal"
+          ]
+        },
+        {
+          "id": "thermal_instance_model_merge",
+          "componentId": "pmsm.c.merge",
+          "instanceName": "电机模型合流",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1230,
+            "y": 280
+          }
+        },
+        {
+          "id": "thermal_instance_thermal_analysis",
+          "componentId": "project.subsystem.thermal",
+          "instanceName": "热分析",
+          "nodeKind": "subsystem",
+          "executionKind": "subsystem",
+          "childSceneId": "thermal_instance_thermal",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1620,
+            "y": 280
+          }
+        },
+        {
+          "id": "thermal_instance_final_output",
+          "componentId": "pmsm.c.output",
+          "instanceName": "功率与最终结果",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 2100,
+            "y": 280
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "thermal_instance_e0",
+          "sourceNodeId": "thermal_instance_caller_input",
+          "sourcePort": "INPUT",
+          "targetNodeId": "thermal_instance_request",
+          "targetPort": "INPUT"
+        },
+        {
+          "id": "thermal_instance_e1",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "configuration",
+          "targetNodeId": "thermal_instance_electromagnetic_design",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "thermal_instance_e2",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "power_kw",
+          "targetNodeId": "thermal_instance_electromagnetic_design",
+          "targetPort": "power_kw"
+        },
+        {
+          "id": "thermal_instance_e3",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "speed_rpm",
+          "targetNodeId": "thermal_instance_electromagnetic_design",
+          "targetPort": "speed_rpm"
+        },
+        {
+          "id": "thermal_instance_e4",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "designModel",
+          "targetNodeId": "thermal_instance_operating_update",
+          "targetPort": "designModel"
+        },
+        {
+          "id": "thermal_instance_e5",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "power_kw",
+          "targetNodeId": "thermal_instance_operating_update",
+          "targetPort": "power_kw"
+        },
+        {
+          "id": "thermal_instance_e6",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "speed_rpm",
+          "targetNodeId": "thermal_instance_operating_update",
+          "targetPort": "speed_rpm"
+        },
+        {
+          "id": "thermal_instance_e7",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "designModel",
+          "targetNodeId": "thermal_instance_existing_model",
+          "targetPort": "designModel"
+        },
+        {
+          "id": "thermal_instance_e8",
+          "sourceNodeId": "thermal_instance_electromagnetic_design",
+          "sourcePort": "motorModel",
+          "targetNodeId": "thermal_instance_model_merge",
+          "targetPort": "designModel"
+        },
+        {
+          "id": "thermal_instance_e9",
+          "sourceNodeId": "thermal_instance_operating_update",
+          "sourcePort": "motorModel",
+          "targetNodeId": "thermal_instance_model_merge",
+          "targetPort": "offdesignModel"
+        },
+        {
+          "id": "thermal_instance_e10",
+          "sourceNodeId": "thermal_instance_existing_model",
+          "sourcePort": "motorModel",
+          "targetNodeId": "thermal_instance_model_merge",
+          "targetPort": "existingModel"
+        },
+        {
+          "id": "thermal_instance_e11",
+          "sourceNodeId": "thermal_instance_model_merge",
+          "sourcePort": "motorModel",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "motorModel"
+        },
+        {
+          "id": "thermal_instance_e12",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "T",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "T"
+        },
+        {
+          "id": "thermal_instance_e13",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "P",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "P"
+        },
+        {
+          "id": "thermal_instance_e14",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "WA",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "WA"
+        },
+        {
+          "id": "thermal_instance_e15",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "FAR",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "FAR"
+        },
+        {
+          "id": "thermal_instance_e16",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "D",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "D"
+        },
+        {
+          "id": "thermal_instance_e17",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "EFFH",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "EFFH"
+        },
+        {
+          "id": "thermal_instance_e18",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "temp_Fe",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "temp_Fe"
+        },
+        {
+          "id": "thermal_instance_e19",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "temp_Cu",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "temp_Cu"
+        },
+        {
+          "id": "thermal_instance_e20",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "free_temperature_mask",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "free_temperature_mask"
+        },
+        {
+          "id": "thermal_instance_e21",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "thermalMode",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "mode"
+        },
+        {
+          "id": "thermal_instance_e22",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "TPR_ref",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "TPR_ref"
+        },
+        {
+          "id": "thermal_instance_e23",
+          "sourceNodeId": "thermal_instance_request",
+          "sourcePort": "WCOR_ref",
+          "targetNodeId": "thermal_instance_thermal_analysis",
+          "targetPort": "WCOR_ref"
+        },
+        {
+          "id": "thermal_instance_e24",
+          "sourceNodeId": "thermal_instance_caller_input",
+          "sourcePort": "INPUT",
+          "targetNodeId": "thermal_instance_final_output",
+          "targetPort": "INPUT"
+        },
+        {
+          "id": "thermal_instance_e25",
+          "sourceNodeId": "thermal_instance_thermal_analysis",
+          "sourcePort": "motorModel",
+          "targetNodeId": "thermal_instance_final_output",
+          "targetPort": "motorModel"
+        },
+        {
+          "id": "thermal_instance_e26",
+          "sourceNodeId": "thermal_instance_thermal_analysis",
+          "sourcePort": "outletFlow",
+          "targetNodeId": "thermal_instance_final_output",
+          "targetPort": "outletFlow"
+        }
+      ],
+      "boundaryPorts": [
+        {
+          "id": "INPUT",
+          "name": "INPUT",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "bus",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_caller_input",
+            "childPortId": "INPUT"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_caller_input",
+              "childPortId": "INPUT"
+            }
+          ]
+        },
+        {
+          "id": "OUTPUT",
+          "name": "OUTPUT",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "bus",
+          "mapping": {
+            "childNodeId": "thermal_instance_final_output",
+            "childPortId": "OUTPUT"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "thermal_instance_design": {
+      "id": "thermal_instance_design",
+      "title": "电磁设计",
+      "nodes": [
+        {
+          "id": "thermal_instance_design_prepare",
+          "componentId": "pmsm.c.prepare-design",
+          "instanceName": "设计工况与参数",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_dimensions",
+          "componentId": "pmsm.c.dimensions",
+          "instanceName": "电机主尺寸",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 310,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_stator",
+          "componentId": "pmsm.c.stator",
+          "instanceName": "定子槽形与绕组",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 620,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_rotor",
+          "componentId": "pmsm.c.rotor",
+          "instanceName": "转子与磁钢",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 930,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_mass",
+          "componentId": "pmsm.c.mass",
+          "instanceName": "质量与冷却结构",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1240,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_design_losses",
+          "componentId": "pmsm.c.losses",
+          "instanceName": "设计点损耗",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1550,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_design_performance",
+          "componentId": "pmsm.c.performance",
+          "instanceName": "设计点性能",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1860,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_design_model",
+          "componentId": "pmsm.c.assemble",
+          "instanceName": "组装设计电机模型",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 2170,
+            "y": 100
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "thermal_instance_e0",
+          "sourceNodeId": "thermal_instance_design_prepare",
+          "sourcePort": "configuration",
+          "targetNodeId": "thermal_instance_dimensions",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "thermal_instance_e1",
+          "sourceNodeId": "thermal_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "thermal_instance_dimensions",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "thermal_instance_e2",
+          "sourceNodeId": "thermal_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "thermal_instance_stator",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "thermal_instance_e3",
+          "sourceNodeId": "thermal_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "thermal_instance_stator",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "thermal_instance_e4",
+          "sourceNodeId": "thermal_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "thermal_instance_rotor",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "thermal_instance_e5",
+          "sourceNodeId": "thermal_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "thermal_instance_rotor",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "thermal_instance_e6",
+          "sourceNodeId": "thermal_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "thermal_instance_mass",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "thermal_instance_e7",
+          "sourceNodeId": "thermal_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "thermal_instance_mass",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "thermal_instance_e8",
+          "sourceNodeId": "thermal_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "thermal_instance_design_losses",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "thermal_instance_e9",
+          "sourceNodeId": "thermal_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "thermal_instance_design_losses",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "thermal_instance_e10",
+          "sourceNodeId": "thermal_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "thermal_instance_design_performance",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "thermal_instance_e11",
+          "sourceNodeId": "thermal_instance_design_prepare",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "thermal_instance_design_performance",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "thermal_instance_e12",
+          "sourceNodeId": "thermal_instance_dimensions",
+          "sourcePort": "geometry",
+          "targetNodeId": "thermal_instance_stator",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "thermal_instance_e13",
+          "sourceNodeId": "thermal_instance_stator",
+          "sourcePort": "geometry",
+          "targetNodeId": "thermal_instance_rotor",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "thermal_instance_e14",
+          "sourceNodeId": "thermal_instance_rotor",
+          "sourcePort": "geometry",
+          "targetNodeId": "thermal_instance_mass",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "thermal_instance_e15",
+          "sourceNodeId": "thermal_instance_mass",
+          "sourcePort": "geometry",
+          "targetNodeId": "thermal_instance_design_losses",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "thermal_instance_e16",
+          "sourceNodeId": "thermal_instance_mass",
+          "sourcePort": "geometry",
+          "targetNodeId": "thermal_instance_design_performance",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "thermal_instance_e17",
+          "sourceNodeId": "thermal_instance_mass",
+          "sourcePort": "geometry",
+          "targetNodeId": "thermal_instance_design_model",
+          "targetPort": "geometry"
+        },
+        {
+          "id": "thermal_instance_e18",
+          "sourceNodeId": "thermal_instance_stator",
+          "sourcePort": "slot",
+          "targetNodeId": "thermal_instance_rotor",
+          "targetPort": "slot"
+        },
+        {
+          "id": "thermal_instance_e19",
+          "sourceNodeId": "thermal_instance_stator",
+          "sourcePort": "slot",
+          "targetNodeId": "thermal_instance_mass",
+          "targetPort": "slot"
+        },
+        {
+          "id": "thermal_instance_e20",
+          "sourceNodeId": "thermal_instance_stator",
+          "sourcePort": "slot",
+          "targetNodeId": "thermal_instance_design_losses",
+          "targetPort": "slot"
+        },
+        {
+          "id": "thermal_instance_e21",
+          "sourceNodeId": "thermal_instance_stator",
+          "sourcePort": "slot",
+          "targetNodeId": "thermal_instance_design_model",
+          "targetPort": "slot"
+        },
+        {
+          "id": "thermal_instance_e22",
+          "sourceNodeId": "thermal_instance_stator",
+          "sourcePort": "winding",
+          "targetNodeId": "thermal_instance_mass",
+          "targetPort": "winding"
+        },
+        {
+          "id": "thermal_instance_e23",
+          "sourceNodeId": "thermal_instance_stator",
+          "sourcePort": "winding",
+          "targetNodeId": "thermal_instance_design_losses",
+          "targetPort": "winding"
+        },
+        {
+          "id": "thermal_instance_e24",
+          "sourceNodeId": "thermal_instance_stator",
+          "sourcePort": "winding",
+          "targetNodeId": "thermal_instance_design_performance",
+          "targetPort": "winding"
+        },
+        {
+          "id": "thermal_instance_e25",
+          "sourceNodeId": "thermal_instance_stator",
+          "sourcePort": "winding",
+          "targetNodeId": "thermal_instance_design_model",
+          "targetPort": "winding"
+        },
+        {
+          "id": "thermal_instance_e26",
+          "sourceNodeId": "thermal_instance_rotor",
+          "sourcePort": "magnet",
+          "targetNodeId": "thermal_instance_mass",
+          "targetPort": "magnet"
+        },
+        {
+          "id": "thermal_instance_e27",
+          "sourceNodeId": "thermal_instance_rotor",
+          "sourcePort": "magnet",
+          "targetNodeId": "thermal_instance_design_losses",
+          "targetPort": "magnet"
+        },
+        {
+          "id": "thermal_instance_e28",
+          "sourceNodeId": "thermal_instance_rotor",
+          "sourcePort": "magnet",
+          "targetNodeId": "thermal_instance_design_model",
+          "targetPort": "magnet"
+        },
+        {
+          "id": "thermal_instance_e29",
+          "sourceNodeId": "thermal_instance_mass",
+          "sourcePort": "mass",
+          "targetNodeId": "thermal_instance_design_losses",
+          "targetPort": "mass"
+        },
+        {
+          "id": "thermal_instance_e30",
+          "sourceNodeId": "thermal_instance_mass",
+          "sourcePort": "mass",
+          "targetNodeId": "thermal_instance_design_performance",
+          "targetPort": "mass"
+        },
+        {
+          "id": "thermal_instance_e31",
+          "sourceNodeId": "thermal_instance_mass",
+          "sourcePort": "mass",
+          "targetNodeId": "thermal_instance_design_model",
+          "targetPort": "mass"
+        },
+        {
+          "id": "thermal_instance_e32",
+          "sourceNodeId": "thermal_instance_design_losses",
+          "sourcePort": "losses",
+          "targetNodeId": "thermal_instance_design_performance",
+          "targetPort": "losses"
+        },
+        {
+          "id": "thermal_instance_e33",
+          "sourceNodeId": "thermal_instance_design_losses",
+          "sourcePort": "losses",
+          "targetNodeId": "thermal_instance_design_model",
+          "targetPort": "losses"
+        },
+        {
+          "id": "thermal_instance_e34",
+          "sourceNodeId": "thermal_instance_dimensions",
+          "sourcePort": "configuration",
+          "targetNodeId": "thermal_instance_design_model",
+          "targetPort": "configuration"
+        },
+        {
+          "id": "thermal_instance_e35",
+          "sourceNodeId": "thermal_instance_design_performance",
+          "sourcePort": "performance",
+          "targetNodeId": "thermal_instance_design_model",
+          "targetPort": "performance"
+        }
+      ],
+      "boundaryPorts": [
+        {
+          "id": "configuration",
+          "name": "configuration",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "pmsm.configuration",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_design_prepare",
+            "childPortId": "configuration"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_design_prepare",
+              "childPortId": "configuration"
+            }
+          ]
+        },
+        {
+          "id": "power_kw",
+          "name": "power_kw",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_design_prepare",
+            "childPortId": "power_kw"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_design_prepare",
+              "childPortId": "power_kw"
+            }
+          ]
+        },
+        {
+          "id": "speed_rpm",
+          "name": "speed_rpm",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_design_prepare",
+            "childPortId": "speed_rpm"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_design_prepare",
+              "childPortId": "speed_rpm"
+            }
+          ]
+        },
+        {
+          "id": "motorModel",
+          "name": "motorModel",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.motorModel",
+          "mapping": {
+            "childNodeId": "thermal_instance_design_model",
+            "childPortId": "motorModel"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "thermal_instance_offdesign": {
+      "id": "thermal_instance_offdesign",
+      "title": "非设计点更新",
+      "nodes": [
+        {
+          "id": "thermal_instance_off_operating",
+          "componentId": "pmsm.c.off-operating",
+          "instanceName": "非设计点工况",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_off_losses",
+          "componentId": "pmsm.c.off-losses",
+          "instanceName": "非设计点损耗",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 310,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_off_performance",
+          "componentId": "pmsm.c.off-performance",
+          "instanceName": "非设计点性能",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 620,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_off_model",
+          "componentId": "pmsm.c.off-assemble",
+          "instanceName": "组装工作点模型",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 930,
+            "y": 100
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "thermal_instance_e0",
+          "sourceNodeId": "thermal_instance_off_operating",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "thermal_instance_off_losses",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "thermal_instance_e1",
+          "sourceNodeId": "thermal_instance_off_operating",
+          "sourcePort": "operatingPoint",
+          "targetNodeId": "thermal_instance_off_performance",
+          "targetPort": "operatingPoint"
+        },
+        {
+          "id": "thermal_instance_e2",
+          "sourceNodeId": "thermal_instance_off_losses",
+          "sourcePort": "losses",
+          "targetNodeId": "thermal_instance_off_performance",
+          "targetPort": "losses"
+        },
+        {
+          "id": "thermal_instance_e3",
+          "sourceNodeId": "thermal_instance_off_losses",
+          "sourcePort": "losses",
+          "targetNodeId": "thermal_instance_off_model",
+          "targetPort": "losses"
+        },
+        {
+          "id": "thermal_instance_e4",
+          "sourceNodeId": "thermal_instance_off_performance",
+          "sourcePort": "performance",
+          "targetNodeId": "thermal_instance_off_model",
+          "targetPort": "performance"
+        }
+      ],
+      "boundaryPorts": [
+        {
+          "id": "designModel",
+          "name": "designModel",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "pmsm.motorModel",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_off_operating",
+            "childPortId": "motorModel"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_off_operating",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "thermal_instance_off_losses",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "thermal_instance_off_performance",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "thermal_instance_off_model",
+              "childPortId": "designModel"
+            }
+          ]
+        },
+        {
+          "id": "power_kw",
+          "name": "power_kw",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_off_operating",
+            "childPortId": "power_kw"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_off_operating",
+              "childPortId": "power_kw"
+            }
+          ]
+        },
+        {
+          "id": "speed_rpm",
+          "name": "speed_rpm",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_off_operating",
+            "childPortId": "speed_rpm"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_off_operating",
+              "childPortId": "speed_rpm"
+            }
+          ]
+        },
+        {
+          "id": "motorModel",
+          "name": "motorModel",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.motorModel",
+          "mapping": {
+            "childNodeId": "thermal_instance_off_model",
+            "childPortId": "motorModel"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "thermal_instance_thermal": {
+      "id": "thermal_instance_thermal",
+      "title": "热分析",
+      "nodes": [
+        {
+          "id": "thermal_instance_thermal_boundary",
+          "componentId": "pmsm.c.boundary",
+          "instanceName": "热边界配置",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_thermal_geometry",
+          "componentId": "pmsm.c.thermal-geometry",
+          "instanceName": "热分析几何",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 310,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_flow_state",
+          "componentId": "pmsm.c.flow",
+          "instanceName": "冷却流动状态",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 620,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_thermal_material",
+          "componentId": "pmsm.c.material",
+          "instanceName": "材料热物性",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 930,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_cooling_network",
+          "componentId": "pmsm.c.network-hpcgv",
+          "instanceName": "HPCGV冷却网络",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1240,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_thermal_solve",
+          "componentId": "pmsm.c.solve",
+          "instanceName": "热平衡求解",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1550,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_outlet",
+          "componentId": "pmsm.c.outlet",
+          "instanceName": "出口状态与压损",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1860,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_instance_thermal_apply",
+          "componentId": "pmsm.c.apply-thermal",
+          "instanceName": "热结果回写",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 2170,
+            "y": 100
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "thermal_instance_e0",
+          "sourceNodeId": "thermal_instance_thermal_boundary",
+          "sourcePort": "thermalBoundary",
+          "targetNodeId": "thermal_instance_flow_state",
+          "targetPort": "thermalBoundary"
+        },
+        {
+          "id": "thermal_instance_e1",
+          "sourceNodeId": "thermal_instance_thermal_boundary",
+          "sourcePort": "thermalBoundary",
+          "targetNodeId": "thermal_instance_cooling_network",
+          "targetPort": "thermalBoundary"
+        },
+        {
+          "id": "thermal_instance_e2",
+          "sourceNodeId": "thermal_instance_thermal_boundary",
+          "sourcePort": "thermalBoundary",
+          "targetNodeId": "thermal_instance_outlet",
+          "targetPort": "thermalBoundary"
+        },
+        {
+          "id": "thermal_instance_e3",
+          "sourceNodeId": "thermal_instance_thermal_boundary",
+          "sourcePort": "thermalBoundary",
+          "targetNodeId": "thermal_instance_thermal_apply",
+          "targetPort": "thermalBoundary"
+        },
+        {
+          "id": "thermal_instance_e4",
+          "sourceNodeId": "thermal_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "thermal_instance_flow_state",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "thermal_instance_e5",
+          "sourceNodeId": "thermal_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "thermal_instance_thermal_material",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "thermal_instance_e6",
+          "sourceNodeId": "thermal_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "thermal_instance_cooling_network",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "thermal_instance_e7",
+          "sourceNodeId": "thermal_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "thermal_instance_outlet",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "thermal_instance_e8",
+          "sourceNodeId": "thermal_instance_thermal_geometry",
+          "sourcePort": "thermalGeometry",
+          "targetNodeId": "thermal_instance_thermal_apply",
+          "targetPort": "thermalGeometry"
+        },
+        {
+          "id": "thermal_instance_e9",
+          "sourceNodeId": "thermal_instance_flow_state",
+          "sourcePort": "flowState",
+          "targetNodeId": "thermal_instance_cooling_network",
+          "targetPort": "flowState"
+        },
+        {
+          "id": "thermal_instance_e10",
+          "sourceNodeId": "thermal_instance_flow_state",
+          "sourcePort": "flowState",
+          "targetNodeId": "thermal_instance_outlet",
+          "targetPort": "flowState"
+        },
+        {
+          "id": "thermal_instance_e11",
+          "sourceNodeId": "thermal_instance_thermal_material",
+          "sourcePort": "materialProperties",
+          "targetNodeId": "thermal_instance_cooling_network",
+          "targetPort": "materialProperties"
+        },
+        {
+          "id": "thermal_instance_e12",
+          "sourceNodeId": "thermal_instance_cooling_network",
+          "sourcePort": "thermalNetwork",
+          "targetNodeId": "thermal_instance_thermal_solve",
+          "targetPort": "thermalNetwork"
+        },
+        {
+          "id": "thermal_instance_e13",
+          "sourceNodeId": "thermal_instance_cooling_network",
+          "sourcePort": "coolingFlow",
+          "targetNodeId": "thermal_instance_outlet",
+          "targetPort": "coolingFlow"
+        },
+        {
+          "id": "thermal_instance_e14",
+          "sourceNodeId": "thermal_instance_cooling_network",
+          "sourcePort": "motorModel",
+          "targetNodeId": "thermal_instance_outlet",
+          "targetPort": "motorModel"
+        },
+        {
+          "id": "thermal_instance_e15",
+          "sourceNodeId": "thermal_instance_cooling_network",
+          "sourcePort": "motorModel",
+          "targetNodeId": "thermal_instance_thermal_apply",
+          "targetPort": "motorModel"
+        },
+        {
+          "id": "thermal_instance_e16",
+          "sourceNodeId": "thermal_instance_thermal_solve",
+          "sourcePort": "thermalResult",
+          "targetNodeId": "thermal_instance_outlet",
+          "targetPort": "thermalResult"
+        },
+        {
+          "id": "thermal_instance_e17",
+          "sourceNodeId": "thermal_instance_thermal_solve",
+          "sourcePort": "thermalResult",
+          "targetNodeId": "thermal_instance_thermal_apply",
+          "targetPort": "thermalResult"
+        },
+        {
+          "id": "thermal_instance_e18",
+          "sourceNodeId": "thermal_instance_outlet",
+          "sourcePort": "outletFlow",
+          "targetNodeId": "thermal_instance_thermal_apply",
+          "targetPort": "outletFlow"
+        }
+      ],
+      "boundaryPorts": [
+        {
+          "id": "motorModel",
+          "name": "motorModel",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "pmsm.motorModel",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_geometry",
+            "childPortId": "motorModel"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_geometry",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "thermal_instance_thermal_material",
+              "childPortId": "motorModel"
+            },
+            {
+              "childNodeId": "thermal_instance_cooling_network",
+              "childPortId": "motorModel"
+            }
+          ]
+        },
+        {
+          "id": "T",
+          "name": "T",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_boundary",
+            "childPortId": "T"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_boundary",
+              "childPortId": "T"
+            }
+          ]
+        },
+        {
+          "id": "P",
+          "name": "P",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_boundary",
+            "childPortId": "P"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_boundary",
+              "childPortId": "P"
+            }
+          ]
+        },
+        {
+          "id": "WA",
+          "name": "WA",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_boundary",
+            "childPortId": "WA"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_boundary",
+              "childPortId": "WA"
+            }
+          ]
+        },
+        {
+          "id": "FAR",
+          "name": "FAR",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_boundary",
+            "childPortId": "FAR"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_boundary",
+              "childPortId": "FAR"
+            }
+          ]
+        },
+        {
+          "id": "D",
+          "name": "D",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_boundary",
+            "childPortId": "D"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_boundary",
+              "childPortId": "D"
+            }
+          ]
+        },
+        {
+          "id": "EFFH",
+          "name": "EFFH",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_boundary",
+            "childPortId": "EFFH"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_boundary",
+              "childPortId": "EFFH"
+            }
+          ]
+        },
+        {
+          "id": "temp_Fe",
+          "name": "temp_Fe",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_boundary",
+            "childPortId": "temp_Fe"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_boundary",
+              "childPortId": "temp_Fe"
+            }
+          ]
+        },
+        {
+          "id": "temp_Cu",
+          "name": "temp_Cu",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_boundary",
+            "childPortId": "temp_Cu"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_boundary",
+              "childPortId": "temp_Cu"
+            }
+          ]
+        },
+        {
+          "id": "free_temperature_mask",
+          "name": "free_temperature_mask",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "array",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_boundary",
+            "childPortId": "free_temperature_mask"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_boundary",
+              "childPortId": "free_temperature_mask"
+            }
+          ]
+        },
+        {
+          "id": "mode",
+          "name": "mode",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "string",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_boundary",
+            "childPortId": "mode"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_boundary",
+              "childPortId": "mode"
+            }
+          ]
+        },
+        {
+          "id": "TPR_ref",
+          "name": "TPR_ref",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_boundary",
+            "childPortId": "TPR_ref"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_boundary",
+              "childPortId": "TPR_ref"
+            }
+          ]
+        },
+        {
+          "id": "WCOR_ref",
+          "name": "WCOR_ref",
+          "kind": "data",
+          "direction": "input",
+          "dataType": "number",
+          "required": true,
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_boundary",
+            "childPortId": "WCOR_ref"
+          },
+          "mappings": [
+            {
+              "childNodeId": "thermal_instance_thermal_boundary",
+              "childPortId": "WCOR_ref"
+            }
+          ]
+        },
+        {
+          "id": "motorModel",
+          "name": "motorModel",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.motorModel",
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_apply",
+            "childPortId": "motorModel"
+          }
+        },
+        {
+          "id": "outletFlow",
+          "name": "outletFlow",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.outletFlow",
+          "mapping": {
+            "childNodeId": "thermal_instance_outlet",
+            "childPortId": "outletFlow"
+          }
+        },
+        {
+          "id": "thermalResult",
+          "name": "thermalResult",
+          "kind": "data",
+          "direction": "output",
+          "dataType": "pmsm.thermalResult",
+          "mapping": {
+            "childNodeId": "thermal_instance_thermal_solve",
+            "childPortId": "thermalResult"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "standalone": {
+      "id": "standalone",
+      "title": "独立PMSM项目",
+      "nodes": [
+        {
+          "id": "configuration",
+          "componentId": "pmsm.configuration",
+          "instanceName": "PMSM设计配置",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 0,
+            "y": 100
+          }
+        },
+        {
+          "id": "motor",
+          "componentId": "pmsm.subsystem.hpcgv",
+          "instanceName": "设计点PMSM",
+          "nodeKind": "subsystem",
+          "executionKind": "subsystem",
+          "childSceneId": "design_instance_main",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 400,
+            "y": 100
+          },
+          "modelEntrypoints": {
+            "design": "design_instance_main",
+            "offdesign": "design_instance_main",
+            "thermal": "design_instance_main"
+          }
+        },
+        {
+          "id": "offdesign_request",
+          "componentId": "pmsm.offdesign-input",
+          "instanceName": "非设计点工况",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 800,
+            "y": 100
+          }
+        },
+        {
+          "id": "offdesign_motor",
+          "componentId": "pmsm.subsystem.hpcgv",
+          "instanceName": "非设计点PMSM",
+          "nodeKind": "subsystem",
+          "executionKind": "subsystem",
+          "childSceneId": "offdesign_instance_main",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1200,
+            "y": 100
+          },
+          "modelEntrypoints": {
+            "design": "offdesign_instance_main",
+            "offdesign": "offdesign_instance_main",
+            "thermal": "offdesign_instance_main"
+          }
+        },
+        {
+          "id": "thermal_request",
+          "componentId": "pmsm.thermal-input",
+          "instanceName": "热分析工况",
+          "nodeKind": "matlabFunction",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 1600,
+            "y": 100
+          }
+        },
+        {
+          "id": "thermal_motor",
+          "componentId": "pmsm.subsystem.hpcgv",
+          "instanceName": "热分析PMSM",
+          "nodeKind": "subsystem",
+          "executionKind": "subsystem",
+          "childSceneId": "thermal_instance_main",
+          "values": {},
+          "resources": {},
+          "position": {
+            "x": 2000,
+            "y": 100
+          },
+          "modelEntrypoints": {
+            "design": "thermal_instance_main",
+            "offdesign": "thermal_instance_main",
+            "thermal": "thermal_instance_main"
+          }
+        }
+      ],
+      "dataEdges": [
+        {
+          "id": "e0",
+          "sourceNodeId": "configuration",
+          "sourcePort": "INPUT",
+          "targetNodeId": "motor",
+          "targetPort": "INPUT"
+        },
+        {
+          "id": "e1",
+          "sourceNodeId": "motor",
+          "sourcePort": "OUTPUT",
+          "targetNodeId": "offdesign_request",
+          "targetPort": "design"
+        },
+        {
+          "id": "e2",
+          "sourceNodeId": "offdesign_request",
+          "sourcePort": "INPUT",
+          "targetNodeId": "offdesign_motor",
+          "targetPort": "INPUT"
+        },
+        {
+          "id": "e3",
+          "sourceNodeId": "offdesign_motor",
+          "sourcePort": "OUTPUT",
+          "targetNodeId": "thermal_request",
+          "targetPort": "result"
+        },
+        {
+          "id": "e4",
+          "sourceNodeId": "thermal_request",
+          "sourcePort": "INPUT",
+          "targetNodeId": "thermal_motor",
+          "targetPort": "INPUT"
+        }
+      ],
+      "boundaryPorts": [],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    }
+  },
+  "physicalAssemblies": {}
+}

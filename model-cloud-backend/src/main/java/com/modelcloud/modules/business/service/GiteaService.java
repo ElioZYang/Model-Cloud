@@ -196,6 +196,40 @@ public class GiteaService {
         }
     }
 
+    /** 上传二进制内容，供Excel等非文本资源复用。 */
+    public void uploadBytes(String repoName, String filePath, byte[] fileBytes) {
+        String content = Base64.getEncoder().encodeToString(
+                fileBytes == null ? new byte[0] : fileBytes);
+        Map<String, Object> body = new HashMap<>();
+        body.put("content", content);
+        body.put("message", "Upload file: " + filePath);
+        body.put("branch", "main");
+
+        String encodedPath = cn.hutool.core.util.URLUtil.encode(filePath);
+        String apiUrl = giteaConfig.getUrl() + "/api/v1/repos/"
+                + giteaConfig.getUsername() + "/" + repoName
+                + "/contents/" + encodedPath;
+        HttpResponse response = HttpRequest.post(apiUrl)
+                .header("Authorization", "token " + giteaConfig.getToken())
+                .header("Content-Type", "application/json")
+                .body(JSONUtil.toJsonStr(body))
+                .timeout(60000)
+                .execute();
+        if (!response.isOk() && response.getStatus() != 201) {
+            body.put("branch", "master");
+            response = HttpRequest.post(apiUrl)
+                    .header("Authorization", "token " + giteaConfig.getToken())
+                    .header("Content-Type", "application/json")
+                    .body(JSONUtil.toJsonStr(body))
+                    .timeout(60000)
+                    .execute();
+        }
+        if (!response.isOk() && response.getStatus() != 201) {
+            throw new BusinessException("上传二进制文件到Gitea失败 (状态码: "
+                    + response.getStatus() + "): " + response.body());
+        }
+    }
+
     /**
      * 上传文本内容为文件到仓库（用于 README 等）
      */
@@ -318,6 +352,31 @@ public class GiteaService {
             }
         }
         return null;
+    }
+
+    /** 按字节读取Gitea文件，避免Excel等二进制内容被UTF-8转换破坏。 */
+    public byte[] getFileBytes(String repoName, String filePath) {
+        String encodedPath = cn.hutool.core.util.URLUtil.encode(filePath);
+        String apiUrl = giteaConfig.getUrl() + "/api/v1/repos/"
+                + giteaConfig.getUsername() + "/" + repoName
+                + "/contents/" + encodedPath;
+        HttpResponse response = HttpRequest.get(apiUrl)
+                .header("Authorization", "token " + giteaConfig.getToken())
+                .timeout(30000)
+                .execute();
+        if (!response.isOk()) {
+            throw new BusinessException("获取二进制文件失败 (状态码: "
+                    + response.getStatus() + "): " + response.body());
+        }
+        String content = JSONUtil.parseObj(response.body()).getStr("content");
+        if (content == null) {
+            throw new BusinessException("Gitea文件内容为空");
+        }
+        try {
+            return Base64.getDecoder().decode(content.replaceAll("\\s", ""));
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException("解码二进制文件失败: " + e.getMessage());
+        }
     }
 
     /**

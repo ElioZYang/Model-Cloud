@@ -32,6 +32,14 @@
           <el-icon><Operation /></el-icon>
           <span>在线建模</span>
         </el-menu-item>
+        <el-menu-item index="/dashboard/model/matlab-deploy">
+          <el-icon><DataAnalysis /></el-icon>
+          <span>MATLAB在线建模</span>
+        </el-menu-item>
+        <el-menu-item index="/dashboard/editor">
+          <el-icon><Monitor /></el-icon>
+          <span>在线代码编辑器</span>
+        </el-menu-item>
         <el-menu-item v-if="userStore.isAdmin" index="/dashboard/model/manage">
           <el-icon><Setting /></el-icon>
           <span>模型管理</span>
@@ -84,7 +92,7 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { HomeFilled, Box, Star, User, Expand, Fold, ArrowDown, Folder, Setting, Operation } from '@element-plus/icons-vue'
+import { HomeFilled, Box, Star, User, Expand, Fold, ArrowDown, Folder, Setting, Operation, DataAnalysis, Monitor } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { authApi } from '@/api/auth'
 
@@ -256,4 +264,3 @@ const handleCommand = async (command: string) => {
   background: #a8a8a8;
 }
 </style>
-

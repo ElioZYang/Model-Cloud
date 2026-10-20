@@ -1,0 +1,66 @@
+{
+  "id": "engine.gas-path.inlet",
+  "legacyName": "inlet",
+  "assemblyDefaults": {
+    "TPR": -1
+  },
+  "name": "进气道",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "calculation",
+  "functionName": "INLET",
+  "description": "inlet；计算进气道出口总温、总压、马赫数及相关气流状态",
+  "category": "气路组件",
+  "sourceRelativePath": "components/INLET.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "INPUT",
+      "type": "bus",
+      "required": true,
+      "description": "进气道输入参数与入口气流状态"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "OUTPUT",
+      "type": "bus",
+      "required": true,
+      "description": "进气道出口气流状态"
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "INLET",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "INPUT"
+      }
+    ],
+    "returns": [
+      {
+        "output": "OUTPUT",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  },
+  "physicalCapabilities": {
+    "flow": {
+      "inputs": [
+        {
+          "id": "INPUT",
+          "role": "ambient"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "OUTPUT",
+          "role": "main"
+        }
+      ]
+    }
+  }
+}

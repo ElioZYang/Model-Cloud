@@ -1,0 +1,48 @@
+{
+  "id": "engine.configuration.plot",
+  "name": "特性图绘制",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "subsystem",
+  "functionName": "",
+  "description": "调用原项目绘图函数生成设计点、功率扫描和全工况特性图",
+  "category": "构型构件",
+  "sourceRelativePath": "",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "DP",
+      "type": "engine.dp",
+      "required": true
+    },
+    {
+      "name": "MISSION_power",
+      "type": "engine.mission",
+      "required": true
+    },
+    {
+      "name": "MISSION_final",
+      "type": "engine.mission",
+      "required": true
+    }
+  ],
+  "outputs": [
+    {
+      "name": "design_plot",
+      "type": "engine.plot_artifact",
+      "required": true
+    },
+    {
+      "name": "power_plot",
+      "type": "engine.plot_artifact",
+      "required": true
+    },
+    {
+      "name": "final_plot",
+      "type": "engine.plot_artifact",
+      "required": true
+    }
+  ],
+  "resources": []
+}

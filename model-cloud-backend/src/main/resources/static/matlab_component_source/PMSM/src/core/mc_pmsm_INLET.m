@@ -1,0 +1,37 @@
+function [OUTPUT]=mc_pmsm_INLET(INPUT)
+OUTPUT=INPUT;
+[ Ts,Ps ] = mc_pmsm_ASP( INPUT.H,INPUT.DT,INPUT.QP);
+K0=mc_pmsm_AE(Ts,0,INPUT.D);
+sv=mc_pmsm_SV(Ts,INPUT.FAR,INPUT.D);
+if INPUT.V<0
+% calculate velocity via mach
+OUTPUT.V=sv*INPUT.M;
+else
+% calculate mach via velocity
+OUTPUT.M=OUTPUT.V/sv;
+end
+OUTPUT.K0=K0;
+OUTPUT.Ts0=Ts;
+OUTPUT.Ps0=Ps;
+OUTPUT.T0=Ts*(1+(K0-1)/2*OUTPUT.M^2);
+OUTPUT.P0=Ps*(1+(K0-1)/2*OUTPUT.M^2)^(K0/(K0-1));
+OUTPUT.T=OUTPUT.T0;
+switch INPUT.mode
+    case "design"
+OUTPUT.WCOR=INPUT.WA*(OUTPUT.T0)^0.5/OUTPUT.P0;
+    case "offdesign"
+OUTPUT.WCOR=INPUT.WA_cor_ref*INPUT.WCOR;
+OUTPUT.WA=OUTPUT.WCOR*(OUTPUT.T0)^-0.5*OUTPUT.P0;
+end
+OUTPUT.W=OUTPUT.WA*(1+OUTPUT.FAR);
+if OUTPUT.TPR<0
+if OUTPUT.M<=1
+    OUTPUT.TPR=1;
+elseif OUTPUT.M>1&&OUTPUT.M<=5
+    OUTPUT.TPR=1-0.075*(OUTPUT.M-1)^1.35;
+else
+    OUTPUT.TPR=800/(OUTPUT.M^4+935);
+end
+end
+OUTPUT.P=OUTPUT.P0*OUTPUT.TPR;
+end

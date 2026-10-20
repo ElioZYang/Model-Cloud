@@ -1,0 +1,44 @@
+{
+  "id": "engine.stage.envelope-initialize",
+  "name": "非设计点初始化",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "workflow",
+  "functionName": "component_engine_envelope_initialize",
+  "description": "按原主脚本状态顺序初始化非设计点计算状态",
+  "category": "工况扫描组件",
+  "sourceRelativePath": "workflows/component_engine_envelope_initialize.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "DP",
+      "type": "engine.dp",
+      "required": true
+    }
+  ],
+  "outputs": [
+    {
+      "name": "scan_state",
+      "type": "engine.scan_state",
+      "required": true
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "component_engine_envelope_initialize",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "DP"
+      }
+    ],
+    "returns": [
+      {
+        "output": "scan_state",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  }
+}

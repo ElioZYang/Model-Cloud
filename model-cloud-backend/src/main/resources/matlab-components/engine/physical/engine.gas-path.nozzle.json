@@ -1,0 +1,66 @@
+{
+  "id": "engine.gas-path.nozzle",
+  "legacyName": "nozzle",
+  "assemblyDefaults": {
+    "TPR": 0.97
+  },
+  "name": "喷管",
+  "engineType": "matlab",
+  "executorType": "julia-matlab-graph",
+  "componentKind": "calculation",
+  "functionName": "NOZZLE",
+  "description": "nozzle；计算喷管出口速度、流量、面积和推力等状态",
+  "category": "气路组件",
+  "sourceRelativePath": "components/NOZZLE.m",
+  "iconRelativePath": "defaults/matlab-function.svg",
+  "fallbackIconRelativePath": "defaults/matlab-function.svg",
+  "inputs": [
+    {
+      "name": "INPUT",
+      "type": "bus",
+      "required": true,
+      "description": "喷管输入参数与入口气流状态"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "OUTPUT",
+      "type": "bus",
+      "required": true,
+      "description": "喷管出口气流状态与推力参数"
+    }
+  ],
+  "resources": [],
+  "invocation": {
+    "function": "NOZZLE",
+    "arguments": [
+      {
+        "source": "input",
+        "name": "INPUT"
+      }
+    ],
+    "returns": [
+      {
+        "output": "OUTPUT",
+        "returnIndex": 0,
+        "path": ""
+      }
+    ]
+  },
+  "physicalCapabilities": {
+    "flow": {
+      "inputs": [
+        {
+          "id": "INPUT",
+          "role": "main"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "OUTPUT",
+          "role": "exhaust"
+        }
+      ]
+    }
+  }
+}
